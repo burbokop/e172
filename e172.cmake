@@ -63,6 +63,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/cycliciterator.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/ptr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/ptr.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/dynamiclibrary.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/dynamiclibrary.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h

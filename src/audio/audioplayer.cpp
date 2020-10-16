@@ -1,7 +1,6 @@
 #include "audioplayer.h"
 
 
-#include <src/units/camera.h>
 #include <src/math/math.h>
 
 void e172::AudioPlayer::setWaitStopPlaing(bool waitStopPlaing) {
