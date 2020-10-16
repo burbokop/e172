@@ -1,8 +1,8 @@
 #ifndef PTR_H
 #define PTR_H
 
-#include <src/engine/object.h>
-#include <src/engine/sfinae.h>
+#include <src/object.h>
+#include <src/sfinae.h>
 
 namespace e172 {
 

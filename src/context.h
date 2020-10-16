@@ -3,9 +3,9 @@
 
 #include <queue>
 
-#include <src/engine/utility/observer.h>
+#include <src/utility/observer.h>
 
-#include <src/engine/time/elapsedtimer.h>
+#include <src/time/elapsedtimer.h>
 
 
 #include "entity.h"

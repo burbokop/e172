@@ -14,7 +14,7 @@
 #include <map>
 #include <cassert>
 
-#include <src/engine/math/vector.h>
+#include <src/math/vector.h>
 
 #include "type.h"
 

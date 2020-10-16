@@ -4,7 +4,7 @@
 
 #include <functional>
 
-#include <src/engine/sharedcontainer.h>
+#include <src/sharedcontainer.h>
 
 namespace e172 {
 class Image : public SharedContainer {

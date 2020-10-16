@@ -1,9 +1,9 @@
 #include "assetprovider.h"
 
-#include <src/engine/debug.h>
-#include <src/engine/graphics/abstractgraphicsprovider.h>
-#include <src/engine/additional.h>
-#include <src/engine/context.h>
+#include <src/debug.h>
+#include <src/graphics/abstractgraphicsprovider.h>
+#include <src/additional.h>
+#include <src/context.h>
 #include "abstractassetexecutor.h"
 
 namespace e172 {

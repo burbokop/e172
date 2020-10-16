@@ -1,7 +1,7 @@
 #include "colider.h"
 #include "math.h"
 #include <list>
-#include <src/engine/utility/vectorproxy.h>
+#include <src/utility/vectorproxy.h>
 
 std::vector<e172::Colider::PositionalVector> e172::Colider::edges() const {
     return m_edges;

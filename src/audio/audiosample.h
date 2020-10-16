@@ -1,13 +1,12 @@
 #ifndef AUDIOSAMPLE_H
 #define AUDIOSAMPLE_H
 
-#include <src/engine/sharedcontainer.h>
+#include <src/sharedcontainer.h>
 
 namespace e172 {
 
 
-class AudioSample : public e172::SharedContainer
-{
+class AudioSample : public e172::SharedContainer {
     friend class AbstractAudioProvider;
     static AudioSample newAudioSample(data_ptr data, ptr id, destructor_t destructor);
 

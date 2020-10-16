@@ -1,10 +1,10 @@
 #ifndef ASSETPROVIDER_H
 #define ASSETPROVIDER_H
 
-#include <src/engine/memcontrol/abstractfactory.h>
+#include <src/memcontrol/abstractfactory.h>
 #include <memory>
 #include "loadable.h"
-#include <src/engine/utility/ptr.h>
+#include <src/utility/ptr.h>
 
 namespace e172 {
 

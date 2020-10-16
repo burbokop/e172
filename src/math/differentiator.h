@@ -1,7 +1,7 @@
 #ifndef DIFFERENTIATOR_H
 #define DIFFERENTIATOR_H
 
-#include <src/engine/time/deltatimecalculator.h>
+#include <src/time/deltatimecalculator.h>
 
 
 class Differentiator {

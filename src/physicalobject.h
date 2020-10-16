@@ -1,9 +1,9 @@
 #ifndef PHYSICALOBJECT_H
 #define PHYSICALOBJECT_H
 
-#include <src/engine/math/kinematics.h>
-#include <src/engine/math/matrix.h>
-#include <src/engine/math/vector.h>
+#include <src/math/kinematics.h>
+#include <src/math/matrix.h>
+#include <src/math/vector.h>
 
 
 

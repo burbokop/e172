@@ -3,9 +3,9 @@
 
 
 #include <vector>
-#include <src/engine/math/vector.h>
-#include <src/engine/time/elapsedtimer.h>
-#include <src/engine/graphics/image.h>
+#include <src/math/vector.h>
+#include <src/time/elapsedtimer.h>
+#include <src/graphics/image.h>
 
 namespace e172 {
 

@@ -1,6 +1,6 @@
 #include "physicalobject.h"
 #include "math.h"
-#include <src/engine/math/math.h>
+#include <src/math/math.h>
 
 double e172::PhysicalObject::mass() const {
     return m_mass;

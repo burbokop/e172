@@ -6,8 +6,8 @@
 
 #include <inttypes.h>
 
-#include <src/engine/textformat.h>
-#include <src/engine/variant.h>
+#include <src/textformat.h>
+#include <src/variant.h>
 
 
 namespace e172 {

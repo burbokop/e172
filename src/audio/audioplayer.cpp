@@ -2,7 +2,7 @@
 
 
 #include <src/units/camera.h>
-#include <src/engine/math/math.h>
+#include <src/math/math.h>
 
 void e172::AudioPlayer::setWaitStopPlaing(bool waitStopPlaing) {
     m_waitStopPlaing = waitStopPlaing;

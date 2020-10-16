@@ -7,11 +7,11 @@
 #include <string>
 
 #include "utility/ptr.h"
-#include <src/engine/time/deltatimecalculator.h>
-#include <src/engine/time/elapsedtimer.h>
+#include <src/time/deltatimecalculator.h>
+#include <src/time/elapsedtimer.h>
 #include <list>
-#include <src/engine/type.h>
-#include <src/engine/utility/cycliciterator.h>
+#include <src/type.h>
+#include <src/utility/cycliciterator.h>
 
 namespace e172 {
 class AbstractAudioProvider;

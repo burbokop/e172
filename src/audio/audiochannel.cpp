@@ -1,7 +1,7 @@
 #include "audiochannel.h"
 
 
-#include <src/engine/math/math.h>
+#include <src/math/math.h>
 
 namespace e172 {
 
@@ -9,23 +9,19 @@ namespace e172 {
 const int AudioChannel::Infinitely = -1;
 
 
-void AudioChannel::setMaxDistance(double maxDistance)
-{
+void AudioChannel::setMaxDistance(double maxDistance) {
     m_maxDistance = maxDistance;
 }
 
-void AudioChannel::setMinDistance(double minDistance)
-{
+void AudioChannel::setMinDistance(double minDistance) {
     m_minDistance = minDistance;
 }
 
-double AudioChannel::maxDistance() const
-{
+double AudioChannel::maxDistance() const {
     return m_maxDistance;
 }
 
-double AudioChannel::minDistance() const
-{
+double AudioChannel::minDistance() const {
     return m_minDistance;
 }
 

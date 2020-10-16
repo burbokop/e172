@@ -1,12 +1,12 @@
 #include "debug.h"
 #include "gameapplication.h"
 
-#include <src/engine/context.h>
-#include <src/engine/assettools/assetprovider.h>
-#include <src/engine/audio/abstractaudioprovider.h>
-#include <src/engine/abstracteventhandler.h>
-#include <src/engine/graphics/abstractrenderer.h>
-#include <src/engine/graphics/abstractgraphicsprovider.h>
+#include <src/context.h>
+#include <src/assettools/assetprovider.h>
+#include <src/audio/abstractaudioprovider.h>
+#include <src/abstracteventhandler.h>
+#include <src/graphics/abstractrenderer.h>
+#include <src/graphics/abstractgraphicsprovider.h>
 
 
 namespace e172 {

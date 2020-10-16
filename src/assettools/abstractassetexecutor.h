@@ -1,7 +1,7 @@
 #ifndef ABSTRACTASSETEXECUTOR_H
 #define ABSTRACTASSETEXECUTOR_H
 
-#include <src/engine/variant.h>
+#include <src/variant.h>
 
 namespace e172 {
 class AbstractGraphicsProvider;

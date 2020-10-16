@@ -1,6 +1,6 @@
 #include "animator.h"
 
-#include <src/engine/graphics/abstractrenderer.h>
+#include <src/graphics/abstractrenderer.h>
 
 namespace e172 {
 

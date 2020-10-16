@@ -2,7 +2,7 @@
 #define AUDIOPLAYER_H
 
 
-#include <src/engine/audio/audiochannel.h>
+#include <src/audio/audiochannel.h>
 
 namespace e172 {
 
