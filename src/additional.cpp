@@ -420,3 +420,17 @@ std::vector<std::string> e172::Additional::executeCommand(const std::string &com
     }
     return result;
 }
+
+void e172::Additional::parseForder(std::string path, const std::function<void(const std::string&)> &callback) {
+    if(path[path.length() - 1] == '/') path.pop_back();
+    std::vector<std::string> items = directoryContent(path);
+    for(unsigned long long i = 0, L = items.size(); i < L; i++) {
+        std::string item = items[i];
+        std::string file = path + '/' + item;
+        if(Additional::isDirectory(file)) {
+            parseForder(file, callback);
+        } else {
+            callback(file);
+        }
+    }
+}

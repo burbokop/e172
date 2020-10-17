@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <functional>
 
 namespace e172 {
 
@@ -60,6 +61,8 @@ struct Additional {
     static void writeVof(const std::string &path, const std::string &id, const std::string &value, char delimiter = '=');
 
     static std::vector<std::string> executeCommand(const std::string &command);
+
+    static void parseForder(std::string path, const std::function<void(const std::string&)> &callback);
 
 };
 

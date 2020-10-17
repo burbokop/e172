@@ -13,7 +13,6 @@ AssetProvider::AssetProvider() {}
 
 
 void AssetProvider::searchInFolder(std::string path) {
-
     if(path[path.length() - 1] == '/') path.pop_back();
     std::vector<std::string> items = Additional::directoryContent(path);
     for(unsigned long long i = 0, L = items.size(); i < L; i++) {
