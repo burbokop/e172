@@ -61,6 +61,10 @@ std::vector<std::string> AssetProvider::loadableNames() {
     return result;
 }
 
+void AssetProvider::addTemplate(const std::string &templateName, const std::string &className, const VariantMap &assets) {
+    templates[templateName] = { className, assets };
+}
+
 void AssetProvider::installExecutor(const std::string &id, const std::shared_ptr<AbstractAssetExecutor> &executor) {
     executors[id] = executor;
 }

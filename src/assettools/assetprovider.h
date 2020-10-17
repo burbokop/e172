@@ -18,10 +18,9 @@ class AssetProvider {
     AbstractGraphicsProvider *m_graphicsProvider = nullptr;
     AbstractAudioProvider *m_audioProvider = nullptr;
     Context *m_context = nullptr;
-
     struct LoadableTemplate {
         std::string className;
-        std::map<std::string, e172::Variant> assets;
+        e172::VariantMap assets;
     };
     AbstractFactory<std::string, Loadable> m_factory;
     std::map<std::string, LoadableTemplate> templates;
@@ -37,6 +36,8 @@ public:
     AssetProvider();
     void searchInFolder(std::string path);
     std::vector<std::string> loadableNames();
+
+    void addTemplate(const std::string &templateName, const std::string &className, const e172::VariantMap &assets = e172::VariantMap());
 
     template<typename T>
     void registerType() {

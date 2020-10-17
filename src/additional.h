@@ -58,6 +58,9 @@ struct Additional {
     static std::map<std::string, std::string> readAllVof(const std::string &path, char delimiter = '=');
     static std::string readVof(const std::string &path, const std::string &id, char delimiter = '=');
     static void writeVof(const std::string &path, const std::string &id, const std::string &value, char delimiter = '=');
+
+    static std::vector<std::string> executeCommand(const std::string &command);
+
 };
 
 }

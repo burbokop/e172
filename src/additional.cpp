@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <fstream>
 #include <algorithm>
-
+#include <memory>
 
 
 std::string e172::Additional::constrainPath(const std::string &path) {
@@ -406,4 +406,17 @@ void e172::Additional::writeVof(const std::string &path, const std::string &id, 
             fout.close();
         }
     }
+}
+
+std::vector<std::string> e172::Additional::executeCommand(const std::string &command) {
+    std::array<char, 128> buffer;
+    std::vector<std::string> result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result.push_back(buffer.data());
+    }
+    return result;
 }

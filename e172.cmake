@@ -106,3 +106,7 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/testprovider.h
     ${CMAKE_CURRENT_LIST_DIR}/src/testprovider.cpp
     )
+
+target_link_libraries(e172
+    dl
+    )
