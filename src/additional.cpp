@@ -295,12 +295,17 @@ std::string e172::Additional::concatenatePaths(std::string prefix, std::string s
 }
 
 std::string e172::Additional::cutPath(std::string string, unsigned level) {
-    size_t pos = string.find_last_of('/');
+    size_t pos = string.find_last_of(separator);
     std::string result = string.substr(0, pos);
     if(level > 1) {
         return cutPath(result, level - 1);
     }
     return result;
+}
+
+std::string e172::Additional::pathTopLevelItem(const std::string &string) {
+    const size_t pos = string.find_last_of(separator);
+    return string.substr(pos + 1, string.size() - pos - 1);
 }
 
 size_t e172::Additional::countOfFiles(std::string path, std::string suffix) {

@@ -4,8 +4,27 @@
 
 #include <sstream>
 #include <functional>
+#include <list>
 
 namespace e172 {
+
+
+struct StackTraceInfo {
+    friend class Debug;
+    std::string m_functionName;
+    std::string m_libName;
+    std::string m_libPath;
+    uintptr_t m_address;
+    uintptr_t m_offset;
+public:
+    std::string functionName() const;
+    std::string libName() const;
+    std::string libPath() const;
+    uintptr_t address() const;
+    uintptr_t offset() const;
+    friend std::ostream &operator<<(std::ostream &stream, const StackTraceInfo &info);
+};
+
 
 
 class Debug {
@@ -57,9 +76,12 @@ public:
     }
 
     static int functionName(void *addr, std::string *fname, std::string *sname);
-    static std::vector<std::string> stackTrace();
+
+    static std::list<StackTraceInfo> stackTrace();
     static void installSigsegvHandler(void(*function)(int));
 };
 
 }
+
+
 #endif // DEBUG_H

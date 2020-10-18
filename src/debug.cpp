@@ -1,4 +1,6 @@
+#include "additional.h"
 #include "debug.h"
+#include "type.h"
 
 #include <iostream>
 
@@ -39,20 +41,52 @@ int Debug::functionName(void *addr, std::string *fname, std::string *sname) {
 #endif
 }
 
-std::vector<std::string> Debug::stackTrace() {
-    std::vector<std::string> result;
+std::list<StackTraceInfo> Debug::stackTrace() {
+    std::vector<std::string> st;
 #ifdef __unix__
     void *addrlist[64];
     int addrlen = backtrace(addrlist, sizeof(addrlist) / sizeof(void*));
     char **symbollist = backtrace_symbols(addrlist, addrlen);
 
-    result.resize(addrlen);
+    st.resize(addrlen);
     for (int j = 0; j < addrlen; j++) {
-        result[j] = symbollist[j];
+        st[j] = symbollist[j];
     }
 
     free(symbollist);
 #endif
+    std::list<StackTraceInfo> result;
+    for(auto sti : st) {
+        StackTraceInfo info;
+        const auto p0 = Additional::split(sti, '(');
+        if(p0.size() > 1) {
+            info.m_libPath = p0[0];
+            info.m_libName = Additional::pathTopLevelItem(info.m_libPath);
+            const auto p1 = Additional::split(p0[1], ')');
+            if(p1.size() > 1) {
+                const auto p2 = Additional::split(p1[0], '+');
+                if(p2.size() > 0) {
+                    info.m_functionName = p2[0];
+                    if(info.m_functionName.size() > 0) {
+                        try {
+                            info.m_functionName = TypeTools::demangle(info.m_functionName);
+                        } catch (std::runtime_error) {}
+                    }
+                    if(p2.size() > 1) {
+                        size_t pos = 2;
+                        info.m_offset = std::stoul(p2[1], &pos, 16);
+                    }
+                }
+                auto address = Additional::fencedArea(p1[1], Additional::Fence::Brackets);
+                if(address.size() > 2) {
+                    address = address.substr(1, address.size() - 2);
+                }
+                size_t pos = 2;
+                info.m_address = std::stoul(address, &pos, 16);
+            }
+        }
+        result.push_back(info);
+    }
     return result;
 }
 
@@ -64,6 +98,37 @@ void Debug::installSigsegvHandler(void(*function)(int)) {
 
 void Debug::installHandler(const std::function<void (const std::string &, Debug::MessageType)> &handler) {
     m_proceedMessage = handler;
+}
+
+std::string StackTraceInfo::libName() const {
+    return m_libName;
+}
+
+std::string StackTraceInfo::libPath() const {
+    return m_libPath;
+}
+
+uintptr_t StackTraceInfo::address() const {
+    return m_address;
+}
+
+uintptr_t StackTraceInfo::offset() const {
+    return m_offset;
+}
+
+std::ostream &operator<<(std::ostream &stream, const StackTraceInfo &info) {
+    stream  << '{'
+            << (info.m_functionName.size() > 0 ? info.m_functionName : "<anonymus>")
+            << ", "
+            << info.m_libName
+            << ", "
+            << "0x" << std::hex << info.m_address
+            << '}';
+    return stream;
+}
+
+std::string StackTraceInfo::functionName() const {
+    return m_functionName;
 }
 
 

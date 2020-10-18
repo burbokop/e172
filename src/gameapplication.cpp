@@ -11,17 +11,18 @@
 
 namespace e172 {
 
+void __on_sigsegv(int s) {
+    const auto st = e172::Debug::stackTrace();
+    Debug::warning("Segmentation Fault");
+    Debug::warning("Stack trace info:");
+    for(auto s : st) {
+        Debug::print('\t', s);
+    }
+    exit(s);
+}
 
 size_t GameApplication::static_constructor() {
-    e172::Debug::installSigsegvHandler([](auto s){
-        const auto st = e172::Debug::stackTrace();
-        Debug::warning("Segmentation Fault");
-        Debug::warning("Stack trace info:");
-        for(auto s : st) {
-            Debug::print('\t', s);
-        }
-        exit(s);
-    });
+    e172::Debug::installSigsegvHandler(__on_sigsegv);
     return 0;
 }
 
