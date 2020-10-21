@@ -109,6 +109,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/testprovider.cpp
     )
 
+if (UNIX)
 target_link_libraries(e172
     dl
     )
+endif (UNIX)
