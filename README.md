@@ -1,6 +1,6 @@
 # e172
-Library provides tools for game gevelopment and api for video/audio output and keyboard input
-This lib can be called GAME ENGINE
+Library provides tools for game gevelopment and api for video/audio output and keyboard input.</br>
+This lib can be called GAME ENGINE.</br>
 
 
 ## adding e172 to your c++ project
