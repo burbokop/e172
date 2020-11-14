@@ -69,6 +69,8 @@ public:
 
     template<typename T>
     VariantRTTIObject(T&&) {
+        typedef typename std::conditional<sfinae::CanPrintWithCout<T>::value, std::ostream, std::wostream>::type stream_type;
+
         m_destructor = [](VariantBaseHandle* obj) {
             delete dynamic_cast<VariantHandle<T>*>(obj);
         };
@@ -78,7 +80,7 @@ public:
         };
 
         // additional operators
-        if constexpr(sfinae::StreamOperator::exists<std::ostream, T>::value) {
+        if constexpr(sfinae::StreamOperator::exists<stream_type, T>::value) {
             m_streamValue = [](VariantBaseHandle* obj) {
                 VariantHandle<T>* casted_obj = dynamic_cast<VariantHandle<T>*>(obj);
                 std::stringstream ss;
@@ -427,9 +429,15 @@ T Variant::toNumber(bool *ok) const {
     } else if(containsType<char               >()) { return value_fast<char>();
     } else if(containsType<signed char        >()) { return value_fast<signed char>();
     } else if(containsType<unsigned char      >()) { return value_fast<unsigned char>();
+#ifdef _WCHAR_T_DEFINED
     } else if(containsType<wchar_t            >()) { return value_fast<wchar_t>();
+#endif
+#ifdef __CHAR16_TYPE__
     } else if(containsType<char16_t           >()) { return value_fast<char16_t>();
+#endif
+#ifdef __CHAR32_TYPE__
     } else if(containsType<char32_t           >()) { return value_fast<char32_t>();
+#endif
     } else if(containsType<short              >()) { return value_fast<short>();
     } else if(containsType<unsigned short     >()) { return value_fast<unsigned short>();
     } else if(containsType<unsigned long long >()) { return value_fast<unsigned long long>();

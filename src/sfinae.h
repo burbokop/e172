@@ -1,6 +1,8 @@
 #ifndef SFINAE_H
 #define SFINAE_H
 
+#include <ostream>
+
 namespace e172 {
 namespace sfinae {
 
@@ -17,6 +19,20 @@ namespace StreamOperator {
         enum { value = (sizeof(check(*(T*)(0) << *(Arg*)(0))) != sizeof(no)) };
     };
 }
+
+template<typename Type>
+class CanPrintWithCout {
+    static std::ostream ss;
+
+    template<typename U, typename SFINAE = decltype(ss << std::declval<U>())>
+    constexpr static bool test(int) { return true; }
+
+    template<typename U>
+    constexpr static bool test(...) { return false; }
+
+public:
+    constexpr static bool value = test<Type>(0);
+};
 
 template <typename T, typename DestinationType>
 class TypeConvertionOperator {

@@ -3,7 +3,7 @@
 
 
 #include <functional>
-
+#include <inttypes.h>
 #include <src/sharedcontainer.h>
 
 namespace e172 {
