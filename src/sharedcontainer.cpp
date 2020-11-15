@@ -1,4 +1,5 @@
 #include "sharedcontainer.h"
+#include <stdexcept>
 
 namespace e172 {
 
