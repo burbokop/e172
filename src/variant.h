@@ -69,7 +69,7 @@ public:
 
     template<typename T>
     VariantRTTIObject(T&&) {
-        typedef typename std::conditional<sfinae::CanPrintWithCout<T>::value, std::ostream, std::wostream>::type stream_type;
+        //typedef typename std::conditional<sfinae::CanPrintWithCout<T>::value, std::ostream, std::wostream>::type stream_type;
 
         m_destructor = [](VariantBaseHandle* obj) {
             delete dynamic_cast<VariantHandle<T>*>(obj);
@@ -80,7 +80,7 @@ public:
         };
 
         // additional operators
-        if constexpr(sfinae::StreamOperator::exists<stream_type, T>::value) {
+        if constexpr(sfinae::StreamOperator<std::ostream, T>::value) {
             m_streamValue = [](VariantBaseHandle* obj) {
                 VariantHandle<T>* casted_obj = dynamic_cast<VariantHandle<T>*>(obj);
                 std::stringstream ss;

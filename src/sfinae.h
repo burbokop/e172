@@ -7,7 +7,8 @@ namespace e172 {
 namespace sfinae {
 
 
-namespace StreamOperator {
+//Deprecated. Use StreamSperator instead.
+namespace StreamOperator_old {
     struct no { bool b[2]; };
     template<typename T, typename Arg> no operator<< (T&, const Arg&);
 
@@ -20,11 +21,11 @@ namespace StreamOperator {
     };
 }
 
-template<typename Type>
-class CanPrintWithCout {
-    static std::ostream ss;
+template<typename StreamType, typename Type>
+class StreamOperator {
+    static StreamType stream_val;
 
-    template<typename U, typename SFINAE = decltype(ss << U())>
+    template<typename U, typename SFINAE = decltype(stream_val << std::declval<U>())>
     constexpr static bool test(int) { return true; }
 
     template<typename U>

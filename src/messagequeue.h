@@ -65,12 +65,12 @@ private:
         std::stringstream ss;
         ss << "MessageQueue: message flushed ";
         constexpr bool hasAny =
-                sfinae::StreamOperator::exists<std::ostream, IdType>::value
-                || sfinae::StreamOperator::exists<std::ostream, ValueType>::value;
-        if constexpr (sfinae::StreamOperator::exists<std::ostream, IdType>::value) {
+                sfinae::StreamOperator<std::ostream, IdType>::value
+                || sfinae::StreamOperator<std::ostream, ValueType>::value;
+        if constexpr (sfinae::StreamOperator<std::ostream, IdType>::value) {
             ss << "(message id: " << id;
         }
-        if constexpr (sfinae::StreamOperator::exists<std::ostream, ValueType>::value) {
+        if constexpr (sfinae::StreamOperator<std::ostream, ValueType>::value) {
             ss << ", value: " << value;
         }
         if constexpr(hasAny) {
