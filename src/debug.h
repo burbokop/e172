@@ -79,6 +79,28 @@ public:
 
     static std::list<StackTraceInfo> stackTrace();
     static void installSigsegvHandler(void(*function)(int));
+
+
+    static inline std::string make_version(int a, int b, int c) {
+        std::ostringstream ss;
+        ss << a << '.' << b << '.' << c;
+        return ss.str();
+    }
+
+    static inline const std::string cxx =
+#ifdef __clang__
+            "clang++";
+#else
+            "g++";
+#endif
+
+    static inline const std::string cxx_version =
+#ifdef __clang__
+            make_version(__clang_major__, __clang_minor__, __clang_patchlevel__);
+#else
+            make_version(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+#endif
+
 };
 
 }

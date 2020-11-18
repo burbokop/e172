@@ -24,7 +24,7 @@ template<typename Type>
 class CanPrintWithCout {
     static std::ostream ss;
 
-    template<typename U, typename SFINAE = decltype(ss << std::declval<U>())>
+    template<typename U, typename SFINAE = decltype(ss << U())>
     constexpr static bool test(int) { return true; }
 
     template<typename U>
