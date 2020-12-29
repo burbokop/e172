@@ -9,6 +9,16 @@ bool AbstractRenderer::isValid() const {
     return m_isValid;
 }
 
+bool AbstractRenderer::autoClear() const
+{
+    return m_autoClear;
+}
+
+void AbstractRenderer::setAutoClear(bool autoClear)
+{
+    m_autoClear = autoClear;
+}
+
 Image::ptr AbstractRenderer::imageId(const Image &image) {
     return image.id();
 }

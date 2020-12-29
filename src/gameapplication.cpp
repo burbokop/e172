@@ -178,6 +178,9 @@ int GameApplication::exec() {
             auto r = m_graphicsProvider->renderer();
             if(r) {
                 r->m_locked = false;
+                if(r->m_autoClear) {
+                    r->fill(0);
+                }
                 for(auto m : m_applicationExtensions) {
                     if(m.second->extensionType() == GameApplicationExtension::PreRenderExtension)
                         m.second->proceed(this);

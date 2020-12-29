@@ -53,6 +53,7 @@ class AbstractRenderer {
     AbstractGraphicsProvider *m_provider = nullptr;
     Vector m_position;
     bool m_cameraLocked = false;
+    bool m_autoClear = true;
 
     /**
      * Only GameApplication class cann call update function
@@ -123,6 +124,8 @@ public:
     Vector cameraPosition() const;
     bool isActive() const;
     bool isValid() const;
+    bool autoClear() const;
+    void setAutoClear(bool autoClear);
 };
 
 }
