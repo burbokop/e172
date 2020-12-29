@@ -29,10 +29,11 @@ public:
     static Vector createByAngle(double module, double angle); //checkpoint
     static Vector createRandom(double max);
 
-    Vector operator+(Vector term) const;
-    void operator+=(Vector term);
-    Vector operator-(Vector subtrahend) const;
-    void operator-=(Vector subtrahend);
+    Vector operator+(const Vector &term) const;
+    void operator+=(const Vector &term);
+    Vector operator-(const Vector &subtrahend) const;
+    void operator-=(const Vector &subtrahend);
+
     Vector operator*(double multiplier) const;
     friend Vector operator*(double scalar, const Vector& vector);
     void operator*=(double multiplier);
@@ -59,6 +60,8 @@ public:
     double tg() const;
     unsigned quarter(unsigned offset = 0) const;
     double map(Vector *destination, double value) const;
+    inline double max() const { return std::max(m_x, m_y); }
+    inline double min() const { return std::min(m_x, m_y); }
 
     Vector operator+(double term) const;
     Vector operator-(double subtrahend) const;

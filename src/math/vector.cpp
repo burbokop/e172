@@ -30,20 +30,20 @@ Vector Vector::createRandom(double max) {
     return Vector::createByAngle(std::fmod(rand(), max), rand());
 }
 
-Vector Vector::operator+(Vector term) const {
+Vector Vector::operator+(const Vector &term) const {
     return Vector(this->m_x + term.m_x, this->m_y + term.m_y);
 }
 
-void Vector::operator+=(Vector term) {
+void Vector::operator+=(const Vector &term) {
     this->m_x += term.m_x;
     this->m_y += term.m_y;
 }
 
-Vector Vector::operator-(Vector subtrahend) const {
+Vector Vector::operator-(const Vector &subtrahend) const {
     return Vector(this->m_x - subtrahend.m_x, this->m_y - subtrahend.m_y);
 }
 
-void Vector::operator-=(Vector subtrahend) {
+void Vector::operator-=(const Vector &subtrahend) {
     this->m_x -= subtrahend.m_x;
     this->m_y -= subtrahend.m_y;
 }
