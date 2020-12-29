@@ -103,6 +103,22 @@ public:
 
 };
 
+template<typename Arg, typename ...Args>
+static void print(const Arg& arg, const Args& ...args) {
+    Debug::print(arg, args...);
+}
+
+template<typename Arg, typename ...Args>
+static void warning(const Arg& arg, const Args& ...args) {
+    Debug::warning(arg, args...);
+}
+
+template<typename Arg, typename ...Args>
+static void fatal(const Arg& arg, const Args& ...args) {
+    Debug::fatal(arg, args...);
+}
+
+
 }
 
 
