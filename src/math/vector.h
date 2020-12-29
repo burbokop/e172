@@ -3,10 +3,13 @@
 
 #define RELATIVISTIC_ADDITION_CONSTANT 0.7
 
+#include <complex>
 #include <sstream>
 
 
 namespace e172 {
+
+typedef std::complex<double> Complex;
 
 class Vector {
 public:
@@ -22,6 +25,7 @@ private:
 public:
     Vector();
     Vector(double x, double y);
+    Vector(const Complex &complex);
     static Vector createByAngle(double module, double angle); //checkpoint
     static Vector createRandom(double max);
 
@@ -67,6 +71,8 @@ public:
     inline int intY() const { return static_cast<int>(this->m_y); }
     inline double x() const { return this->m_x; }
     inline double y() const { return this->m_y; }
+
+    inline Complex toComplex() const { return { m_x, m_y }; }
 
 
     friend std::ostream &operator<<(std::ostream &os, const e172::Vector &dt);

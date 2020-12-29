@@ -6,6 +6,7 @@
 #include <map>
 #include <list>
 #include <set>
+#include <complex>
 
 namespace e172 {
 
@@ -20,6 +21,8 @@ class Variant;
 typedef std::vector<Variant> VariantVector;
 typedef std::list<Variant> VariantList;
 typedef std::map<std::string, Variant> VariantMap;
+
+typedef std::complex<double> Complex;
 
 }
 

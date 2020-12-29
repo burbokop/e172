@@ -1,8 +1,10 @@
+#include <complex>
 #include <math.h>
 
 
 #include "vector.h"
 #include "math.h"
+#include "complex.h"
 #include <ostream>
 
 
@@ -18,6 +20,7 @@ Vector::Vector(double x, double y) {
     this->m_y = y;
 }
 
+Vector::Vector(const Complex &complex) : Vector(complex.real(), complex.imag()) {}
 
 Vector Vector::createByAngle(double module, double angle) {
     return Vector(module * e172::Math::cos(angle), module * e172::Math::sin(angle));
