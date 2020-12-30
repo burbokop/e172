@@ -43,8 +43,8 @@ Vector Vector::operator-(const Vector &subtrahend) const {
     return Vector(this->m_x - subtrahend.m_x, this->m_y - subtrahend.m_y);
 }
 
-size_t Vector::mandelbrot_level(size_t limit) const {
-    return Math::mandelbrot_level(toComplex(), limit);
+size_t Vector::mandelbrotLevel(size_t limit) const {
+    return Math::mandelbrotLevel(toComplex(), limit);
 }
 
 void Vector::operator-=(const Vector &subtrahend) {

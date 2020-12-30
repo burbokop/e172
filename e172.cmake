@@ -25,6 +25,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/abstractrenderer.h
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/image.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/image.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/imageview.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/imageview.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/math/math.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/math.h

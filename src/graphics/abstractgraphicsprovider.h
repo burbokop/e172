@@ -25,11 +25,16 @@ protected:
             );
     void installParentToRenderer(AbstractRenderer *renderer);
 public:
+    typedef std::function<void(uint32_t*)> ImageInitFunction;
+    typedef std::function<void(size_t, size_t, uint32_t*)> ImageInitFunctionExt;
+
     AbstractGraphicsProvider(const std::vector<std::string>& args);
     virtual AbstractRenderer *renderer() const = 0;
     virtual bool isValid() const = 0;
     virtual Image loadImage(const std::string &path) const = 0;
     virtual Image createImage(int width, int height) const = 0;
+    virtual Image createImage(int width, int height, const ImageInitFunction &imageInitFunction) const = 0;
+    virtual Image createImage(int width, int height, const ImageInitFunctionExt &imageInitFunction) const = 0;
     virtual void loadFont(const std::string &name, const std::string &path) = 0;
     virtual ~AbstractGraphicsProvider();
     std::vector<std::string> args() const;

@@ -3,10 +3,14 @@
 
 #include <map>
 #include <complex>
+#include <functional>
 
 namespace e172 {
 
 typedef std::complex<double> Complex;
+
+template<typename T>
+using Mandelbrot = std::function<void(size_t, size_t, T*)>;
 
 class Math {
 private:
@@ -65,7 +69,7 @@ public:
 
     static double topLimitedFunction(double x);
 
-    static inline size_t mandelbrot_level(e172::Complex c, size_t limit = 256) {
+    static inline size_t mandelbrotLevel(e172::Complex c, size_t limit = 256) {
         e172::Complex x = { 0, 0 };
         while (std::abs(x) < 2) {
             x = x * x + c;
@@ -74,6 +78,27 @@ public:
             }
         }
         return limit;
+    }
+
+    template <typename T>
+    inline static void writeMandelbrot(size_t w, size_t h, size_t maxLevel, T mask, T *ptr) {
+        if(maxLevel <= 0 || w <= 0 || h <= 0)
+            return;
+        for(size_t y = 0; y < h; ++y) {
+            for(size_t x = 0; x < w; ++x) {
+                const auto real = (double(x) / double(w) - 0.5) * 4;
+                const auto imag = (double(y) / double(h) - 0.5) * 4;
+                const auto level = double(mandelbrotLevel({ real, imag },  maxLevel)) / double(maxLevel);
+                ptr[(y * w) + x] = level * mask;
+            }
+        }
+    }
+
+    template<typename T>
+    static Mandelbrot<T> mandelbrot(size_t limit, T mask) {
+        return [limit, mask](size_t w, size_t h, T *ptr) {
+            e172::Math::writeMandelbrot<T>(w, h, limit, mask, ptr);
+        };
     }
 };
 
