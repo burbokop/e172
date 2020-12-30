@@ -5,6 +5,8 @@
 
 #include "image.h"
 
+#include <src/math/vector.h>
+
 namespace e172 {
 
 class ImageView : public Entity {
