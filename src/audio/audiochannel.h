@@ -11,24 +11,24 @@ class AudioChannel : public SharedContainer {
     friend class AbstractAudioProvider;
 public:
     static const int Infinitely;
-    typedef std::function<void(data_ptr, double)> volume_setter_t;
-    typedef std::function<void(data_ptr, const AudioSample&, int)> play_t;
-    typedef std::function<bool(data_ptr)> is_playing_t;
-    typedef std::function<void(data_ptr)> pause_t;
+    typedef std::function<void(data_ptr, double)> VolumeSetter;
+    typedef std::function<void(data_ptr, const AudioSample&, int)> Play;
+    typedef std::function<bool(data_ptr)> IsPlaying;
+    typedef std::function<void(data_ptr)> Pause;
     static AudioChannel newAudioChannel(
             data_ptr data,
             ptr id,
-            destructor_t destructor,
-            volume_setter_t volume_setter,
-            play_t play,
-            is_playing_t is_palying,
-            pause_t pause
+            Destructor destructor,
+            VolumeSetter volumeSetter,
+            Play play,
+            IsPlaying isPalying,
+            Pause pause
             );
 private:
-    volume_setter_t m_volume_setter;
-    play_t m_play;
-    is_playing_t m_is_palying;
-    pause_t m_pause;
+    VolumeSetter m_volumeSetter;
+    Play m_play;
+    IsPlaying m_isPalying;
+    Pause m_pause;
 
     double m_volume = 1;
     double m_distance_volume = 1;

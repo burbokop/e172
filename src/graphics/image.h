@@ -14,22 +14,25 @@ private:
     int m_width;
     int m_height;
 
-    typedef std::function<data_ptr(data_ptr, int, int, int&, int&)> fragment_t;
-    typedef std::function<data_ptr(data_ptr, uint64_t)> transformer_t;
-    typedef std::function<ptr(data_ptr)> bitmap_getter_t;
+    typedef std::function<data_ptr(data_ptr, int, int, int&, int&)> Fragment;
+    typedef std::function<data_ptr(data_ptr, uint64_t)> Transformer;
+    typedef std::function<ptr(data_ptr)> BitmapGetter;
+    typedef std::function<bool(data_ptr, const std::string&)> Saver;
 
-    transformer_t m_transformer;
-    fragment_t m_fragment;
-    bitmap_getter_t m_bitmap_getter;
+    Transformer m_transformer;
+    Fragment m_fragment;
+    BitmapGetter m_bitmapGetter;
+    Saver m_saver;
 
     static Image newImage(data_ptr data,
             ptr id,
             int width,
             int height,
-            destructor_t destructor,
-            bitmap_getter_t bitmap_getter,
-            fragment_t fragment = fragment_t(),
-            transformer_t transformer = transformer_t()
+            Destructor destructor,
+            BitmapGetter bitmapGetter,
+            Saver saver,
+            Fragment fragment = Fragment(),
+            Transformer transformer = Transformer()
             );
 
     void __detach();
@@ -37,6 +40,7 @@ public:
     Image();
     Image transformed(uint64_t transformation) const;
     Image fragment(int x, int y, int w, int h) const;
+    bool save(const std::string &path) const;
 
     ptr bitmap();
 

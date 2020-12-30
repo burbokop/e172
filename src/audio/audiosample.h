@@ -8,7 +8,7 @@ namespace e172 {
 
 class AudioSample : public e172::SharedContainer {
     friend class AbstractAudioProvider;
-    static AudioSample newAudioSample(data_ptr data, ptr id, destructor_t destructor);
+    static AudioSample newAudioSample(data_ptr data, ptr id, Destructor destructor);
 
 public:
     AudioSample();

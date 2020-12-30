@@ -17,14 +17,14 @@ public:
     static handle<T> *handle_cast(const base_handle *ptr) { return const_cast<handle<T>*>(dynamic_cast<const handle<T>*>(ptr)); }
 
     typedef handle<void*> void_handle;
+    typedef std::function<void(data_ptr)> Destructor;
 protected:
     template<typename T>
     handle<T> *casted_handle() const { return handle_cast<T>(m_data); }
     ptr id() const;
-    typedef std::function<void(data_ptr)> destructor_t;
 
     template<typename T>
-    static T newSharedContainer(data_ptr data, ptr id, destructor_t destructor) {
+    static T newSharedContainer(data_ptr data, ptr id, Destructor destructor) {
         T i;
         i.ref_count_ptr = new int(1);
         i.m_data = data;
@@ -38,8 +38,7 @@ private:
     data_ptr m_data = nullptr;
     ptr m_id = nullptr;
 
-
-    destructor_t m_destructor;
+    Destructor m_destructor;
 
     int *ref_count_ptr = nullptr;
 

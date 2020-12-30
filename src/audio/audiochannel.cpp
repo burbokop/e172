@@ -25,11 +25,11 @@ double AudioChannel::minDistance() const {
     return m_minDistance;
 }
 
-AudioChannel AudioChannel::newAudioChannel(SharedContainer::data_ptr data, SharedContainer::ptr id, SharedContainer::destructor_t destructor, AudioChannel::volume_setter_t volume_setter, AudioChannel::play_t play, is_playing_t is_palying, pause_t pause) {
+AudioChannel AudioChannel::newAudioChannel(SharedContainer::data_ptr data, SharedContainer::ptr id, Destructor destructor, VolumeSetter volumeSetter, Play play, IsPlaying isPalying, Pause pause) {
     auto result = newSharedContainer<AudioChannel>(data, id, destructor);
     result.m_play = play;
-    result.m_volume_setter = volume_setter;
-    result.m_is_palying = is_palying;
+    result.m_volumeSetter = volumeSetter;
+    result.m_isPalying = isPalying;
     result.m_pause = pause;
     return result;
 }
@@ -43,8 +43,8 @@ void AudioChannel::setVolume(double volume) {
 void AudioChannel::play(const AudioSample &sample, int loops) {
     if(isValid()) {
         const auto v = m_volume * m_distance_volume;
-        if(m_volume_setter)
-            m_volume_setter(data(), v);
+        if(m_volumeSetter)
+            m_volumeSetter(data(), v);
 
         if(v > 0 && sample.isValid()) {
             m_play(data(), sample, loops);
@@ -53,8 +53,8 @@ void AudioChannel::play(const AudioSample &sample, int loops) {
 }
 
 bool AudioChannel::isPlaying() {
-    if(m_is_palying)
-        return m_is_palying(data());
+    if(m_isPalying)
+        return m_isPalying(data());
 
     return false;
 }

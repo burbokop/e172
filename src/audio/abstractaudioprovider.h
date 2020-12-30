@@ -9,15 +9,15 @@ namespace e172 {
 class AbstractAudioProvider {
     double m_generalVolume = 1;
 protected:
-    static AudioSample __newAudioSample(AudioSample::data_ptr data, AudioSample::ptr id, AudioSample::destructor_t destructor);
+    static AudioSample __newAudioSample(AudioSample::data_ptr data, AudioSample::ptr id, AudioSample::Destructor destructor);
     static AudioChannel __newAudioChannel(
             AudioChannel::data_ptr data,
             AudioChannel::ptr id,
-            AudioChannel::destructor_t destructor,
-            AudioChannel::volume_setter_t volume_setter,
-            AudioChannel::play_t play,
-            AudioChannel::is_playing_t is_palying,
-            AudioChannel::pause_t pause
+            AudioChannel::Destructor destructor,
+            AudioChannel::VolumeSetter volumeSetter,
+            AudioChannel::Play play,
+            AudioChannel::IsPlaying isPalying,
+            AudioChannel::Pause pause
             );
     template<typename T>
     static T audioSampleData(const AudioSample &sample) { return sample.casted_handle<T>()->c; }

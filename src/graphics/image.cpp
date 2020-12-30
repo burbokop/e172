@@ -2,22 +2,21 @@
 
 using namespace e172;
 
-int Image::width() const
-{
+int Image::width() const {
     return m_width;
 }
 
-int Image::height() const
-{
+int Image::height() const {
     return m_height;
 }
 
-Image Image::newImage(data_ptr data, ptr id, int width, int height, destructor_t destructor, bitmap_getter_t bitmap_getter, fragment_t fragment, transformer_t transformer) {
+Image Image::newImage(data_ptr data, ptr id, int width, int height, Destructor destructor, BitmapGetter bitmapGetter, Saver saver, Fragment fragment, Transformer transformer) {
     Image i = newSharedContainer<Image>(data, id, destructor);
     i.m_width = width;
     i.m_height = height;
 
-    i.m_bitmap_getter = bitmap_getter;
+    i.m_bitmapGetter = bitmapGetter;
+    i.m_saver = saver;
     i.m_transformer = transformer;
     i.m_fragment = fragment;
 
@@ -45,6 +44,15 @@ Image Image::fragment(int x, int y, int w, int h) const {
     return result;
 }
 
+bool Image::save(const std::string &path) const {
+    if(m_saver && data()) {
+        return m_saver(data(), path);
+    }
+    return false;
+}
+
 Image::ptr Image::bitmap() {
-    return m_bitmap_getter(data());
+    if(m_bitmapGetter && data())
+        return m_bitmapGetter(data());
+    return nullptr;
 }

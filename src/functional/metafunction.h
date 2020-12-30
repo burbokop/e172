@@ -24,6 +24,25 @@
 namespace e172 {
 
 
+/**
+ * @brief bind function is used for converting member functions to independent functions.
+ * @details
+ *
+ * Example:
+ * ```
+ * const auto independentFunction = bind(this, &MyClass::someMemberFunction);
+ * //independentFunction can be called without pointer to object
+ * independentFunction(10);
+ * ```
+ *
+ */
+template<typename T, typename C, typename ...A>
+auto bind(C *object, T (C::*function)(A...)) {
+    return [function, object](A ...a) -> T { return (object->*function)(a...); };
+}
+
+
+
 template <typename VariantList
 #ifdef QT_CORE_LIB
           = QVariantList
@@ -93,24 +112,6 @@ public:
         fnType ** fnPointer = f.template target<fnType*>();
         return (size_t) *fnPointer;
     }
-
-    /**
-     * @brief bind function is used for converting member functions to independent functions.
-     * @details
-     *
-     * Example:
-     * ```
-     * const auto independentFunction = KMetaFunction::bind(this, &MyClass::someMemberFunction);
-     * //independentFunction can be called without pointer to object
-     * independentFunction(10);
-     * ```
-     *
-     */
-    template<typename T, typename C, typename ...A>
-    static auto bind(C *object, T (C::*function)(A...)) {
-        return [function, object](A ...a) { (object->*function)(a...); };
-    }
-
 
     MetaFunction() {}
 

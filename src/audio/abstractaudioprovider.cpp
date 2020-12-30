@@ -13,19 +13,18 @@ void AbstractAudioProvider::setGeneralVolume(double generalVolume)
     m_generalVolume = generalVolume;
 }
 
-AudioSample AbstractAudioProvider::__newAudioSample(AudioSample::data_ptr data, AudioSample::ptr id, AudioSample::destructor_t destructor) {
+AudioSample AbstractAudioProvider::__newAudioSample(AudioSample::data_ptr data, AudioSample::ptr id, SharedContainer::Destructor destructor) {
     return AudioSample::newAudioSample(data, id, destructor);
 }
 
-AudioChannel AbstractAudioProvider::__newAudioChannel(
-        AudioChannel::data_ptr data,
+AudioChannel AbstractAudioProvider::__newAudioChannel(AudioChannel::data_ptr data,
         AudioChannel::ptr id,
-        AudioChannel::destructor_t destructor,
-        AudioChannel::volume_setter_t volume_setter,
-        AudioChannel::play_t play,
-        AudioChannel::is_playing_t is_palying,
-        AudioChannel::pause_t pause) {
-    return AudioChannel::newAudioChannel(data, id, destructor, volume_setter, play, is_palying, pause);
+        SharedContainer::Destructor destructor,
+        AudioChannel::VolumeSetter volumeSetter,
+        AudioChannel::Play play,
+        AudioChannel::IsPlaying isPalying,
+        AudioChannel::Pause pause) {
+    return AudioChannel::newAudioChannel(data, id, destructor, volumeSetter, play, isPalying, pause);
 }
 
 AbstractAudioProvider::AbstractAudioProvider()
