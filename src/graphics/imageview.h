@@ -11,7 +11,7 @@ class ImageView : public Entity {
     Image m_image;
     Vector m_position;
     double m_rotation = 0;
-    double m_scale = 0;
+    double m_scale = 1;
 public:
     ImageView(const Image &image = Image());
 
