@@ -77,6 +77,7 @@ public:
 
     inline Complex toComplex() const { return { m_x, m_y }; }
 
+    size_t mandelbrot_level(size_t limit = 256) const;
 
     friend std::ostream &operator<<(std::ostream &os, const e172::Vector &dt);
 

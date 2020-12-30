@@ -2,9 +2,11 @@
 #define MATH_H
 
 #include <map>
-
+#include <complex>
 
 namespace e172 {
+
+typedef std::complex<double> Complex;
 
 class Math {
 private:
@@ -61,9 +63,18 @@ public:
     friend bool operator !=(double value, const null_float_t&) { return !Math::cmpf(value, 0); }
     friend bool operator !=(const null_float_t&, double value) { return !Math::cmpf(value, 0); }
 
-
     static double topLimitedFunction(double x);
 
+    static inline size_t mandelbrot_level(e172::Complex c, size_t limit = 256) {
+        e172::Complex x = { 0, 0 };
+        while (std::abs(x) < 2) {
+            x = x * x + c;
+            if(limit-- <= 0) {
+                return 0;
+            }
+        }
+        return limit;
+    }
 };
 
 
