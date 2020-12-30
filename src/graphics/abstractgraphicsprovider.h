@@ -36,6 +36,7 @@ protected:
     virtual Image::ptr imageBitMap(Image::data_ptr ptr) const = 0;
     virtual bool saveImage(Image::data_ptr, const std::string&) const = 0;
     virtual Image::data_ptr imageFragment(Image::data_ptr ptr, int x, int y, int &w, int &h) const = 0;
+    virtual Image::data_ptr blitImages(Image::data_ptr ptr0, Image::data_ptr ptr1, int x, int y, int &w, int &h) const = 0;
     virtual Image::data_ptr transformImage(Image::data_ptr, uint64_t) const = 0;
 };
 

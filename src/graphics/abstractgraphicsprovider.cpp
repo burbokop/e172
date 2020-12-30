@@ -14,6 +14,8 @@ Image AbstractGraphicsProvider::imageFromData(SharedContainer::data_ptr data, in
         return imageBitMap(ptr);
     }, [this](Image::data_ptr ptr, const std::string& path){
         return saveImage(ptr, path);
+    }, [this](Image::data_ptr ptr0, Image::data_ptr ptr1, int x, int y, int &w, int &h){
+        return blitImages(ptr0, ptr1, x, y, w, h);
     }, [this](e172::Image::data_ptr d, int x, int y, int &w, int &h) -> e172::Image::data_ptr {
         return imageFragment(d, x, y, w, h);
     }, [this](Image::data_ptr ptr, uint64_t code){

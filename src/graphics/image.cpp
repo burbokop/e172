@@ -10,7 +10,14 @@ int Image::height() const {
     return m_height;
 }
 
-Image Image::newImage(data_ptr data, ptr id, int width, int height, Destructor destructor, BitmapGetter bitmapGetter, Saver saver, Fragment fragment, Transformer transformer) {
+Vector Image::size() const {
+    return {
+        static_cast<double>(m_width),
+        static_cast<double>(m_height)
+    };
+}
+
+Image Image::newImage(data_ptr data, ptr id, int width, int height, Destructor destructor, BitmapGetter bitmapGetter, Saver saver, Bliter bliter, Fragment fragment, Transformer transformer) {
     Image i = newSharedContainer<Image>(data, id, destructor);
     i.m_width = width;
     i.m_height = height;
@@ -19,6 +26,7 @@ Image Image::newImage(data_ptr data, ptr id, int width, int height, Destructor d
     i.m_saver = saver;
     i.m_transformer = transformer;
     i.m_fragment = fragment;
+    i.m_bliter = bliter;
 
     return i;
 }
@@ -49,6 +57,18 @@ bool Image::save(const std::string &path) const {
         return m_saver(data(), path);
     }
     return false;
+}
+
+Image Image::blit(const Image &term, int x, int y) const {
+    if(m_bliter && data()) {
+        Image result = *this;
+        if(!term.data())
+            return result;
+
+        result.setData(m_bliter(data(), term.data(), x, y, result.m_width, result.m_height));
+        return result;
+    }
+    return {};
 }
 
 Image::ptr Image::bitmap() {
