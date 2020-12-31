@@ -115,5 +115,6 @@ if (UNIX)
 target_link_libraries(e172
     dl
     pthread
+    tbb
     )
 endif (UNIX)

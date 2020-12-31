@@ -5,6 +5,7 @@
 #include <complex>
 #include <functional>
 #include <list>
+#include <queue>
 
 namespace std {
     class thread;
@@ -16,15 +17,6 @@ typedef std::complex<double> Complex;
 
 template<typename T>
 using Mandelbrot = std::function<void(size_t, size_t, T*)>;
-
-
-class MultyTasker {
-    std::list<std::thread*> threads;
-public:
-    MultyTasker() {}
-    void add(const std::function<void()> &function);
-    ~MultyTasker();
-};
 
 
 class Math {
@@ -113,19 +105,16 @@ public:
         }
     }
 
+    static void concurentInitMatrix(size_t w, size_t h, const std::function<void(const std::pair<size_t, size_t>&)>&function);
+
     template <typename T>
-    inline static void writeMandelbrot2(size_t w, size_t h, size_t maxLevel, T mask, T *ptr) {
+    inline static void concurentWriteMandelbrot(size_t w, size_t h, size_t maxLevel, T mask, T *ptr) {
         if(maxLevel <= 0 || w <= 0 || h <= 0)
             return;
 
-        MultyTasker multyTasker;
-        for(size_t y = 0; y < h; ++y) {
-            multyTasker.add([y, w, h, maxLevel, mask, ptr]() {
-                for(size_t x = 0; x < w; ++x) {
-                    ptr[(y * w) + x] = mask * mandelbrotLevel(x, y, w, h, maxLevel);
-                }
-            });
-        }
+        concurentInitMatrix(w, h, [w, h, maxLevel, mask, ptr](const std::pair<size_t, size_t>& p){
+            ptr[(p.second * w) + p.first] = mask * e172::Math::mandelbrotLevel(p.first, p.second, w, h, maxLevel);
+        });
     }
 
 
@@ -137,9 +126,9 @@ public:
     }
 
     template<typename T>
-    static Mandelbrot<T> parallel_mandelbrot(size_t limit, T mask) {
+    static Mandelbrot<T> concurentMandelbrot(size_t limit, T mask) {
         return [limit, mask](size_t w, size_t h, T *ptr) {
-            e172::Math::writeMandelbrot2<T>(w, h, limit, mask, ptr);
+            e172::Math::concurentWriteMandelbrot<T>(w, h, limit, mask, ptr);
         };
     }
 };

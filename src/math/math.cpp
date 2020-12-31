@@ -1,6 +1,5 @@
 #include <math.h>
-#include <thread>
-
+#include <execution>
 
 #include "math.h"
 
@@ -209,13 +208,12 @@ double e172::Math::mandelbrotLevel(size_t x, size_t y, size_t w, size_t h, size_
     return mandelbrotLevel({ real, imag },  limit) / double(limit);
 }
 
-void e172::MultyTasker::add(const std::function<void ()> &function) {
-    threads.push_back(new std::thread (function));
-}
-
-e172::MultyTasker::~MultyTasker() {
-    for(auto t : threads) {
-        t->join();
-        delete t;
+void e172::Math::concurentInitMatrix(size_t w, size_t h, const std::function<void (const std::pair<size_t, size_t> &)> &function) {
+    std::vector<std::pair<size_t, size_t>> job(w * h);
+    for(size_t y = 0; y < h; ++y) {
+        for(size_t x = 0; x < w; ++x) {
+            job[(y * w) + x] = { x, y };
+        }
     }
+    std::for_each(std::execution::par_unseq, job.begin(), job.end(), function);
 }
