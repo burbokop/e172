@@ -114,5 +114,6 @@ add_library(e172 SHARED
 if (UNIX)
 target_link_libraries(e172
     dl
+    pthread
     )
 endif (UNIX)

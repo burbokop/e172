@@ -4,6 +4,11 @@
 #include <map>
 #include <complex>
 #include <functional>
+#include <list>
+
+namespace std {
+    class thread;
+}
 
 namespace e172 {
 
@@ -11,6 +16,16 @@ typedef std::complex<double> Complex;
 
 template<typename T>
 using Mandelbrot = std::function<void(size_t, size_t, T*)>;
+
+
+class MultyTasker {
+    std::list<std::thread*> threads;
+public:
+    MultyTasker() {}
+    void add(const std::function<void()> &function);
+    ~MultyTasker();
+};
+
 
 class Math {
 private:
@@ -59,6 +74,20 @@ public:
 
     static double map(double value, double inMin, double inMax, double outMin, double outMax);
 
+    template<typename Container>
+    static typename Container::value_type average(const Container &c) {
+        if(c.size() <= 0)
+            return 0;
+
+        size_t i = 0;
+        typename Container::value_type sum = 0;
+        for(const auto& cc : c) {
+            sum += cc;
+            ++i;
+        }
+        return sum / i;
+    }
+
     struct null_float_t {};
     static constexpr null_float_t null = null_float_t();
 
@@ -69,16 +98,9 @@ public:
 
     static double topLimitedFunction(double x);
 
-    static inline size_t mandelbrotLevel(e172::Complex c, size_t limit = 256) {
-        e172::Complex x = { 0, 0 };
-        while (std::abs(x) < 2) {
-            x = x * x + c;
-            if(limit-- <= 0) {
-                return 0;
-            }
-        }
-        return limit;
-    }
+    static size_t mandelbrotLevel(const e172::Complex &c, size_t limit = 256);
+    static double mandelbrotLevel(size_t x, size_t y, size_t w, size_t h, size_t limit = 256);
+
 
     template <typename T>
     inline static void writeMandelbrot(size_t w, size_t h, size_t maxLevel, T mask, T *ptr) {
@@ -86,18 +108,38 @@ public:
             return;
         for(size_t y = 0; y < h; ++y) {
             for(size_t x = 0; x < w; ++x) {
-                const auto real = (double(x) / double(w) - 0.5) * 4;
-                const auto imag = (double(y) / double(h) - 0.5) * 4;
-                const auto level = double(mandelbrotLevel({ real, imag },  maxLevel)) / double(maxLevel);
-                ptr[(y * w) + x] = level * mask;
+                ptr[(y * w) + x] = mask * mandelbrotLevel(x, y, w, h, maxLevel);
             }
         }
     }
+
+    template <typename T>
+    inline static void writeMandelbrot2(size_t w, size_t h, size_t maxLevel, T mask, T *ptr) {
+        if(maxLevel <= 0 || w <= 0 || h <= 0)
+            return;
+
+        MultyTasker multyTasker;
+        for(size_t y = 0; y < h; ++y) {
+            multyTasker.add([y, w, h, maxLevel, mask, ptr]() {
+                for(size_t x = 0; x < w; ++x) {
+                    ptr[(y * w) + x] = mask * mandelbrotLevel(x, y, w, h, maxLevel);
+                }
+            });
+        }
+    }
+
 
     template<typename T>
     static Mandelbrot<T> mandelbrot(size_t limit, T mask) {
         return [limit, mask](size_t w, size_t h, T *ptr) {
             e172::Math::writeMandelbrot<T>(w, h, limit, mask, ptr);
+        };
+    }
+
+    template<typename T>
+    static Mandelbrot<T> parallel_mandelbrot(size_t limit, T mask) {
+        return [limit, mask](size_t w, size_t h, T *ptr) {
+            e172::Math::writeMandelbrot2<T>(w, h, limit, mask, ptr);
         };
     }
 };
