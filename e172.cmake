@@ -42,6 +42,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/math/colider.h
     ${CMAKE_CURRENT_LIST_DIR}/src/math/intergrator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/intergrator.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/discretizer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/discretizer.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractfactory.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractfactory.h

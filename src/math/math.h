@@ -132,17 +132,7 @@ public:
         };
     }
 
-    template<typename Container>
-    Container descitize(const Container& c, double count = 8) {
-        Container result;
-        if constexpr (std::is_same<Container, std::vector<typename Container::value_type>>::value) {
-            result.reserve(c.size() * count);
-        }
 
-//        for()
-
-        return result;
-    }
 };
 
 
