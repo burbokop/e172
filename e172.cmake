@@ -40,6 +40,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/math/averagecalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/src/math/colider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/colider.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/intergrator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/intergrator.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractfactory.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractfactory.h
@@ -69,6 +71,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/dynamiclibrary.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/destroysignal.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/destroysignal.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/testing.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/testing.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h

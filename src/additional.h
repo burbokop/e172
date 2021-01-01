@@ -65,6 +65,11 @@ struct Additional {
 
     static void parseForder(std::string path, const std::function<void(const std::string&)> &callback);
 
+    template<typename T>
+    static inline std::string toFixedSizeString(const T& value) {
+        const auto string = std::to_string(value);
+        return string + std::string(std::to_string(std::numeric_limits<T>::max()).size() - string.size(), ' ');
+    }
 };
 
 }
