@@ -6,6 +6,7 @@
 #include <map>
 #include <list>
 #include <functional>
+#include "typedefs.h"
 
 namespace e172 {
 

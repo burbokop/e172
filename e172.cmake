@@ -75,6 +75,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/destroysignal.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/testing.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/testing.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/lightvector.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/lightvector.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h
@@ -115,6 +117,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/math/matrix.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/testprovider.h
     ${CMAKE_CURRENT_LIST_DIR}/src/testprovider.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/conversion.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/conversion.h
     )
 
 if (UNIX)

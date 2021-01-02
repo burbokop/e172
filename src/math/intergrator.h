@@ -50,6 +50,14 @@ Container intergate(const Container& c, double alpha = 0.9) {
     return result;
 }
 
+template<size_t i, typename Container>
+Container intergate(const Container& c, double alpha = 0.9) {
+    Container result = c;
+    std::get<i>(result) = intergate(std::get<i>(c), alpha);
+    return result;
+}
+
+
 }
 
 #endif // INTERGRATOR_H

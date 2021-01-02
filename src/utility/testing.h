@@ -7,6 +7,8 @@
 #include <iostream>
 #include <chrono>
 
+#include "lightvector.h"
+
 namespace e172 {
 class Testing {
 public:

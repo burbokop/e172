@@ -394,8 +394,20 @@ public:
     E172_VARIANT_NUM_CONVERTER(Int64, int64_t)
 
     inline auto toMap() const { return value_default<VariantMap>(); };
-    inline auto toList() const { return value_default<VariantList>(); };
-    inline auto toVector() const { return value_default<VariantVector>();};
+    inline auto toList() const {
+        if(containsType<VariantVector>()) {
+            const auto l = value_default<VariantVector>();
+            return VariantList(l.begin(), l.end());
+        }
+        return value_default<VariantList>();
+    };
+    inline auto toVector() const {
+        if(containsType<VariantList>()) {
+            const auto l = value_default<VariantList>();
+            return VariantVector(l.begin(), l.end());
+        }
+        return value_default<VariantVector>();
+    };
     inline auto toMathVector() const { return value_default<Vector>();};
 
     std::string toString() const;

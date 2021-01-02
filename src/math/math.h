@@ -17,6 +17,8 @@ typedef std::complex<double> Complex;
 
 template<typename T>
 using Mandelbrot = std::function<void(size_t, size_t, T*)>;
+template<typename T>
+using Filler = std::function<void(size_t, size_t, T*)>;
 
 
 class Math {
@@ -132,7 +134,16 @@ public:
         };
     }
 
-
+    template<typename T>
+    static Filler<T> filler(const T& value) {
+        return [value](size_t w, size_t h, T* ptr) {
+            for(size_t y = 0; y < h; ++y) {
+                for(size_t x = 0; x < w; ++x) {
+                    ptr[(y * w) + x] = value;
+                }
+            }
+        };
+    }
 };
 
 

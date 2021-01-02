@@ -48,6 +48,20 @@ Container discretize(const Container& c, double count = 8) {
     return result;
 }
 
+template<size_t i0, size_t i1, typename Container>
+void discretize(Container* c, double count = 8) {
+    std::get<i1>(*c) = discretize(std::get<i1>(*c), count);
+    if constexpr(i0 < i1) {
+        discretize<i0, i1 - 1>(c, count);
+    }
+}
+
+template<size_t i0, size_t i1 = i0, typename Container>
+Container discretize(Container c, double count = 8) {
+    discretize<i0, i1>(&c, count);
+    return c;
+}
+
 }
 
 #endif // KDISCRETIZER_H

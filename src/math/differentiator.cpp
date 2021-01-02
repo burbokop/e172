@@ -1,20 +1,31 @@
 #include "differentiator.h"
 #include "math.h"
 
-Differentiator::Differentiator() {
-
+e172::Differentiator::Differentiator(Differentiator::XMode xMode) {
+    m_xMode = xMode;
 }
 
-double Differentiator::proceed(double value) {
+double e172::Differentiator::proceed(double value) {
     if(last != value) {
-        const auto dt = c.deltaTime();
-        if(hasLast && dt != e172::Math::null) {
-            derivative = (value - hasLast) / dt;
+        if(m_xMode == Time) {
+            const auto dt = c.deltaTime();
+            if(hasLast && dt != e172::Math::null) {
+                derivative = (value - hasLast) / dt;
+            }
+            c.update();
+        } else {
+            if(hasLast) {
+                derivative = value - hasLast;
+            }
         }
-        c.update();
     }
 
     last = value;
     hasLast = true;
     return derivative;
+}
+
+void e172::Differentiator::reset() {
+    hasLast = false;
+    derivative = 0;
 }
