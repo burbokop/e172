@@ -93,8 +93,15 @@ AbstractGraphicsProvider *GameApplication::graphicsProvider() const {
 }
 
 void GameApplication::setGraphicsProvider(AbstractGraphicsProvider *graphicsProvider) {
+    if(graphicsProvider) {
+        if(graphicsProvider->fontLoaded(std::string())) {
+            graphicsProvider->loadFont(std::string(), "");
+        }
+    }
+
+
     m_graphicsProvider = graphicsProvider;
-    m_assetProvider->m_graphicsProvider = graphicsProvider;
+    m_assetProvider->m_graphicsProvider = graphicsProvider;    
 }
 
 AbstractAudioProvider *GameApplication::audioProvider() const {

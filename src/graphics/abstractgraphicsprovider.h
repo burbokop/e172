@@ -27,6 +27,7 @@ public:
     virtual Image createImage(int width, int height, const ImageInitFunction &imageInitFunction) const = 0;
     virtual Image createImage(int width, int height, const ImageInitFunctionExt &imageInitFunction) const = 0;
     virtual void loadFont(const std::string &name, const std::string &path) = 0;
+    virtual bool fontLoaded(const std::string &name) const = 0;
 
     virtual ~AbstractGraphicsProvider();
     std::vector<std::string> args() const;

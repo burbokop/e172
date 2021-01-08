@@ -2,6 +2,7 @@
 #define MATRIXPROXY_H
 
 #include <stdlib.h>
+#include "../math/vector.h"
 
 namespace e172 {
 
@@ -24,6 +25,9 @@ public:
     size_t height() const { return m_height; }
     T& value(size_t x, size_t y) { return m_data[y * m_width + x]; }
     T value(size_t x, size_t y) const { return m_data[y * m_width + x]; }
+
+    T& value(const Vector &point) { return m_data[point.size_tY() * m_width + point.size_tX()]; }
+    T value(const Vector &point) const { return m_data[point.size_tY() * m_width + point.size_tX()]; }
 };
 
 }

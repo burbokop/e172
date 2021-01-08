@@ -46,6 +46,11 @@ public:
 
     double operator*(Vector multiplier) const;
 
+    void incrementX() { ++m_x; }
+    void incrementY() { ++m_y; }
+    void decrementX() { --m_x; }
+    void decrementY() { --m_y; }
+
     double module() const; //checkpoint
     double cheapModule() const;
     Vector normalized() const;
