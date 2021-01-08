@@ -52,8 +52,8 @@ struct CellularAutomaton {
     }
 
     template<typename T>
-    static void proceed(size_t w, size_t h, T& matrix, const Rule &rule = gameOfLife, const Neighborhood<T>& neighborhood = mooreNeighborhood<T>) {
-        const auto at = [&matrix, w](size_t x, size_t y) {
+    static void proceed(size_t w, size_t h, T&& matrix, const Rule &rule = gameOfLife, const Neighborhood<T>& neighborhood = mooreNeighborhood<T>) {
+        const auto at = [&matrix, w](size_t x, size_t y) -> auto& {
             return matrix[y * w + x];
         };
 
