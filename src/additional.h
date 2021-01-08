@@ -71,6 +71,9 @@ struct Additional {
         const auto string = std::to_string(value);
         return string + std::string(std::to_string(std::numeric_limits<T>::max()).size() - string.size(), ' ');
     }
+
+    static std::string defaultFontDirectory();
+    static std::string defaultFont(const std::string &suffix = ".ttf");
 };
 
 }

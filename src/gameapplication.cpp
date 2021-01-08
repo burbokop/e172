@@ -1,3 +1,4 @@
+#include "additional.h"
 #include "debug.h"
 #include "gameapplication.h"
 
@@ -94,12 +95,10 @@ AbstractGraphicsProvider *GameApplication::graphicsProvider() const {
 
 void GameApplication::setGraphicsProvider(AbstractGraphicsProvider *graphicsProvider) {
     if(graphicsProvider) {
-        if(graphicsProvider->fontLoaded(std::string())) {
-            graphicsProvider->loadFont(std::string(), "");
+        if(!graphicsProvider->fontLoaded(std::string())) {
+            graphicsProvider->loadFont(std::string(), e172::Additional::defaultFont());
         }
     }
-
-
     m_graphicsProvider = graphicsProvider;
     m_assetProvider->m_graphicsProvider = graphicsProvider;    
 }

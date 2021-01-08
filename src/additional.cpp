@@ -9,6 +9,7 @@
 #include <fstream>
 #include <algorithm>
 #include <memory>
+#include <filesystem>
 
 
 std::string e172::Additional::constrainPath(const std::string &path) {
@@ -438,4 +439,28 @@ void e172::Additional::parseForder(std::string path, const std::function<void(co
             callback(file);
         }
     }
+}
+
+std::string e172::Additional::defaultFontDirectory() {
+#if defined(_WIN32)
+    return "%WINDIR%\fonts";
+#elif defined(_APPLE_) && defined(_MACH_)
+    return "/Library/Fonts";
+#elif defined(linux) || defined(__linux)
+    return "/usr/share/fonts";
+#else
+    return "Unknown operation system";
+#endif
+}
+
+std::string e172::Additional::defaultFont(const std::string &suffix) {
+    const auto dir = defaultFontDirectory();
+    std::filesystem::recursive_directory_iterator it(dir), end;
+    while (it != end) {
+        if(it->is_regular_file() && it->path().string().ends_with(suffix)) {
+            return it->path();
+        }
+        ++it;
+    }
+    return {};
 }
