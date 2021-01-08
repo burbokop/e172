@@ -28,6 +28,9 @@ public:
 
     T& value(const Vector &point) { return m_data[point.size_tY() * m_width + point.size_tX()]; }
     T value(const Vector &point) const { return m_data[point.size_tY() * m_width + point.size_tX()]; }
+
+    T& center() { return m_data[m_height / 2 * m_width + m_width / 2]; }
+    T center() const { return m_data[m_height / 2 * m_width + m_width / 2]; }
 };
 
 }
