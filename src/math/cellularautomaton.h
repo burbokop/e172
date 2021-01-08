@@ -82,13 +82,13 @@ struct CellularAutomaton {
         for(size_t y = 0; y < h; ++y) {
             for(size_t x = 0; x < w; ++x) {
                 const auto c = neighborhood(x, y, w, h, matrix, true);
-                if(at(x, y) == false) {
-                    if(rule.first.contains(c)) {
-                        m[x][y] = true;
-                    }
-                } else {
+                if(at(x, y)) {
                     if(!rule.second.contains(c)) {
                         m[x][y] = false;
+                    }
+                } else {
+                    if(rule.first.contains(c)) {
+                        m[x][y] = true;
                     }
                 }
             }
@@ -101,7 +101,6 @@ struct CellularAutomaton {
             }
         }
     }
-
 
     template<typename T>
     static void proceed(size_t w, size_t h, T* matrix, const ExtendedRule<T> &rule, const Neighborhood<T>& neighborhood = mooreNeighborhood<T>) {
@@ -132,7 +131,6 @@ struct CellularAutomaton {
             }
         }
     }
-
 
     template<typename T>
     static inline void proceed(MatrixProxy<T> &matrixProxy, const Rule &rule = gameOfLife, const Neighborhood<T>& neighborhood = mooreNeighborhood<T>) {
