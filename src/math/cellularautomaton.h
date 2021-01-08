@@ -10,18 +10,25 @@ namespace e172 {
 
 
 struct CellularAutomaton {
-    typedef std::pair<std::set<size_t>, std::set<size_t>> Rule;
+    typedef std::tuple<std::set<size_t>, std::set<size_t>, size_t> Rule;
 
     template <typename T>
     using ExtendedRule = std::map<T, std::pair<T, std::optional<std::set<size_t>>>>;
 
-    static inline const Rule b3s23 = { { 3 }, { 2, 3 } };
-    static inline const Rule b3s12345 = { { 3 }, { 1, 2, 3, 4, 5 } };
-    static inline const Rule b1s012345678 = { { 1 }, { 0, 1, 2, 3, 4, 5, 6, 7, 8 } };
+    static inline const Rule b3_s23 = { { 3 }, { 2, 3 }, 2 };
+    static inline const Rule b3_s12345 = { { 3 }, { 1, 2, 3, 4, 5 }, 2 };
+    static inline const Rule b1_s012345678 = { { 1 }, { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, 2 };
 
-    static inline const Rule gameOfLife = b3s23;
-    static inline const Rule maze = b3s12345;
-    static inline const Rule replicator = b1s012345678;
+    static inline const Rule b278_s3456_rp6 = { { 2, 7, 8 }, { 3, 4, 5, 6 }, 6 };
+    static inline const Rule b2_s345_rp4 = { { 2 }, { 3, 4, 5 }, 4 };
+
+    static inline const Rule gameOfLife = b3_s23;
+    static inline const Rule maze = b3_s12345;
+    static inline const Rule replicator = b1_s012345678;
+    static inline const Rule star = b278_s3456_rp6;
+    static inline const Rule starWars = b2_s345_rp4;
+
+    static inline const std::vector<Rule> booleanRules = { b3_s23, b3_s12345, b1_s012345678 };
 
     enum WireWorldCell {
         Empty = 0,
@@ -74,6 +81,7 @@ struct CellularAutomaton {
 
     template<typename T>
     static void proceed(size_t w, size_t h, T* matrix, const Rule &rule = gameOfLife, const Neighborhood<T>& neighborhood = mooreNeighborhood<T>) {
+        const auto& refractoryPeriod = std::get<2>(rule);
         const auto at = [&matrix, w](size_t x, size_t y) -> auto& {
             return matrix[y * w + x];
         };
@@ -81,15 +89,18 @@ struct CellularAutomaton {
         std::optional<T> m[w][h];
         for(size_t y = 0; y < h; ++y) {
             for(size_t x = 0; x < w; ++x) {
-                const auto c = neighborhood(x, y, w, h, matrix, true);
-                if(at(x, y)) {
-                    if(!rule.second.contains(c)) {
-                        m[x][y] = false;
+                const auto& cell = at(x, y);
+                const auto c = neighborhood(x, y, w, h, matrix, refractoryPeriod - 1);
+                if(cell == refractoryPeriod - 1) {
+                    if(!std::get<1>(rule).contains(c)) {
+                        m[x][y] = cell - 1;
+                    }
+                } else if(cell == 0) {
+                    if(std::get<0>(rule).contains(c)) {
+                        m[x][y] = refractoryPeriod - 1;
                     }
                 } else {
-                    if(rule.first.contains(c)) {
-                        m[x][y] = true;
-                    }
+                    m[x][y] = cell - 1;
                 }
             }
         }

@@ -147,14 +147,12 @@ public:
     }
 
     template<typename T>
-    static void randInit(T *array, size_t size, double coeficient = 0.5, bool elementIsBoolean = false) {
+    static void randInit(T *array, size_t size, double coeficient, const T &value) {
         std::srand(clock());
         for(size_t i = 0; i < size; ++i) {
             const auto r = (double(std::rand()) / double(std::numeric_limits<decltype (std::rand())>::max()));
-            if (elementIsBoolean) {
-                array[i] = r < coeficient;
-            } else {
-                array[i] = r * coeficient;
+            if (r < coeficient) {
+                array[i] = value;
             }
         }
     }

@@ -19,6 +19,7 @@ private:
     static inline id_t nextId = 0;
     id_t m_entityId = ++nextId;
     StringSet m_tags;
+    bool m_enabled = true;
 
     //[EXPERIMENTAL] extended update functions
     typedef std::pair<void(*)(Entity*, Context*, AbstractEventHandler*), void(*)(Entity*, AbstractRenderer*)> __euf_t;
@@ -39,6 +40,8 @@ public:
     bool addTag(const String& tag);
     bool removeTag(const String& tag);
     bool containsTag(const String& tag);
+    bool enabled() const;
+    void setEnabled(bool enabled);
 };
 
 
