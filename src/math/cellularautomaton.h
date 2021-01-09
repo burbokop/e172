@@ -29,6 +29,7 @@ struct CellularAutomaton {
     static inline const Rule starWars = b2_s345_rp4;
 
     static inline const std::vector<Rule> booleanRules = { b3_s23, b3_s12345, b1_s012345678 };
+    static inline const std::vector<Rule> cooldownRules = { b278_s3456_rp6, b2_s345_rp4 };
 
     enum WireWorldCell {
         Empty = 0,
@@ -48,7 +49,14 @@ struct CellularAutomaton {
     using Neighborhood = std::function<size_t(size_t, size_t, size_t, size_t, const T*, const T&)>;
 
     template<typename T>
-    static size_t mooreNeighborhood(size_t x, size_t y, size_t w, size_t h, const T *matrix, const T &value) {
+    static size_t mooreNeighborhood(
+            size_t x,
+            size_t y,
+            size_t w,
+            size_t h,
+            const T *matrix,
+            const T &value
+            ) {
         const auto at = [matrix, w, h](size_t x, size_t y) {
             x %= w;
             y %= h;
@@ -66,7 +74,14 @@ struct CellularAutomaton {
     }
 
     template<typename T>
-    static size_t vonNeumannNeighborhood(size_t x, size_t y, size_t w, size_t h, const T *matrix, const T &value) {
+    static size_t vonNeumannNeighborhood(
+            size_t x,
+            size_t y,
+            size_t w,
+            size_t h,
+            const T *matrix,
+            const T &value
+            ) {
         const auto at = [matrix, w, h](size_t x, size_t y) {
             x %= w;
             y %= h;
@@ -80,7 +95,13 @@ struct CellularAutomaton {
     }
 
     template<typename T>
-    static void proceed(size_t w, size_t h, T* matrix, const Rule &rule = gameOfLife, const Neighborhood<T>& neighborhood = mooreNeighborhood<T>) {
+    static void proceed(
+            size_t w,
+            size_t h,
+            T* matrix,
+            const Rule &rule = gameOfLife,
+            const Neighborhood<T>& neighborhood = mooreNeighborhood<T>
+            ) {
         const auto& refractoryPeriod = std::get<2>(rule);
         const auto at = [&matrix, w](size_t x, size_t y) -> auto& {
             return matrix[y * w + x];
@@ -114,7 +135,13 @@ struct CellularAutomaton {
     }
 
     template<typename T>
-    static void proceed(size_t w, size_t h, T* matrix, const ExtendedRule<T> &rule, const Neighborhood<T>& neighborhood = mooreNeighborhood<T>) {
+    static void proceed(
+            size_t w,
+            size_t h,
+            T* matrix,
+            const ExtendedRule<T> &rule,
+            const Neighborhood<T>& neighborhood = mooreNeighborhood<T>
+            ) {
         const auto at = [&matrix, w](size_t x, size_t y) -> auto& {
             return matrix[y * w + x];
         };
@@ -144,12 +171,20 @@ struct CellularAutomaton {
     }
 
     template<typename T>
-    static inline void proceed(MatrixProxy<T> &matrixProxy, const Rule &rule = gameOfLife, const Neighborhood<T>& neighborhood = mooreNeighborhood<T>) {
+    static inline void proceed(
+            MatrixProxy<T> &matrixProxy,
+            const Rule &rule = gameOfLife,
+            const Neighborhood<T>& neighborhood = mooreNeighborhood<T>
+            ) {
         proceed(matrixProxy.width(), matrixProxy.height(), matrixProxy.data(), rule, neighborhood);
     }
 
     template<typename T>
-    static inline void proceed(MatrixProxy<T> &matrixProxy, const ExtendedRule<T> &rule, const Neighborhood<T>& neighborhood = mooreNeighborhood<T>) {
+    static inline void proceed(
+            MatrixProxy<T> &matrixProxy,
+            const ExtendedRule<T> &rule,
+            const Neighborhood<T>& neighborhood = mooreNeighborhood<T>
+            ) {
         proceed(matrixProxy.width(), matrixProxy.height(), matrixProxy.data(), rule, neighborhood);
     }
 };
