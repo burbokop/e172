@@ -15,11 +15,10 @@ namespace e172 {
 
 typedef std::complex<double> Complex;
 
-template<typename T>
-using Mandelbrot = std::function<void(size_t, size_t, T*)>;
-template<typename T>
-using Filler = std::function<void(size_t, size_t, T*)>;
+typedef std::function<Complex(const Complex&)> ComplexFunction;
 
+template<typename T>
+using MatrixFiller = std::function<void(size_t, size_t, T*)>;
 
 class Math {
 private:
@@ -53,6 +52,8 @@ public:
     static double acos(double value);
     static double sqrt(double value);
 
+    template<typename T>
+    static inline T sqr(const T &x) { return x * x; }
 
     static double constrainRadians(double value);
     static bool radiansDirection(double dstAngle, double angle);
@@ -92,17 +93,17 @@ public:
 
     static double topLimitedFunction(double x);
 
-    static size_t mandelbrotLevel(const e172::Complex &c, size_t limit = 256);
-    static double mandelbrotLevel(size_t x, size_t y, size_t w, size_t h, size_t limit = 256);
+    static size_t fractalLevel(const e172::Complex &c, size_t limit = 256, const ComplexFunction& f = Math::sqr<Complex>);
+    static double fractalLevel(size_t x, size_t y, size_t w, size_t h, size_t limit = 256, const ComplexFunction& f = Math::sqr<Complex>);
 
 
     template <typename T>
-    inline static void writeMandelbrot(size_t w, size_t h, size_t maxLevel, T mask, T *ptr) {
+    inline static void writeFractal(size_t w, size_t h, size_t maxLevel, T mask, T *ptr, const ComplexFunction& f = Math::sqr<Complex>) {
         if(maxLevel <= 0 || w <= 0 || h <= 0)
             return;
         for(size_t y = 0; y < h; ++y) {
             for(size_t x = 0; x < w; ++x) {
-                ptr[(y * w) + x] = mask * mandelbrotLevel(x, y, w, h, maxLevel);
+                ptr[(y * w) + x] = mask * fractalLevel(x, y, w, h, maxLevel, f);
             }
         }
     }
@@ -110,32 +111,31 @@ public:
     static void concurentInitMatrix(size_t w, size_t h, const std::function<void(const std::pair<size_t, size_t>&)>&function);
 
     template <typename T>
-    inline static void concurentWriteMandelbrot(size_t w, size_t h, size_t maxLevel, T mask, T *ptr) {
+    inline static void concurentWriteFractal(size_t w, size_t h, size_t maxLevel, T mask, T *ptr, const ComplexFunction& f = Math::sqr<Complex>) {
         if(maxLevel <= 0 || w <= 0 || h <= 0)
             return;
 
-        concurentInitMatrix(w, h, [w, h, maxLevel, mask, ptr](const std::pair<size_t, size_t>& p){
-            ptr[(p.second * w) + p.first] = mask * e172::Math::mandelbrotLevel(p.first, p.second, w, h, maxLevel);
+        concurentInitMatrix(w, h, [w, h, maxLevel, mask, ptr, f](const std::pair<size_t, size_t>& p){
+            ptr[(p.second * w) + p.first] = mask * fractalLevel(p.first, p.second, w, h, maxLevel, f);
         });
     }
 
 
     template<typename T>
-    static Mandelbrot<T> mandelbrot(size_t limit, T mask) {
-        return [limit, mask](size_t w, size_t h, T *ptr) {
-            e172::Math::writeMandelbrot<T>(w, h, limit, mask, ptr);
-        };
+    static MatrixFiller<T> fractal(size_t limit, T mask, const ComplexFunction& f = Math::sqr<Complex>, bool concurent = true) {
+        if(concurent) {
+            return [limit, mask, f](size_t w, size_t h, T *ptr) {
+                e172::Math::concurentWriteFractal<T>(w, h, limit, mask, ptr, f);
+            };
+        } else {
+            return [limit, mask, f](size_t w, size_t h, T *ptr) {
+                e172::Math::writeFractal<T>(w, h, limit, mask, ptr, f);
+            };
+        }
     }
 
     template<typename T>
-    static Mandelbrot<T> concurentMandelbrot(size_t limit, T mask) {
-        return [limit, mask](size_t w, size_t h, T *ptr) {
-            e172::Math::concurentWriteMandelbrot<T>(w, h, limit, mask, ptr);
-        };
-    }
-
-    template<typename T>
-    static Filler<T> filler(const T& value) {
+    static MatrixFiller<T> filler(const T& value) {
         return [value](size_t w, size_t h, T* ptr) {
             for(size_t y = 0; y < h; ++y) {
                 for(size_t x = 0; x < w; ++x) {

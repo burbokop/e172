@@ -5,11 +5,12 @@
 
 #include <complex>
 #include <sstream>
-
+#include <functional>
 
 namespace e172 {
 
 typedef std::complex<double> Complex;
+typedef std::function<Complex(const Complex&)> ComplexFunction;
 
 class Vector {
 public:
@@ -77,7 +78,7 @@ public:
 
     inline Complex toComplex() const { return { m_x, m_y }; }
 
-    size_t mandelbrotLevel(size_t limit = 256) const;
+    size_t fractalLevel(size_t limit = 256, const ComplexFunction& f = [](const Complex &x){ return x * x; }) const;
 
     friend std::ostream &operator<<(std::ostream &os, const e172::Vector &dt);
 

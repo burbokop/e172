@@ -2,6 +2,7 @@
 #define INTERGRATOR_H
 
 #include <vector>
+#include "../typedefs.h"
 
 namespace e172 {
 
@@ -11,6 +12,7 @@ class Intergrator {
 
     struct ChannelState {
         double lastY;
+        e172::Complex lastComplexY;
         bool frst = true;
     };
 
@@ -20,7 +22,7 @@ public:
 
 
     double proceed(double value, size_t channel = 0);
-
+    Complex proceed(const e172::Complex &value, size_t channel = 0);
 };
 
 template<typename OriginalIt>
