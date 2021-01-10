@@ -13,6 +13,8 @@
 #include <src/type.h>
 #include <src/utility/cycliciterator.h>
 
+#include <src/utility/flagparser.h>
+
 namespace e172 {
 class AbstractAudioProvider;
 class AbstractGraphicsProvider;
@@ -44,7 +46,6 @@ class GameApplication {
     static size_t static_constructor();
     static const inline size_t static_call = static_constructor();
 
-    std::vector<std::string> coverArgs(int argc, char *argv[]);
     std::vector<std::string> m_arguments;
 
     DeltaTimeCalculator m_deltaTimeCalculator;
@@ -69,11 +70,22 @@ class GameApplication {
     bool mustQuit = false;
 
     //std::list<Entity*>::iterator m_autoIterator = m_entities.begin();
+
+    FlagParser m_flagParser;
 public:
     GameApplication(int argc, char *argv[]);
-    void quit();
+    void quitLater();
     int exec();
     std::vector<std::string> arguments() const;
+
+    void registerValueFlag(const std::string& shortName, const std::string& fullName = std::string(), const std::string& description = std::string());
+    void registerBoolFlag(const std::string& shortName, const std::string& fullName = std::string(), const std::string& description = std::string());
+    void displayHelp(std::ostream& stream);
+    VariantMap flags() const;
+    bool containsFlag(const std::string &shortName) const;
+    Variant flag(const std::string &shortName) const;
+
+
     void setRenderInterval(ElapsedTimer::time_t interval);
     inline void addEntity(const ptr<Entity> &entity) { m_entities.push_back(entity); }
     template<typename T>

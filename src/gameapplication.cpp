@@ -9,6 +9,7 @@
 #include <src/graphics/abstractrenderer.h>
 #include <src/graphics/abstractgraphicsprovider.h>
 
+#include <iostream>
 
 namespace e172 {
 
@@ -27,13 +28,6 @@ size_t GameApplication::static_constructor() {
     return 0;
 }
 
-std::vector<std::string> GameApplication::coverArgs(int argc, char *argv[]) {
-    std::vector<std::string> result;
-    for(int i = 0; i < argc; i++) {
-        result.push_back(argv[i]);
-    }
-    return result;
-}
 
 ElapsedTimer::time_t GameApplication::renderDelay() const {
     return m_renderDelay;
@@ -132,6 +126,30 @@ std::vector<std::string> GameApplication::arguments() const {
     return m_arguments;
 }
 
+void GameApplication::registerValueFlag(const std::string &shortName, const std::string &fullName, const std::string &description) {
+    m_flagParser.registerValueFlag(shortName, fullName, description);
+}
+
+void GameApplication::registerBoolFlag(const std::string &shortName, const std::string &fullName, const std::string &description) {
+    m_flagParser.registerBoolFlag(shortName, fullName, description);
+}
+
+void GameApplication::displayHelp(std::ostream &stream) {
+    m_flagParser.displayHelp(stream);
+}
+
+VariantMap GameApplication::flags() const {
+    return m_flagParser.flags();
+}
+
+bool GameApplication::containsFlag(const std::string &shortName) const {
+    return m_flagParser.containsFlag(shortName);
+}
+
+Variant GameApplication::flag(const std::string &shortName) const {
+    return m_flagParser.flag(shortName);
+}
+
 void GameApplication::setRenderInterval(ElapsedTimer::time_t interval) {
     m_renderTimer = ElapsedTimer(interval);
 }
@@ -143,17 +161,23 @@ void GameApplication::removeApplicationExtension(size_t hash) {
 }
 
 GameApplication::GameApplication(int argc, char *argv[]) {
-    m_arguments = coverArgs(argc, argv);
+    m_arguments = Additional::coverArgs(argc, argv);
+    m_flagParser  = m_arguments;
     m_assetProvider = new AssetProvider();
     m_context = new Context(this);
     m_assetProvider->m_context = m_context;
 }
 
-void GameApplication::quit() {
+void GameApplication::quitLater() {
     mustQuit = true;
 }
 
 int GameApplication::exec() {
+    if(m_flagParser.containsFlag("-h")) {
+        displayHelp(std::cout);
+        return 0;
+    }
+
     for(auto m : m_applicationExtensions) {
         if(m.second->extensionType() == GameApplicationExtension::InitExtension)
             m.second->proceed(this);

@@ -56,6 +56,15 @@ public:
     template<typename T>
     static inline T sqr(const T &x) { return x * x; }
 
+    template<typename T>
+    static inline T sigm(const T &x) { return T(1) / (T(1) + std::exp(-x)); }
+
+    template<typename T>
+    static inline T sgn(const T &x) {
+        const auto mod = std::abs(x);
+        return (mod == 0) ? T() : x / mod;
+    }
+
     static double constrainRadians(double value);
     static bool radiansDirection(double dstAngle, double angle);
     static double radiansDistance(double angle0, double angle1);

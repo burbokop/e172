@@ -464,3 +464,11 @@ std::string e172::Additional::defaultFont(const std::string &suffix) {
     }
     return {};
 }
+
+std::vector<std::string> e172::Additional::coverArgs(int argc, char *argv[]) {
+    std::vector<std::string> result;
+    for(int i = 0; i < argc; i++) {
+        result.push_back(argv[i]);
+    }
+    return result;
+}

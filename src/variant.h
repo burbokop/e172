@@ -393,6 +393,8 @@ public:
     E172_VARIANT_NUM_CONVERTER(Int32, int32_t)
     E172_VARIANT_NUM_CONVERTER(Int64, int64_t)
 
+    E172_VARIANT_NUM_CONVERTER(Size_t, size_t)
+
     inline auto toMap() const { return value_default<VariantMap>(); };
     inline auto toList() const {
         if(containsType<VariantVector>()) {
