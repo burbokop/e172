@@ -29,6 +29,16 @@ bool Entity::containsTag(const String &tag) {
     return m_tags.find(tag) != m_tags.end();
 }
 
+bool Entity::enabled() const
+{
+    return m_enabled;
+}
+
+void Entity::setEnabled(bool enabled)
+{
+    m_enabled = enabled;
+}
+
 Entity::Entity() {}
 
 Entity::~Entity() {}

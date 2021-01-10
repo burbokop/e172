@@ -6,6 +6,7 @@
 #include <functional>
 #include <list>
 #include <queue>
+#include <type_traits>
 
 namespace std {
     class thread;
@@ -143,6 +144,17 @@ public:
                 }
             }
         };
+    }
+
+    template<typename T>
+    static void randInit(T *array, size_t size, double coeficient, const T &value) {
+        std::srand(clock());
+        for(size_t i = 0; i < size; ++i) {
+            const auto r = (double(std::rand()) / double(std::numeric_limits<decltype (std::rand())>::max()));
+            if (r < coeficient) {
+                array[i] = value;
+            }
+        }
     }
 };
 

@@ -47,6 +47,11 @@ public:
 
     double operator*(Vector multiplier) const;
 
+    void incrementX() { ++m_x; }
+    void incrementY() { ++m_y; }
+    void decrementX() { --m_x; }
+    void decrementY() { --m_y; }
+
     double module() const; //checkpoint
     double cheapModule() const;
     Vector normalized() const;
@@ -71,8 +76,10 @@ public:
 
     inline float float32X() const { return static_cast<float>(this->m_x); }
     inline float float32Y() const { return static_cast<float>(this->m_y); }
-    inline int intX() const { return static_cast<int>(this->m_x); }
-    inline int intY() const { return static_cast<int>(this->m_y); }
+    inline auto intX() const { return static_cast<int>(this->m_x); }
+    inline auto intY() const { return static_cast<int>(this->m_y); }
+    inline auto size_tX() const { return static_cast<size_t>(this->m_x); }
+    inline auto size_tY() const { return static_cast<size_t>(this->m_y); }
     inline double x() const { return this->m_x; }
     inline double y() const { return this->m_y; }
 

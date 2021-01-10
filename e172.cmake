@@ -44,6 +44,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/math/intergrator.h
     ${CMAKE_CURRENT_LIST_DIR}/src/math/discretizer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/discretizer.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/cellularautomaton.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/cellularautomaton.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractfactory.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractfactory.h
@@ -77,6 +79,10 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/testing.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/lightvector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/lightvector.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/matrixproxy.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/matrixproxy.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/boolean.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/boolean.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h

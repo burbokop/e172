@@ -1,3 +1,4 @@
+#include "additional.h"
 #include "debug.h"
 #include "gameapplication.h"
 
@@ -93,8 +94,13 @@ AbstractGraphicsProvider *GameApplication::graphicsProvider() const {
 }
 
 void GameApplication::setGraphicsProvider(AbstractGraphicsProvider *graphicsProvider) {
+    if(graphicsProvider) {
+        if(!graphicsProvider->fontLoaded(std::string())) {
+            graphicsProvider->loadFont(std::string(), e172::Additional::defaultFont());
+        }
+    }
     m_graphicsProvider = graphicsProvider;
-    m_assetProvider->m_graphicsProvider = graphicsProvider;
+    m_assetProvider->m_graphicsProvider = graphicsProvider;    
 }
 
 AbstractAudioProvider *GameApplication::audioProvider() const {
@@ -167,9 +173,11 @@ int GameApplication::exec() {
                 m.second->proceed(this);
         }
         for(auto e : m_entities) {
-            e->proceed(m_context, m_eventHandler);
-            for(auto euf : e->__euf) {
-                euf.first(e.data(), m_context, m_eventHandler);
+            if(e->enabled()) {
+                e->proceed(m_context, m_eventHandler);
+                for(auto euf : e->__euf) {
+                    euf.first(e.data(), m_context, m_eventHandler);
+                }
             }
         }
         m_proceedDelay = measureTimer.elapsed();
@@ -186,9 +194,11 @@ int GameApplication::exec() {
                         m.second->proceed(this);
                 }
                 for(auto e : m_entities) {
-                    e->render(r);
-                    for(auto euf : e->__euf) {
-                        euf.second(e.data(), r);
+                    if(e->enabled()) {
+                        e->render(r);
+                        for(auto euf : e->__euf) {
+                            euf.second(e.data(), r);
+                        }
                     }
                 }
                 r->m_locked = true;

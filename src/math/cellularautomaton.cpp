@@ -1,0 +1,6 @@
+#include "cellularautomaton.h"
+
+
+
+
+
