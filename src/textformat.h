@@ -28,6 +28,9 @@ public:
     TextFormat();
     TextFormat(Alignment alignment);
     TextFormat(Alignment alignment, int size);
+
+    static TextFormat fromFontSize(int size);
+
     int fontSize() const;
     Alignment alignment() const;
     void setAlignment(const Alignment &alignment);

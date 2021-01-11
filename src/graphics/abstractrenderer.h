@@ -45,6 +45,8 @@ inline Color rgb(uint8_t r, uint8_t g, uint8_t b) {
 Color randomColor();
 Color randomColor(unsigned int seed);
 
+Color blendPixels(Color top, Color bottom);
+
 class AbstractGraphicsProvider;
 class AbstractRenderer {
     friend AbstractGraphicsProvider;
@@ -97,7 +99,7 @@ public:
     virtual void drawDiagonalGrid(const Vector &point0, const Vector &point1, int interval, uint32_t color) = 0;
     virtual void drawImage(const Image &image, const Vector &position, double angle, double zoom) = 0;
     virtual Vector drawString(const std::string &string, const Vector &position, uint32_t color, const TextFormat &format = TextFormat()) = 0;
-
+    virtual Color* bitmap() const = 0;
 
     inline void drawPixelShifted(const Vector &point, uint32_t color) { drawPixel(point + offset(), color); }
     inline void drawLineShifted(const Vector &point0, const Vector &point1, uint32_t color) { drawLine(point0 + offset(), point1 + offset(), color); }

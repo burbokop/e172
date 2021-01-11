@@ -47,10 +47,10 @@ public:
 
     double operator*(Vector multiplier) const;
 
-    void incrementX() { ++m_x; }
-    void incrementY() { ++m_y; }
-    void decrementX() { --m_x; }
-    void decrementY() { --m_y; }
+    void incrementX(double term = 1) { m_x += term; }
+    void incrementY(double term = 1) { m_y += term; }
+    void decrementX(double term = 1) { m_x -= term; }
+    void decrementY(double term = 1) { m_y -= term; }
 
     double module() const; //checkpoint
     double cheapModule() const;

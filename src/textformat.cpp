@@ -50,4 +50,8 @@ TextFormat::TextFormat(TextFormat::Alignment alignment, int size) {
     m_fontSize = size;
 }
 
+TextFormat TextFormat::fromFontSize(int size) {
+    return TextFormat(AlignDefault, size);
+}
+
 }
