@@ -11,7 +11,6 @@ class Differentiator {
     double last;
     bool hasLast = false;
 
-    double derivative = 0;
 public:
     enum {
         Time,
@@ -46,6 +45,8 @@ Container differentiate(const Container& c, Differentiator::XMode xMode = Differ
     return result;
 }
 
+
+std::vector<double> differentiate_vec(const std::pair<std::vector<double>, std::vector<double>>& cpair);
 
 
 
