@@ -376,6 +376,9 @@ public:
     template<typename T>
     T toNumber(bool *ok = nullptr) const;
 
+    template<typename T>
+    static constexpr bool isNumberType();
+
     E172_VARIANT_NUM_CONVERTER(Double, double)
     E172_VARIANT_NUM_CONVERTER(Float, float)
     E172_VARIANT_NUM_CONVERTER(Int, int)
@@ -423,8 +426,28 @@ public:
     static int64_t testSpeed();
 };
 
-
-
+template<typename T>
+constexpr bool Variant::isNumberType() {
+    if(std::is_same<T, bool>::value
+       || std::is_same<T, char>::value
+       || std::is_same<T, signed char>::value
+       || std::is_same<T, unsigned char>::value
+       || std::is_same<T, wchar_t>::value
+       || std::is_same<T, char16_t>::value
+       || std::is_same<T, char32_t>::value
+       || std::is_same<T, short>::value
+       || std::is_same<T, unsigned short>::value
+       || std::is_same<T, unsigned int>::value
+       || std::is_same<T, unsigned long>::value
+       || std::is_same<T, long long>::value
+       || std::is_same<T, unsigned long long>::value
+       || std::is_same<T, float>::value
+       || std::is_same<T, double>::value
+       || std::is_same<T, long double>::value) {
+       return true;
+    }
+    return false;
+}
 
 template<typename T>
 T Variant::toNumber(bool *ok) const {

@@ -168,7 +168,7 @@ bool Variant::isNumber() const {
     } else if(containsType<std::string>()) {
         return containsNumber(value<std::string>());
     }
-    return 0;
+    return false;
 }
 
 bool Variant::isString() const {
