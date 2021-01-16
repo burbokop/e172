@@ -13,6 +13,7 @@
 namespace e172 {
 
 typedef uint32_t Color;
+typedef uint8_t ColorComponent;
 
 /**
  * @brief argb
@@ -23,7 +24,7 @@ typedef uint32_t Color;
  * @return color
  * @note all arguments from 0 to 255
  */
-inline Color argb(uint8_t alpha, uint8_t r, uint8_t g, uint8_t b) {
+inline Color argb(ColorComponent alpha, ColorComponent r, ColorComponent g, ColorComponent b) {
     return (static_cast<Color>(alpha) << 24)
             | (static_cast<Color>(r) << 16)
             | (static_cast<Color>(g) << 8)
@@ -38,9 +39,17 @@ inline Color argb(uint8_t alpha, uint8_t r, uint8_t g, uint8_t b) {
  * @return
  * @note all arguments from 0 to 255
  */
-inline Color rgb(uint8_t r, uint8_t g, uint8_t b) {
+inline Color rgb(ColorComponent r, ColorComponent g, ColorComponent b) {
     return argb(0xff, r, g, b);
 }
+
+inline ColorComponent alpha(Color color) { return color >> 24; }
+
+inline ColorComponent red(Color color) { return color >> 16; }
+
+inline ColorComponent green(Color color) { return color >> 8; }
+
+inline ColorComponent blue(Color color) { return color >> 0; }
 
 Color randomColor();
 Color randomColor(unsigned int seed);

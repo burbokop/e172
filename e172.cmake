@@ -85,6 +85,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/boolean.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/flagparser.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/flagparser.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/reflection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/reflection.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h
