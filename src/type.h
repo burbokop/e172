@@ -1,6 +1,24 @@
 #ifndef TYPE_H
 #define TYPE_H
 
+#if __has_include(<boost/core/demangle.hpp>)
+#include <boost/core/demangle.hpp>
+
+namespace e172 {
+
+namespace TypeTools {
+inline std::string demangle(const std::string &typeName) { return boost::core::demangle(typeName.c_str()); }
+}
+
+template <typename T>
+struct Type {
+    static inline std::string name() { return boost::core::demangle(typeid(T).name()); }
+    static inline size_t hash() { return typeid(T).hash_code(); }
+};
+}
+
+#else
+
 #include <typeinfo>
 #include <string>
 
@@ -21,5 +39,6 @@ public:
 
 
 }
+#endif
 
 #endif // TYPE_H
