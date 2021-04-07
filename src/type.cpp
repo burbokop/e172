@@ -1,8 +1,10 @@
 #include "type.h"
 
+
+#if !__has_include(<boost/core/demangle.hpp>)
+
 #include <cxxabi.h>
 #include <stdexcept>
-
 
 std::string e172::TypeTools::demangle(const std::string &typeName) {
     size_t originalTypeNameSize = typeName.size();
@@ -21,3 +23,4 @@ std::string e172::TypeTools::demangle(const std::string &typeName) {
     std::free(demangleResult);
     return result;
 }
+#endif
