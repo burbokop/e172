@@ -381,12 +381,12 @@ typedef enum
 
 
 
-class AbstractEventHandler
-{
+class AbstractEventHandler {
 public:
     virtual bool exitFlag() const = 0;
     virtual bool keyHolded(Scancode key) const = 0;
     virtual bool keySinglePressed(Scancode key) const = 0;
+    virtual std::string pullText() = 0;
     virtual void update() = 0;
     virtual Vector mousePosition() const = 0;
     AbstractEventHandler();
