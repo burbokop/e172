@@ -116,5 +116,12 @@ ElapsedTimer::time_t Context::renderDelay() const {
     return 0;
 }
 
+e172::ptr<Entity> Context::findEntity(const std::function<bool (const e172::ptr<Entity> &)> &condition) {
+    if(m_application) {
+        return m_application->findEntity(condition);
+    }
+    return nullptr;
+}
+
 
 }

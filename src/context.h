@@ -88,6 +88,20 @@ public:
         return e172::smart_cast<T>(entityById(id));
     }
 
+
+    e172::ptr<e172::Entity> findEntity(const std::function<bool(const e172::ptr<e172::Entity> &)>& condition);
+
+    template<typename T>
+    e172::ptr<T> findEntity(const std::function<bool(const e172::ptr<T> &)>& condition) {
+        return e172::smart_cast<T>(findEntity([condition](const auto& e){
+            e172::ptr<T> castedPtr = e172::smart_cast<T>(e);
+            if(castedPtr) {
+                return condition(castedPtr);
+            }
+            return false;
+        }));
+    }
+
     void registerMessageHandler(const MessageId &messageId, const std::function<void(const Vector&)> &callback);
     template<typename C>
     void registerMessageHandler(const MessageId &messageId, C *object, void(C::*callback)(const Vector&)) {
@@ -97,6 +111,7 @@ public:
     }
 
 };
+
 
 }
 

@@ -39,7 +39,7 @@ public:
     T *operator->() const { return m_data; };
     T* data() const { return m_data; }
 
-    operator bool() const { return m_lifeInfo; }
+    operator bool() const { return m_lifeInfo; }    
 };
 
 template<typename T>
@@ -100,6 +100,20 @@ bool operator ==(A *ptr0, const e172::ptr<B> &ptr1) {
 template<typename A, typename B>
 bool operator !=(A *ptr0, const e172::ptr<B> &ptr1) {
     return ptr0 != ptr1.data();
+}
+
+template<typename T>
+std::ostream &operator<<(std::ostream& stream, const e172::ptr<T>& ptr) {
+    if(ptr.data()) {
+        if (ptr.operator bool()) {
+            stream << ptr.data();
+        } else {
+            stream << ptr.data() << "[deleted]";
+        }
+    } else {
+        stream << ptr.data();
+    }
+    return stream;
 }
 
 #endif // PTR_H
