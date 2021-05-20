@@ -15,7 +15,10 @@ struct __enum_tools {
 };
 
 }
-#define E172_SMART_ENUM(TYPE, ...) struct TYPE { enum Enum { __VA_ARGS__ }; static inline const auto names = e172::__enum_tools::__va_args_to_map(#__VA_ARGS__); };
+#define E172_SMART_ENUM(TYPE, ...) struct TYPE { \
+    enum Enum { __VA_ARGS__ }; static inline const auto names = e172::__enum_tools::__va_args_to_map(#__VA_ARGS__); \
+    static inline std::string toString(Enum v) { return names.at(v); } \
+};
 
 
 
