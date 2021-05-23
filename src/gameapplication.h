@@ -15,7 +15,11 @@
 
 #include <src/utility/flagparser.h>
 
+#include <src/time/time.h>
+
 namespace e172 {
+
+class Time;
 class AbstractAudioProvider;
 class AbstractGraphicsProvider;
 class AssetProvider;
@@ -71,6 +75,8 @@ class GameApplication {
 
     //std::list<Entity*>::iterator m_autoIterator = m_entities.begin();
 
+    std::list<std::pair<e172::Time::time_t, std::function<void()>>> m_scheduledTasks;
+
     FlagParser m_flagParser;
 public:
     GameApplication(int argc, char *argv[]);
@@ -117,6 +123,8 @@ public:
     ElapsedTimer::time_t renderDelay() const;
 
     e172::ptr<e172::Entity> findEntity(const std::function<bool(const e172::ptr<e172::Entity> &)>& condition);
+
+    void schedule(e172::Time::time_t duration, const std::function<void()>& function);
 };
 
 }

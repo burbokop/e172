@@ -8,6 +8,7 @@
 #include <src/abstracteventhandler.h>
 #include <src/graphics/abstractrenderer.h>
 #include <src/graphics/abstractgraphicsprovider.h>
+#include <src/time/time.h>
 
 #include <iostream>
 
@@ -40,6 +41,10 @@ e172::ptr<Entity> GameApplication::findEntity(const std::function<bool (const e1
     } else {
         return nullptr;
     }
+}
+
+void GameApplication::schedule(e172::Time::time_t duration, const std::function<void ()> &function) {
+    m_scheduledTasks.push_back({ Time::currentMilliseconds() + duration, function });
 }
 
 ElapsedTimer::time_t GameApplication::proceedDelay() const {
@@ -103,7 +108,7 @@ void GameApplication::setGraphicsProvider(AbstractGraphicsProvider *graphicsProv
         }
     }
     m_graphicsProvider = graphicsProvider;
-    m_assetProvider->m_graphicsProvider = graphicsProvider;    
+    m_assetProvider->m_graphicsProvider = graphicsProvider;
 }
 
 AbstractAudioProvider *GameApplication::audioProvider() const {
@@ -256,6 +261,18 @@ int GameApplication::exec() {
             m_context->m_messageQueue.invokeInternalFunctions();
             m_context->m_messageQueue.flushMessages();
             m_context->m_deltaTime = m_deltaTimeCalculator.deltaTime();
+        }
+
+        {
+            auto it = m_scheduledTasks.begin();
+            while(it != m_scheduledTasks.end()) {
+                if(Time::currentMilliseconds() > it->first) {
+                    it->second();
+                    it = m_scheduledTasks.erase(it);
+                } else {
+                    it++;
+                }
+            }
         }
 
         if(mustQuit)
