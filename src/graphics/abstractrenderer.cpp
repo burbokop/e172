@@ -9,13 +9,11 @@ bool AbstractRenderer::isValid() const {
     return m_isValid;
 }
 
-bool AbstractRenderer::autoClear() const
-{
+bool AbstractRenderer::autoClear() const {
     return m_autoClear;
 }
 
-void AbstractRenderer::setAutoClear(bool autoClear)
-{
+void AbstractRenderer::setAutoClear(bool autoClear) {
     m_autoClear = autoClear;
 }
 
@@ -29,6 +27,15 @@ AbstractGraphicsProvider *AbstractRenderer::provider() const {
 
 AbstractRenderer::~AbstractRenderer() {}
 
+void AbstractRenderer::drawLine(const Line2d &line, uint32_t color) {
+    const auto& points = line.rectIntersection(resolution());
+    drawLine(points.first, points.second, color);
+}
+
+void AbstractRenderer::drawLineShifted(const Line2d &line, uint32_t color) {
+    drawLine(line.tanslated(offset()), color);
+}
+
 Vector AbstractRenderer::offset() const {
     return resolution() / 2 - cameraPosition();
 }
@@ -38,7 +45,7 @@ AbstractRenderer::Camera AbstractRenderer::detachCamera() {
         Camera c = Camera::newSharedContainer<Camera>(new Camera::void_handle, this, [this](Camera::data_ptr d) {
                 m_cameraLocked = false;
                 delete Camera::handle_cast<void*>(d);
-        });
+    });
         c.m_setter = [this](const Vector &vector){ m_position = vector; };
         c.m_getter = [this](){ return m_position; };
         c.m_renderer = this;

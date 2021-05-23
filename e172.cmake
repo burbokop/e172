@@ -46,6 +46,11 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/math/discretizer.h
     ${CMAKE_CURRENT_LIST_DIR}/src/math/cellularautomaton.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/cellularautomaton.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/line2d.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/line2d.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/physicalobject.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/math/physicalobject.h
+
 
     ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractfactory.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractfactory.h
@@ -106,8 +111,6 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/type.h
     ${CMAKE_CURRENT_LIST_DIR}/src/variant.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/variant.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/physicalobject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/physicalobject.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/smartenum.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/smartenum.h

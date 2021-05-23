@@ -9,6 +9,8 @@
 #include <src/textformat.h>
 #include <src/variant.h>
 
+#include <src/math/line2d.h>
+
 
 namespace e172 {
 
@@ -119,6 +121,8 @@ public:
     inline void drawImageShifted(const Image &image, const Vector &position, double angle, double zoom) { drawImage(image, position + offset(), angle, zoom); }
     inline Vector drawStringShifted(const std::string &string, const Vector &position, uint32_t color, const TextFormat &format = TextFormat()) { return drawString(string, position + offset(), color, format); }
 
+    void drawLine(const Line2d &line, uint32_t color);
+    void drawLineShifted(const Line2d &line, uint32_t color);
 
     virtual void applyLensEffect(const Vector &point0, const Vector &point1, double coefficient) = 0;
     virtual void applySmooth(const Vector &point0, const Vector &point1, double coefficient) = 0;
