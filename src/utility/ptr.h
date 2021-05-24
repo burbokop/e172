@@ -3,14 +3,14 @@
 
 #include <src/object.h>
 #include <src/sfinae.h>
-
+#include <functional>
 namespace e172 {
 
 
 template <typename T>
 class ptr {
     template<typename A> friend class ptr;
-    T *m_data;
+    T *m_data = nullptr;
     Object::LifeInfo m_lifeInfo;
 public:
     E172_SFINAE_METHOD_CHECKER(lifeInfo)
@@ -40,6 +40,23 @@ public:
     T* data() const { return m_data; }
 
     operator bool() const { return m_lifeInfo; }    
+
+    template<typename R>
+    R fold(const std::function<R(T*)>& onOk, const std::function<R()>& onNull = [](){ return R(); }) {
+        if(operator bool()) {
+            return onOk(data());
+        } else {
+            return onNull();
+        }
+    }
+
+    void fold(const std::function<void(T*)>& onOk, const std::function<void()>& onNull = [](){}) {
+        if(operator bool()) {
+            onOk(data());
+        } else {
+            onNull();
+        }
+    }
 };
 
 template<typename T>
@@ -100,6 +117,10 @@ bool operator ==(A *ptr0, const e172::ptr<B> &ptr1) {
 template<typename A, typename B>
 bool operator !=(A *ptr0, const e172::ptr<B> &ptr1) {
     return ptr0 != ptr1.data();
+}
+template<typename A, typename B>
+bool operator <(const e172::ptr<A> &ptr0, const e172::ptr<B> &ptr1) {
+    return ptr0.data() < ptr1.data();
 }
 
 template<typename T>

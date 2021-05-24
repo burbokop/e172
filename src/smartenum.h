@@ -21,5 +21,15 @@ struct __enum_tools {
 };
 
 
+#define E172_SMART_ENUM_MEMBER(TYPE, NAME, ...) \
+    public: \
+        enum TYPE { __VA_ARGS__ }; \
+    private: \
+        TYPE m_ ## NAME; \
+        static inline const auto NAME ## Strings = e172::__enum_tools::__va_args_to_map(#__VA_ARGS__); \
+    public: \
+        TYPE NAME() const { return m_ ## NAME; } \
+        std::string NAME ## String() const { return NAME ## Strings.at(m_ ## NAME); } \
+    private:
 
 #endif // KSMARTENUM_H
