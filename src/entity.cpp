@@ -29,24 +29,20 @@ bool Entity::containsTag(const String &tag) {
     return m_tags.find(tag) != m_tags.end();
 }
 
-bool Entity::enabled() const
-{
+bool Entity::enabled() const {
     return m_enabled;
 }
 
-void Entity::setEnabled(bool enabled)
-{
+void Entity::setEnabled(bool enabled) {
     m_enabled = enabled;
 }
 
-bool Entity::eventHandlerEnabled() const
-{
-    return m_eventHandlerEnabled;
+bool Entity::keyboardEnabled() const {
+    return m_keyboardEnabled;
 }
 
-void Entity::setEventHandlerEnabled(bool eventHandlerEnabled)
-{
-    m_eventHandlerEnabled = eventHandlerEnabled;
+void Entity::setKeyboardEnabled(bool keyboardEnabled) {
+    m_keyboardEnabled = keyboardEnabled;
 }
 
 Entity::Entity() {}

@@ -389,8 +389,8 @@ public:
     virtual std::string pullText() = 0;
     virtual void update() = 0;
     virtual Vector mousePosition() const = 0;
-    virtual void enable() = 0;
-    virtual void disable() = 0;
+    virtual void enableKeyboard() = 0;
+    virtual void disableKeyboard() = 0;
     AbstractEventHandler();
     virtual ~AbstractEventHandler();
 };

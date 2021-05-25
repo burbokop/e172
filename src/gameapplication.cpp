@@ -212,11 +212,11 @@ int GameApplication::exec() {
         }
         for(auto e : m_entities) {
             if(e->enabled()) {
-                if(e->eventHandlerEnabled()) {
-                    m_eventHandler->enable();
+                if(!e->keyboardEnabled()) {
+                    m_eventHandler->disableKeyboard();
                 }
                 e->proceed(m_context, m_eventHandler);
-                m_eventHandler->disable();
+                m_eventHandler->enableKeyboard();
                 for(auto euf : e->__euf) {
                     euf.first(e.data(), m_context, m_eventHandler);
                 }
