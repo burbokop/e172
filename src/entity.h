@@ -20,6 +20,7 @@ private:
     id_t m_entityId = ++nextId;
     StringSet m_tags;
     bool m_enabled = true;
+    bool m_eventHandlerEnabled = true;
 
     //[EXPERIMENTAL] extended update functions
     typedef std::pair<void(*)(Entity*, Context*, AbstractEventHandler*), void(*)(Entity*, AbstractRenderer*)> __euf_t;
@@ -42,6 +43,8 @@ public:
     bool containsTag(const String& tag);
     bool enabled() const;
     void setEnabled(bool enabled);
+    bool eventHandlerEnabled() const;
+    void setEventHandlerEnabled(bool eventHandlerEnabled);
 };
 
 

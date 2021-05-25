@@ -39,6 +39,16 @@ void Entity::setEnabled(bool enabled)
     m_enabled = enabled;
 }
 
+bool Entity::eventHandlerEnabled() const
+{
+    return m_eventHandlerEnabled;
+}
+
+void Entity::setEventHandlerEnabled(bool eventHandlerEnabled)
+{
+    m_eventHandlerEnabled = eventHandlerEnabled;
+}
+
 Entity::Entity() {}
 
 Entity::~Entity() {}
