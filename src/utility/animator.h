@@ -22,36 +22,36 @@ public:
         Inactive
     };
 private:
-    e172::Vector pos;
-    double angle;
-    double zoom;
+    e172::Vector m_position;
+    double m_angle;
+    double m_zoom;
 
-    unsigned mode = NotRender;
-    unsigned defaultMode = Inactive;
+    unsigned m_mode = NotRender;
+    unsigned m_defaultMode = Inactive;
 
-    e172::ElapsedTimer timer = e172::ElapsedTimer(100);
-    e172::Image origin;
-    std::vector<e172::Image> frames;
+    e172::ElapsedTimer m_timer = e172::ElapsedTimer(100);
+    e172::Image m_origin;
+    std::vector<e172::Image> m_frames;
     int m_frameCount;
     int m_trackCount;
-    int currentFrame;
-    int currentTrack;
+    int m_currentFrameIndex;
+    int m_currentTrackIndex;
     bool m_isValid = false;
 
     static inline int nextId = 0;
-    int id = nextId++;
+    int m_id = nextId++;
 public:
     Animator();
     Animator(const e172::Image &origin, int frames = 1, int tracks = 1);
     void play(unsigned mode);
     void setDefaultMode(unsigned value);
-    void setPosition(e172::Vector pos);
+    void setPosition(const Vector &position);
     void setAngle(double angle);
     void setZoom(double zoom);
 
     // Entity interface
 public:
-    void render(e172::AbstractRenderer *renderer);
+    Vector render(e172::AbstractRenderer *renderer);
 
 
     friend bool operator ==(const Animator& anim0, const Animator& anim1);

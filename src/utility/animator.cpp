@@ -5,7 +5,7 @@
 namespace e172 {
 
 void Animator::setDefaultMode(unsigned value) {
-    defaultMode = value;
+    m_defaultMode = value;
 }
 
 bool Animator::isValid() const {
@@ -23,59 +23,61 @@ int Animator::trackCount() const {
 Animator::Animator() {}
 
 Animator::Animator(const e172::Image &origin, int frames, int tracks) {
-    this->angle = 0;
-    this->zoom = 1;
+    m_angle = 0;
+    m_zoom = 1;
 
-    this->origin = origin;
+    m_origin = origin;
     m_frameCount = frames;
     m_trackCount = tracks;
     const int frameWidth = origin.width() / frames;
     const int frameHeigth = origin.height() / tracks;
 
-    currentFrame = 0;
-    currentTrack = 0;
+    m_currentFrameIndex = 0;
+    m_currentTrackIndex = 0;
 
     for(int i = 0; i < m_frameCount; i++) {
-        this->frames.push_back(origin.fragment(i * frameWidth, 0, frameWidth, frameHeigth));
+        m_frames.push_back(origin.fragment(i * frameWidth, 0, frameWidth, frameHeigth));
     }
 
-    m_isValid = this->frames.size() > 0;
+    m_isValid = m_frames.size() > 0;
 }
 
 void Animator::play(unsigned mode) {
-    this->mode = mode;
+    m_mode = mode;
 }
 
 
-void Animator::setPosition(e172::Vector pos) {
-    this->pos = pos;
+void Animator::setPosition(const e172::Vector &position) {
+    m_position = position;
 }
 
 void Animator::setAngle(double angle) {
-    this->angle = angle;
+    m_angle = angle;
 }
 
 void Animator::setZoom(double zoom) {
-    this->zoom = zoom;
+    m_zoom = zoom;
 }
 
-void Animator::render(e172::AbstractRenderer *renderer) {
+e172::Vector Animator::render(e172::AbstractRenderer *renderer) {
     if(m_isValid) {
-        if (renderer != nullptr && this->mode != NotRender) {
-            e172::Vector local = pos + renderer->offset();
-            renderer->drawImage(frames[static_cast<unsigned long>(currentFrame)], local, angle, zoom);
+        const auto currentFrame = m_frames[static_cast<unsigned long>(m_currentFrameIndex)];
+        if (renderer != nullptr && m_mode != NotRender) {
+            renderer->drawImageShifted(currentFrame, m_position, m_angle, m_zoom);
         }
-        if(this->timer.check()) {
-            if(this->mode == Loop) {
-                this->currentFrame++;
-                if(this->currentFrame >= m_frameCount) this->currentFrame = 0;
+        if(m_timer.check()) {
+            if(m_mode == Loop) {
+                m_currentFrameIndex++;
+                if(m_currentFrameIndex >= m_frameCount) m_currentFrameIndex = 0;
             }
         }
-        if(defaultMode != Inactive) mode = defaultMode;
+        if(m_defaultMode != Inactive) m_mode = m_defaultMode;
+        return e172::Vector(currentFrame.width(), currentFrame.height());
     }
+    return e172::Vector();
 }
 
 bool operator ==(const Animator &anim0, const Animator &anim1) {
-    return anim0.id == anim1.id;
+    return anim0.m_id == anim1.m_id;
 }
 }
