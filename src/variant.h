@@ -237,6 +237,24 @@ public:
         return T();
     }
 
+    template<typename T, typename R>
+    R fold(const std::function<R(const T&)>& onOk, const std::function<R()>& onNull = [](){ return R(); }) const {
+        if(containsType<T>()) {
+            return onOk(value<T>());
+        } else {
+            return onNull();
+        }
+    }
+
+    template<typename T>
+    void fold(const std::function<void(const T&)>& onOk, const std::function<void()>& onNull = [](){}) const {
+        if(containsType<T>()) {
+            onOk(value<T>());
+        } else {
+            onNull();
+        }
+    }
+
 #ifdef E172_USE_VARIANT_RTTI_OBJECT
     template<typename T>
     void assign(const T& value) {

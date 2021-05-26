@@ -42,7 +42,7 @@ public:
     operator bool() const { return m_lifeInfo; }    
 
     template<typename R>
-    R fold(const std::function<R(T*)>& onOk, const std::function<R()>& onNull = [](){ return R(); }) {
+    R fold(const std::function<R(T*)>& onOk, const std::function<R()>& onNull = [](){ return R(); }) const {
         if(operator bool()) {
             return onOk(data());
         } else {
@@ -50,7 +50,7 @@ public:
         }
     }
 
-    void fold(const std::function<void(T*)>& onOk, const std::function<void()>& onNull = [](){}) {
+    void fold(const std::function<void(T*)>& onOk, const std::function<void()>& onNull = [](){}) const {
         if(operator bool()) {
             onOk(data());
         } else {
