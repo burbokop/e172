@@ -89,12 +89,12 @@ public:
 
     friend std::ostream &operator<<(std::ostream &os, const e172::Vector &dt);
 
+    friend bool operator<(const e172::Vector& vec0, const e172::Vector& vec1);
 
     static bool moduleLessComparator(const Vector& v0, const Vector& v1);
 };
 
 }
 
-bool operator<(const e172::Vector& vec0, const e172::Vector& vec1);
 
 #endif // VECTOR_H

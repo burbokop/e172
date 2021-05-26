@@ -214,8 +214,8 @@ std::ostream &operator<<(std::ostream &os, const e172::Vector &dt) {
     return os;
 }
 
-}
-
 bool operator<(const e172::Vector &vec0, const e172::Vector &vec1) {
     return vec0.cheapModule() < vec1.cheapModule();
+}
+
 }
