@@ -165,6 +165,15 @@ public:
             }
         }
     }
+
+    template<typename T>
+    static T wholePart(const T &value, const T &divider) {
+        if(std::is_integral<T>::value) {
+            return static_cast<T>(value / divider) * divider;
+        } else {
+            return std::floor(value / divider) * divider;
+        }
+    }
 };
 
 

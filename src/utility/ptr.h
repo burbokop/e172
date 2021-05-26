@@ -57,6 +57,16 @@ public:
             onNull();
         }
     }
+
+    bool safeDestroy() const {
+        if(operator bool()) {
+            if(m_data->liveInHeap()) {
+                delete m_data;
+                return true;
+            }
+        }
+        return false;
+    }
 };
 
 template<typename T>
@@ -68,8 +78,8 @@ struct smart_ptr_type {
 
 
 template <typename T>
-void destroy(const e172::ptr<T> &ptr) {
-    delete ptr.operator->();
+bool safeDestroy(const e172::ptr<T> &ptr) {
+    return ptr.safeDestroy();
 }
 
 template<typename T, typename A>
@@ -118,6 +128,7 @@ template<typename A, typename B>
 bool operator !=(A *ptr0, const e172::ptr<B> &ptr1) {
     return ptr0 != ptr1.data();
 }
+
 template<typename A, typename B>
 bool operator <(const e172::ptr<A> &ptr0, const e172::ptr<B> &ptr1) {
     return ptr0.data() < ptr1.data();
@@ -136,5 +147,23 @@ std::ostream &operator<<(std::ostream& stream, const e172::ptr<T>& ptr) {
     }
     return stream;
 }
+
+template<typename A>
+bool operator ==(const e172::ptr<A> &ptr, std::nullptr_t) {
+    return !ptr;
+}
+template<typename A>
+bool operator !=(const e172::ptr<A> &ptr, std::nullptr_t) {
+    return ptr;
+}
+template<typename A>
+bool operator ==(std::nullptr_t, const e172::ptr<A> &ptr) {
+    return !ptr;
+}
+template<typename A>
+bool operator !=(std::nullptr_t, const e172::ptr<A> &ptr) {
+    return ptr;
+}
+
 
 #endif // PTR_H

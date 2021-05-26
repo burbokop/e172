@@ -56,7 +56,7 @@ void GameApplication::destroyAllEntities(Context *, const Variant &) {
     auto it = m_entities.begin();
     while (it != m_entities.end()) {
         if((*it)->liveInHeap()) {
-            destroy(*it);
+            safeDestroy(*it);
             it = m_entities.erase(it);
         } else {
             ++it;
@@ -67,7 +67,7 @@ void GameApplication::destroyAllEntities(Context *, const Variant &) {
 void GameApplication::destroyEntity(Context*, const Variant &value) {
     for(auto it = m_entities.begin(); it != m_entities.end(); ++it) {
         if((*it)->entityId() == value.toNumber<Entity::id_t>()) {
-            destroy(*it);
+            safeDestroy(*it);
             m_entities.erase(it);
             return;
         }
@@ -80,7 +80,7 @@ void GameApplication::destroyEntitiesWithTag(Context *, const Variant &value) {
     auto it = m_entities.begin();
     while (it != m_entities.end()) {
         if((*it)->liveInHeap() && (*it)->containsTag(tag)) {
-            destroy(*it);
+            safeDestroy(*it);
             it = m_entities.erase(it);
         } else {
             ++it;

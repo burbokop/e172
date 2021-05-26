@@ -15,11 +15,22 @@ struct __enum_tools {
 };
 
 }
-#define E172_SMART_ENUM(TYPE, ...) struct TYPE { \
+
+#define E172_SMART_ENUM_CLASS(TYPE, ...) struct TYPE { \
     enum Enum { __VA_ARGS__ }; static inline const auto names = e172::__enum_tools::__va_args_to_map(#__VA_ARGS__); \
     static inline std::string toString(Enum v) { return names.at(v); } \
 };
 
+#define E172_SMART_ENUM_RESULT(TYPE, ...) \
+    public: \
+        enum TYPE { __VA_ARGS__ }; \
+    private: \
+        static inline const auto TYPE ## Strings2 = e172::__enum_tools::__va_args_to_map(#__VA_ARGS__); \
+    public: \
+        friend inline std::ostream& operator<<(std::ostream& stream, TYPE value) { \
+            return stream << TYPE ## Strings2.at(value); \
+        } \
+    private:
 
 #define E172_SMART_ENUM_MEMBER(TYPE, NAME, ...) \
     public: \
