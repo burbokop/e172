@@ -26,30 +26,13 @@ void AssetProvider::searchInFolder(std::string path) {
     }
 }
 
-Loadable *AssetProvider::createLoadable(std::string templateId) {
+Loadable *AssetProvider::createLoadable(const std::string &templateId) {
     const auto it = templates.find(templateId);
     if(it == templates.end()) {
         Debug::warning("AssetProvider::createLoadable: Loadable template not found for id:", templateId);
         return nullptr;
     }
-
-    auto result = m_factory.create(it->second.className);
-    if(!result) {
-        Debug::warning("AssetProvider::createLoadable: Type not registered:", it->second.className, "( template id: ", templateId, ")");
-        return nullptr;
-    }
-
-    result->m_assets = it->second.assets;
-    result->m_className = it->second.className;
-    result->m_loadableId = it->first;
-    result->m_assetProvider = this;
-
-    for(auto f : result->initialize_functions) {
-        f();
-    }
-    result->initialize_functions.clear();
-    result->released = true;
-    return result;
+    return createLoadable(it->first, it->second);
 }
 
 std::vector<std::string> AssetProvider::loadableNames() {
@@ -76,38 +59,67 @@ void AssetProvider::processFile(std::string file, std::string path) {
             Debug::warning("Empty json object detected or parsing error. file:", file);
             return;
         }
-
-        const auto id = Additional::value(root, "id");
-        const auto className = Additional::value(root, "class");
-        if(id.isNull() || className.isNull()) {
-            if(id.isNull()) {
-                Debug::warning("Template id missing. file:", file);
-            } else {
-                Debug::warning("Template class name missing. file:", file);
-            }
-            return;
+        const auto t = createTemplate(root, path);
+        if(!t.first.empty()) {
+            templates[t.first] = t.second;
         }
+    }
+}
 
-        LoadableTemplate newTemplate;
-        newTemplate.className = className.toString();
-        for(auto item = root.begin(); item != root.end(); ++item) {
-            const auto& assetId = item->first;
-            if(assetId != "class" && assetId != "id") {
-                if(item->second.isNull()) {
-                    Debug::warning("Asset is null. Id:", assetId, "file:", file);
+std::pair<std::string, AssetProvider::LoadableTemplate> AssetProvider::createTemplate(const VariantMap &root, const std::string &path) {
+    const auto id = Additional::value(root, "id");
+    const auto className = Additional::value(root, "class");
+    if(id.isNull() || className.isNull()) {
+        if(id.isNull()) {
+            Debug::warning("Template id missing. object:", root);
+        } else {
+            Debug::warning("Template class name missing. object:", root);
+        }
+        return { "", LoadableTemplate{} };
+    }
+
+    LoadableTemplate result;
+    result.className = className.toString();
+    for(auto item = root.begin(); item != root.end(); ++item) {
+        const auto& assetId = item->first;
+        if(assetId != "class" && assetId != "id") {
+            if(item->second.isNull()) {
+                Debug::warning("Asset is null. Id:", assetId, "object:", root);
+            } else {
+                auto it = executors.find(assetId);
+                if(it != executors.end() && it->second) {
+                    it->second->executor_path = m_context->absolutePath(path);
+                    it->second->m_provider = this;
+                    it->second->m_graphicsProvider = m_graphicsProvider;
+                    it->second->m_audioProvider = m_audioProvider;
+                    result.assets[assetId] = it->second->proceed(item->second);
                 } else {
-                    auto it = executors.find(assetId);
-                    if(it != executors.end() && it->second) {
-                        it->second->executor_path = m_context->absolutePath(path);
-                        newTemplate.assets[assetId] = it->second->proceed(item->second, m_graphicsProvider, m_audioProvider);
-                    } else {
-                        newTemplate.assets[assetId] = item->second;
-                    }
+                    result.assets[assetId] = item->second;
                 }
             }
         }
-        templates[id.toString()] = newTemplate;
     }
-};
+    return { id.toString(), result };
+}
+
+Loadable *AssetProvider::createLoadable(const std::string &templateId, const AssetProvider::LoadableTemplate &loadableTemplate) {
+    auto result = m_factory.create(loadableTemplate.className);
+    if(!result) {
+        Debug::warning("AssetProvider::createLoadable: Type not registered:", loadableTemplate.className, "( template id: ", templateId, ")");
+        return nullptr;
+    }
+
+    result->m_assets = loadableTemplate.assets;
+    result->m_className = loadableTemplate.className;
+    result->m_loadableId = templateId;
+    result->m_assetProvider = this;
+
+    for(const auto& f : result->initialize_functions) {
+        f();
+    }
+    result->initialize_functions.clear();
+    result->released = true;
+    return result;
+}
 
 }

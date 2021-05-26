@@ -94,4 +94,7 @@ public:
 };
 
 }
+
+bool operator<(const e172::Vector& vec0, const e172::Vector& vec1);
+
 #endif // VECTOR_H

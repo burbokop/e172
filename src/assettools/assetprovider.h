@@ -15,6 +15,7 @@ class Context;
 
 class AssetProvider {
     friend class GameApplication;
+    friend AbstractAssetExecutor;
     AbstractGraphicsProvider *m_graphicsProvider = nullptr;
     AbstractAudioProvider *m_audioProvider = nullptr;
     Context *m_context = nullptr;
@@ -27,12 +28,18 @@ class AssetProvider {
     std::map<std::string, std::shared_ptr<AbstractAssetExecutor>> executors;
 
     void processFile(std::string file, std::string path);
+
+    std::pair<std::string, LoadableTemplate> createTemplate(const e172::VariantMap& root, const std::string &path);
+    Loadable *createLoadable(const std::string& templateId, const LoadableTemplate& loadableTemplate);
 public:
-    Loadable *createLoadable(std::string templateId);
+    Loadable *createLoadable(const std::string& templateId);
     template<typename T>
     auto createLoadable(std::string templateId) {
         return e172::smart_cast<T>(createLoadable(templateId));
     }
+
+
+
     AssetProvider();
     void searchInFolder(std::string path);
     std::vector<std::string> loadableNames();
