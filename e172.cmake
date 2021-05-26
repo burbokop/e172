@@ -8,6 +8,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/assettools/assetprovider.h
     ${CMAKE_CURRENT_LIST_DIR}/src/assettools/loadable.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/assettools/loadable.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/assettools/loadabletemplate.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/assettools/loadabletemplate.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/audio/abstractaudioprovider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/audio/abstractaudioprovider.h

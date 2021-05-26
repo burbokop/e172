@@ -4,6 +4,7 @@
 #include <src/memcontrol/abstractfactory.h>
 #include <memory>
 #include "loadable.h"
+#include "loadabletemplate.h"
 #include <src/utility/ptr.h>
 
 namespace e172 {
@@ -19,20 +20,21 @@ class AssetProvider {
     AbstractGraphicsProvider *m_graphicsProvider = nullptr;
     AbstractAudioProvider *m_audioProvider = nullptr;
     Context *m_context = nullptr;
-    struct LoadableTemplate {
-        std::string className;
-        e172::VariantMap assets;
-    };
+
     AbstractFactory<std::string, Loadable> m_factory;
     std::map<std::string, LoadableTemplate> templates;
     std::map<std::string, std::shared_ptr<AbstractAssetExecutor>> executors;
 
     void processFile(std::string file, std::string path);
 
-    std::pair<std::string, LoadableTemplate> createTemplate(const e172::VariantMap& root, const std::string &path);
-    Loadable *createLoadable(const std::string& templateId, const LoadableTemplate& loadableTemplate);
+    LoadableTemplate createTemplate(const e172::VariantMap& root, const std::string &path);
 public:
+    Loadable *createLoadable(const LoadableTemplate& loadableTemplate);
     Loadable *createLoadable(const std::string& templateId);
+    template<typename T>
+    auto createLoadable(const LoadableTemplate& loadableTemplate) {
+        return e172::smart_cast<T>(createLoadable(loadableTemplate));
+    }
     template<typename T>
     auto createLoadable(std::string templateId) {
         return e172::smart_cast<T>(createLoadable(templateId));
@@ -44,7 +46,7 @@ public:
     void searchInFolder(std::string path);
     std::vector<std::string> loadableNames();
 
-    void addTemplate(const std::string &templateName, const std::string &className, const e172::VariantMap &assets = e172::VariantMap());
+    void addTemplate(const LoadableTemplate& tmpl);
 
     template<typename T>
     void registerType() {

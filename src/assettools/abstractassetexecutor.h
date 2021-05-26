@@ -1,6 +1,8 @@
 #ifndef ABSTRACTASSETEXECUTOR_H
 #define ABSTRACTASSETEXECUTOR_H
 
+#include "loadabletemplate.h"
+
 #include <src/variant.h>
 #include <src/utility/ptr.h>
 
@@ -21,12 +23,9 @@ class AbstractAssetExecutor {
 public:
     std::string fullPath(const std::string &path);
 
-    Loadable *createLoadable(const e172::VariantMap& object);
+    LoadableTemplate createTemplate(const e172::VariantMap& object);
+    LoadableTemplate loadTemplate(const std::string& templateId);
 
-    template<typename T>
-    auto createLoadable(const e172::VariantMap& object) {
-        return e172::smart_cast<T>(createLoadable(object));
-    }
 
     AbstractGraphicsProvider *graphicsProvider() const;
     AbstractAudioProvider *audioProvider() const;
