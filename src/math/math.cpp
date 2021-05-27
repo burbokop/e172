@@ -130,6 +130,7 @@ double e172::Math::radiansDifference(double angle1, double angle2) {
             : diff;
 }
 
+
 #ifdef E172_USE_DEGREES_TRANSFORMS
 
 double e172::Math::constrainDegrees(double value) {
