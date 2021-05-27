@@ -174,6 +174,10 @@ public:
             return std::floor(value / divider) * divider;
         }
     }
+
+    static inline double randDouble() {
+        return double(std::rand()) / double(std::numeric_limits<decltype (std::rand())>::max());
+    }
 };
 
 
