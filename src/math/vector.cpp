@@ -56,6 +56,10 @@ Vector Vector::operator*(double multiplier) const {
     return Vector(this->m_x * multiplier, this->m_y * multiplier);
 }
 
+bool Vector::sameDirection(const Vector &other) const {
+    return *this * other > 0;
+}
+
 Vector operator*(double scalar, const Vector &vector) {
     return Vector(vector.m_x * scalar, vector.m_y * scalar);
 }
@@ -82,7 +86,7 @@ bool Vector::operator!=(Vector vector) const {
     return !e172::Math::cmpf(this->m_x, vector.m_x) || !e172::Math::cmpf(this->m_y, vector.m_y);
 }
 
-double Vector::operator*(Vector multiplier) const {
+double Vector::operator*(const Vector& multiplier) const {
     return this->m_x * multiplier.m_x + this->m_y * multiplier.m_y;
 }
 
@@ -210,8 +214,7 @@ bool Vector::moduleLessComparator(const Vector &v0, const Vector &v1) {
 }
 
 std::ostream &operator<<(std::ostream &os, const e172::Vector &dt) {
-    os << "Vector(" << std::to_string(dt.x()).c_str() << ", " << std::to_string(dt.y()).c_str() << ")";
-    return os;
+    return os << "Vector(" << std::to_string(dt.x()) << ", " << std::to_string(dt.y()) << ")";
 }
 
 bool operator<(const e172::Vector &vec0, const e172::Vector &vec1) {

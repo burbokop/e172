@@ -27,6 +27,8 @@ public:
     public:
         e172::Vector position() const;
         e172::Vector center() const;
+        e172::Vector rotatedOffset() const;
+        Vector offset() const;
         friend std::ostream &operator<<(std::ostream& stream, const ConnectionNode& node);
     };
     ConnectionNode connectionNode(const Vector& offset, double rotation);

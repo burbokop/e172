@@ -45,7 +45,9 @@ public:
     bool operator==(Vector vector) const;
     bool operator!=(Vector vector) const;
 
-    double operator*(Vector multiplier) const;
+    double operator*(const Vector& multiplier) const;
+
+    bool sameDirection(const Vector& other) const;
 
     void incrementX(double term = 1) { m_x += term; }
     void incrementY(double term = 1) { m_y += term; }

@@ -247,7 +247,20 @@ e172::Vector e172::PhysicalObject::ConnectionNode::center() const {
     return e172::Vector();
 }
 
+e172::Vector e172::PhysicalObject::ConnectionNode::rotatedOffset() const {
+    if(m_object)
+        return m_object->m_rotationMatrix * m_offset;
+
+    return e172::Vector();
+}
+
+
+e172::Vector e172::PhysicalObject::ConnectionNode::offset() const {
+    return m_offset;
+}
+
 namespace e172 {
+
 std::ostream &operator<<(std::ostream &stream, const e172::PhysicalObject::ConnectionNode &node) {
     const auto ndr = Math::constrainRadians(node.m_rotation);
     const auto obr = (node.m_object ? node.m_object->rotation() : 0);
