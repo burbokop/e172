@@ -87,6 +87,8 @@ public:
         return ss.str();
     }
 
+    static std::string codeLocation(const char* file, int line);
+
     static inline const std::string cxx =
 #ifdef __clang__
             "clang++";

@@ -3,7 +3,7 @@
 #include <src/additional.h>
 #include <cassert>
 #include <src/math/math.h>
-#include "testtools.h"
+#include <src/testing.h>
 
 void e172::AdditionalTest::testAll() {
     parseRadiansTest();
@@ -24,4 +24,5 @@ void e172::AdditionalTest::parseRadiansTest() {
     shouldEqual(Additional::parseRadians("-2"), -2);
     shouldEqual(Additional::parseRadians("2"), 2);
     shouldEqual(Additional::parseRadians("0"), 0);
+    shouldEqual(Additional::parseRadians(""), None);
 }

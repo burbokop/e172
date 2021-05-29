@@ -57,6 +57,7 @@ public:
         }
     }
 
+
     friend bool operator==(const Optional& v0, const T& v1) {
         return v0.m_isDefined ? v0.m_value == v1 : false;
     }
@@ -69,6 +70,21 @@ public:
     friend bool operator!=(const T& v1, const Optional& v0) {
         return v0.m_isDefined ? v0.m_value != v1 : true;
     }
+
+
+    friend bool operator==(const Optional& v0, NoneType) {
+        return !v0.m_isDefined;
+    }
+    friend bool operator!=(const Optional& v0, NoneType) {
+        return v0.m_isDefined;
+    }
+    friend bool operator==(NoneType, const Optional& v0) {
+        return !v0.m_isDefined;
+    }
+    friend bool operator!=(NoneType, const Optional& v0) {
+        return v0.m_isDefined;
+    }
+
 
     friend bool operator==(const Optional& v0, const Optional& v1) {
         return v0.m_isDefined && v1.m_isDefined ? v0.m_value == v1.m_value : v0.m_isDefined == v1.m_isDefined;

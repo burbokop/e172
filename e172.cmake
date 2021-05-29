@@ -138,6 +138,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/testprovider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/conversion.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/conversion.h
+
+    ${CMAKE_CURRENT_LIST_DIR}/src/testing.h
     )
 
 if (UNIX)
@@ -151,7 +153,6 @@ endif (UNIX)
 
 
 add_executable(e172_tests
-    ${CMAKE_CURRENT_LIST_DIR}/tests/testtools.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/testsmain.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.h

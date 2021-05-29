@@ -476,6 +476,9 @@ std::vector<std::string> e172::Additional::coverArgs(int argc, char *argv[]) {
 #include <iostream>
 
 e172::Optional<double> e172::Additional::parseRadians(const std::string &string) {
+    if(string.empty())
+        return None;
+
     std::regex regex("(\\-?Pi)?[ ]*([\\/\\*]?)[ ]*(\\-?\\d*\\.?\\d*)");
 
     double result;

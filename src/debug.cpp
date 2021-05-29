@@ -18,7 +18,8 @@ std::function<void(const std::string &, Debug::MessageType)> Debug::m_proceedMes
     } else if(type == Debug::WarningMessage) {
         std::cout << "\033[33m" << data << "\033[0m" << std::endl;
     } else if(type == Debug::FatalMessage) {
-        std::cout << "\033[31m" << data << "\033[0m" << std::endl;
+        std::cerr << data << std::endl;
+        exit(1);
     }
 };
 
@@ -94,6 +95,10 @@ void Debug::installSigsegvHandler(void(*function)(int)) {
 #ifdef __unix__
     signal(SIGSEGV, function);
 #endif
+}
+
+std::string Debug::codeLocation(const char *file, int line) {
+    return std::string(file) + ":" + std::to_string(line) + ":";
 }
 
 void Debug::installHandler(const std::function<void (const std::string &, Debug::MessageType)> &handler) {
