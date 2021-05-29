@@ -156,6 +156,8 @@ add_executable(e172_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/testsmain.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/varianttest.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/varianttest.h
     )
 
 target_link_libraries(e172_tests

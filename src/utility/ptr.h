@@ -4,6 +4,7 @@
 #include <src/object.h>
 #include <src/sfinae.h>
 #include <functional>
+#include <set>
 namespace e172 {
 
 
@@ -146,6 +147,19 @@ std::ostream &operator<<(std::ostream& stream, const e172::ptr<T>& ptr) {
         stream << ptr.data();
     }
     return stream;
+}
+
+template<typename T>
+std::ostream &operator<<(std::ostream& stream, const std::set<e172::ptr<T>>& set) {
+    size_t i = 0;
+    stream << "[";
+    for(const auto& ptr : set) {
+        stream << ptr;
+        if(i < set.size() - 1)
+            stream << ", ";
+        ++i;
+    }
+    return stream << "]";
 }
 
 template<typename A>

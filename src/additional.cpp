@@ -12,6 +12,10 @@
 #include <filesystem>
 #include <src/math/math.h>
 #include <regex>
+#include <filesystem>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 std::string e172::Additional::constrainPath(const std::string &path) {
     if(path.size() <= 0)
@@ -87,9 +91,14 @@ std::string e172::Additional::removeSymbols(const std::string &string, const std
     return result;
 }
 
-std::string e172::Additional::absolutePath(const std::string &path, const std::string &exe_path) {
-    if(exe_path.size() <= 0) return "";
+std::string e172::Additional::absolutePath(const std::string &path, const std::string &exe_path) {        
     if(path.size() <= 0) return "";
+
+    if(path[0] == '~') {
+        return constrainPath(homeDirectory() + separatorString + path.substr(1, path.size() - 1));
+    }
+
+    if(exe_path.size() <= 0) return "";
 
 #ifdef __WIN32__
     if(path.size() > 2 && path[1] == ':' && path[2] == separator) return path;
@@ -98,6 +107,14 @@ std::string e172::Additional::absolutePath(const std::string &path, const std::s
 #endif
 
     return constrainPath(exe_path + separatorString + ".." + separatorString + path);
+}
+
+std::string e172::Additional::homeDirectory() {
+    passwd *pw = getpwuid(getuid());
+    if(pw) {
+        return pw->pw_dir;
+    }
+    return std::string();
 }
 
 std::string e172::Additional::fencedArea(const std::string &string, e172::Additional::Fence fence) {
@@ -249,13 +266,26 @@ char e172::Additional::reversedFence(char symbol) {
     }
 }
 
-std::string e172::Additional::readFile(std::string path) {
+std::string e172::Additional::readFile(const std::string &path) {
     std::ifstream ifile(path);
-    std::string string((std::istreambuf_iterator<char>(ifile)), std::istreambuf_iterator<char>());
-    ifile.close();
-    return string;
+    if(ifile.is_open()) {
+        std::string string((std::istreambuf_iterator<char>(ifile)), std::istreambuf_iterator<char>());
+        ifile.close();
+        return string;
+    }
+    return std::string();
 }
 
+bool e172::Additional::writeFile(const std::string &path, const std::string &content) {
+    std::filesystem::create_directories(cutPath(path, 1));
+    std::ofstream ofile(path, std::ios::out);
+    if(ofile.is_open()) {
+        ofile << content;
+        ofile.close();
+        return true;
+    }
+    return false;
+}
 
 std::vector<std::string> e172::Additional::directoryContent(std::string path) {
     DIR *dir;

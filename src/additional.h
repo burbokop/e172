@@ -27,6 +27,7 @@ struct Additional {
     static std::string trim(const std::string& str, const std::vector<char> &symbols);
     static std::string removeSymbols(const std::string &string, const std::vector<char> &symbols);
     static std::string absolutePath(const std::string &path, const std::string &exe_path);
+    static std::string homeDirectory();
 
     enum Fence {
         Brackets,
@@ -49,7 +50,8 @@ struct Additional {
         }
     }
 
-    static std::string readFile(std::string path);
+    static std::string readFile(const std::string& path);
+    static bool writeFile(const std::string &path, const std::string &content);
     static std::vector<std::string> directoryContent(std::string path);
     static bool isDirectory(std::string path);
     static std::string fileSufix(std::string string);
