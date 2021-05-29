@@ -10,7 +10,8 @@
 #include <algorithm>
 #include <memory>
 #include <filesystem>
-
+#include <src/math/math.h>
+#include <regex>
 
 std::string e172::Additional::constrainPath(const std::string &path) {
     if(path.size() <= 0)
@@ -212,12 +213,12 @@ std::vector<std::string> e172::Additional::fencedAreas(const std::string &string
     size_t begin = 0;
     std::vector<std::string> result;
     while (true) {
-         const auto r = fencedArea(string, begin, &begin);
-         if(r.size() > 0) {
-             result.push_back(r);
-         } else {
-             return result;
-         }
+        const auto r = fencedArea(string, begin, &begin);
+        if(r.size() > 0) {
+            result.push_back(r);
+        } else {
+            return result;
+        }
     }
 }
 
@@ -225,12 +226,12 @@ std::vector<std::string> e172::Additional::jsonTopLevelFields(const std::string 
     size_t begin = 0;
     std::vector<std::string> result;
     while (true) {
-         const auto r = jsonTopLevelField(string, begin, &begin);
-         if(r.size() > 0) {
-             result.push_back(r);
-         } else {
-             return result;
-         }
+        const auto r = jsonTopLevelField(string, begin, &begin);
+        if(r.size() > 0) {
+            result.push_back(r);
+        } else {
+            return result;
+        }
     }
 }
 
@@ -469,6 +470,55 @@ std::vector<std::string> e172::Additional::coverArgs(int argc, char *argv[]) {
     std::vector<std::string> result;
     for(int i = 0; i < argc; i++) {
         result.push_back(argv[i]);
+    }
+    return result;
+}
+#include <iostream>
+
+e172::Optional<double> e172::Additional::parseRadians(const std::string &string) {
+    std::regex regex("(\\-?Pi)?[ ]*([\\/\\*]?)[ ]*(\\-?\\d*\\.?\\d*)");
+
+    double result;
+    std::string lastPart = "";
+
+    bool err = false;
+    const auto partToNum = [&err](const std::string& str){
+        if(str == "Pi") {
+            return Math::Pi;
+        } else if(str == "-Pi") {
+            return -Math::Pi;
+        } else {
+            try {
+                return std::stod(str);
+            }  catch (std::invalid_argument) {
+                err = true;
+                return 0.;
+            }
+        }
+    };
+
+    for(std::sregex_iterator i = std::sregex_iterator(string.begin(), string.end(), regex);
+        i != std::sregex_iterator();
+        ++i) {
+        std::smatch smatch = *i;
+        for(size_t j = 1; j < smatch.size(); ++j){
+            const auto part = trim(smatch[j].str());
+            if(!part.empty()) {
+                if(part != "/" && part != "*") {
+                    if(lastPart == "") {
+                        result = partToNum(part);
+                    } else if(lastPart == "/") {
+                        result /= partToNum(part);
+                    } else {
+                        result *= partToNum(part);
+                    }
+                }
+                lastPart = part;
+                if(err)
+                    return None;
+
+            }
+        }
     }
     return result;
 }

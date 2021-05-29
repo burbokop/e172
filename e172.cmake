@@ -96,6 +96,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/reflection.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/either.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/either.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/optional.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/optional.cpp
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h
@@ -145,3 +147,25 @@ target_link_libraries(e172
     tbb
     )
 endif (UNIX)
+
+
+
+add_executable(e172_tests
+    ${CMAKE_CURRENT_LIST_DIR}/tests/testtools.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/testsmain.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.h
+    )
+
+target_link_libraries(e172_tests
+    e172
+    )
+
+enable_testing()
+add_test(e172_tests e172_tests)
+add_custom_command(
+     TARGET e172_tests
+     COMMENT "Run tests"
+     POST_BUILD
+     COMMAND e172_tests
+)

@@ -30,6 +30,9 @@ public:
         e172::Vector rotatedOffset() const;
         Vector offset() const;
         friend std::ostream &operator<<(std::ostream& stream, const ConnectionNode& node);
+        double rotation() const;
+        double globalRotation() const;
+        double globalInvertedRotation() const;
     };
     ConnectionNode connectionNode(const Vector& offset, double rotation);
 
@@ -79,7 +82,7 @@ public:
 
 
     static void connectNodes(ConnectionNode node0, ConnectionNode node1, double coeficient = 1, double rotationCoeficient = 1);
-    static void dockNodes(ConnectionNode node0, ConnectionNode node1, double coeficient = 1, double rotationCoeficient = 1, bool invertRotation = true);
+    static void dockNodes(ConnectionNode node0, ConnectionNode node1, double coeficient = 1, double rotationCoeficient = 1);
 
 
 
@@ -87,7 +90,7 @@ public:
         double distance = 0;
         double angle = 0;
     };
-    static Proximity nodesProximity(const ConnectionNode &node0, const ConnectionNode &node1, bool invertRotation = true);
+    static Proximity nodesProximity(const ConnectionNode &node0, const ConnectionNode &node1);
 
     double mass() const;
     void setMass(double mass);

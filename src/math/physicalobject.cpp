@@ -185,14 +185,12 @@ void e172::PhysicalObject::connectNodes(e172::PhysicalObject::ConnectionNode nod
     }
 }
 
-void e172::PhysicalObject::dockNodes(e172::PhysicalObject::ConnectionNode node0, e172::PhysicalObject::ConnectionNode node1, double coeficient, double rotationCoeficient, bool invertRotation) {
+void e172::PhysicalObject::dockNodes(e172::PhysicalObject::ConnectionNode node0, e172::PhysicalObject::ConnectionNode node1, double coeficient, double rotationCoeficient) {
     if(node0.m_object && node1.m_object) {
         const auto point0 = node0.m_object->m_rotationMatrix * node0.m_offset;
         const auto point1 = node1.m_object->m_rotationMatrix * node1.m_offset;
 
-        if(invertRotation) {
-            node0.m_rotation = Math::constrainRadians(node0.m_rotation + Math::Pi);
-        }
+        node0.m_rotation = Math::constrainRadians(node0.m_rotation + Math::Pi);
 
         const auto f = [](double x, double c) {
             if(x > c) {
@@ -210,10 +208,10 @@ void e172::PhysicalObject::dockNodes(e172::PhysicalObject::ConnectionNode node0,
     }
 }
 
-e172::PhysicalObject::Proximity e172::PhysicalObject::nodesProximity(const e172::PhysicalObject::ConnectionNode &node0, const e172::PhysicalObject::ConnectionNode &node1, bool invertRotation) {
+e172::PhysicalObject::Proximity e172::PhysicalObject::nodesProximity(const e172::PhysicalObject::ConnectionNode &node0, const e172::PhysicalObject::ConnectionNode &node1) {
     return {
         (node0.position() - node1.position()).module(),
-                Math::radiansDistance(node0.m_object->rotation() + node0.m_rotation + (invertRotation ? Math::Pi : 0.), node1.m_object->rotation() + node1.m_rotation)
+                Math::radiansDistance(node0.globalInvertedRotation(), node1.globalRotation())
     };
 }
 
@@ -259,7 +257,23 @@ e172::Vector e172::PhysicalObject::ConnectionNode::offset() const {
     return m_offset;
 }
 
+double e172::PhysicalObject::ConnectionNode::globalRotation() const {
+    if(m_object) {
+        return Math::constrainRadians(m_object->rotation() + m_rotation);
+    }
+    return m_rotation;
+}
+
+double e172::PhysicalObject::ConnectionNode::globalInvertedRotation() const {
+    return Math::constrainRadians(globalRotation() + Math::Pi);
+}
+
+double e172::PhysicalObject::ConnectionNode::rotation() const {
+    return m_rotation;
+}
+
 namespace e172 {
+
 
 std::ostream &operator<<(std::ostream &stream, const e172::PhysicalObject::ConnectionNode &node) {
     const auto ndr = Math::constrainRadians(node.m_rotation);

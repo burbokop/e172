@@ -6,6 +6,7 @@
 #include <map>
 #include <list>
 #include <functional>
+#include <src/utility/optional.h>
 #include "typedefs.h"
 
 namespace e172 {
@@ -78,6 +79,7 @@ struct Additional {
 
     static std::vector<std::string> coverArgs(int argc, char *argv[]);
 
+    static Optional<double> parseRadians(const std::string& string);
 };
 
 }

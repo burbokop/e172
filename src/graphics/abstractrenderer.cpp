@@ -36,6 +36,16 @@ void AbstractRenderer::drawLineShifted(const Line2d &line, uint32_t color) {
     drawLine(line.tanslated(offset()), color);
 }
 
+void AbstractRenderer::drawVector(const Vector &position, const Vector &vector, Color color) {
+    drawLine(position, position + vector, color);
+    drawSquare(position, 2, color);
+}
+
+void AbstractRenderer::drawVectorShifted(const Vector &position, const Vector &vector, Color color) {
+    drawLineShifted(position, position + vector, color);
+    drawSquareShifted(position, 2, color);
+}
+
 Vector AbstractRenderer::offset() const {
     return resolution() / 2 - cameraPosition();
 }

@@ -124,6 +124,9 @@ public:
     void drawLine(const Line2d &line, uint32_t color);
     void drawLineShifted(const Line2d &line, uint32_t color);
 
+    void drawVector(const e172::Vector& position, const e172::Vector& vector, e172::Color color);
+    void drawVectorShifted(const e172::Vector& position, const e172::Vector& vector, e172::Color color);
+
     virtual void applyLensEffect(const Vector &point0, const Vector &point1, double coefficient) = 0;
     virtual void applySmooth(const Vector &point0, const Vector &point1, double coefficient) = 0;
     virtual void enableEffect(uint64_t effect) = 0;
