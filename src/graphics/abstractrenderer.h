@@ -100,7 +100,7 @@ public:
     virtual std::string presentEffectName(size_t index) const = 0;
     virtual void drawEffect(size_t index, const e172::VariantVector &args = e172::VariantVector()) = 0;
 
-
+    virtual void setDepth(int64_t depth) = 0;
     virtual void fill(uint32_t color) = 0;
     virtual void drawPixel(const Vector &point, uint32_t color) = 0;
     virtual void drawLine(const Vector &point0, const Vector &point1, uint32_t color) = 0;

@@ -21,6 +21,7 @@ private:
     StringSet m_tags;
     bool m_enabled = true;
     bool m_keyboardEnabled = true;
+    int64_t m_depth = 0;
 
     //[EXPERIMENTAL] extended update functions
     typedef std::pair<void(*)(Entity*, Context*, AbstractEventHandler*), void(*)(Entity*, AbstractRenderer*)> __euf_t;
@@ -45,6 +46,8 @@ public:
     void setEnabled(bool enabled);
     bool keyboardEnabled() const;
     void setKeyboardEnabled(bool keyboardEnabled);
+    int64_t depth() const;
+    void setDepth(const int64_t &depth);
 };
 
 

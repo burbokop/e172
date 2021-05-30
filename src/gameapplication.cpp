@@ -252,6 +252,7 @@ int GameApplication::exec() {
                 }
                 for(auto e : m_entities) {
                     if(e->enabled()) {
+                        r->setDepth(e->depth());
                         e->render(r);
                         for(auto euf : e->__euf) {
                             euf.second(e.data(), r);
