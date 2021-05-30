@@ -252,6 +252,21 @@ std::vector<std::string> e172::Additional::jsonTopLevelFields(const std::string 
     }
 }
 
+std::string e172::Additional::jsonRemoveSymbols(const std::string &string, const std::vector<char> &symbols) {
+    std::string result;
+    result.reserve(string.size());
+    size_t quotes = 0;
+    for(auto c : string) {
+        if(c == '"') {
+            quotes++;
+        }
+        if(quotes % 2 == 1 || std::find(symbols.begin(), symbols.end(), c) == symbols.end()) {
+            result.push_back(c);
+        }
+    }
+    return result;
+}
+
 char e172::Additional::reversedFence(char symbol) {
     switch (symbol) {
     case '{': return '}';

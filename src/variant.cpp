@@ -75,9 +75,9 @@ VariantVector Variant::constrained() const {
     VariantVector result;
     if(containsType<VariantVector>()) {
         const auto vec = value<VariantVector>();
-        for(auto v : vec) {
+        for(const auto& v : vec) {
             auto c = v.constrained();
-            for(auto item : c) {
+            for(const auto& item : c) {
                 result.push_back(item);
             }
         }
@@ -90,6 +90,48 @@ VariantVector Variant::constrained() const {
 }
 
 bool operator==(const Variant &varian0, const Variant &varian1) {
+#ifdef E172_USE_VARIANT_RTTI_OBJECT
+    if(varian0.m_rttiObject != varian1.m_rttiObject) {
+        if(varian0.isNumber() && varian1.isNumber()) {
+            return varian0.toLongDouble() == varian0.toLongDouble();
+        } else {
+            return false;
+        }
+    }
+
+    if(varian0.m_data == nullptr && varian1.m_data == nullptr)
+        return true;
+
+    if(varian0.m_data == nullptr || varian1.m_data == nullptr)
+        return false;
+
+    if(!varian0.m_rttiObject)
+        return false;
+
+    return varian0.m_rttiObject->compare(varian0.m_data, varian1.m_data);
+#else
+    if(varian0.m_typeHash != varian1.m_typeHash) {
+        if(varian0.isNumber() && varian1.isNumber()) {
+            return varian0.toLongDouble() == varian0.toLongDouble();
+        } else {
+            return false;
+        }
+    }
+
+    if(varian0.m_data == nullptr && varian1.m_data == nullptr)
+        return true;
+
+    if(varian0.m_data == nullptr || varian1.m_data == nullptr)
+        return false;
+
+    if(!varian0.m_comparator)
+        return false;
+
+    return varian0.m_comparator(varian0.m_data, varian1.m_data);
+#endif
+}
+
+bool Variant::typeSafeCompare(const Variant &varian0, const Variant &varian1) {
 #ifdef E172_USE_VARIANT_RTTI_OBJECT
     if(varian0.m_rttiObject != varian1.m_rttiObject)
         return false;
@@ -139,6 +181,8 @@ bool operator<(const Variant &varian0, const Variant &varian1) {
 #endif
 }
 
+
+
 bool Variant::containsNumber(const std::string &string) {
     std::string::const_iterator it = string.begin();
     while (it != string.end() && std::isdigit(*it)) ++it;
@@ -150,14 +194,21 @@ bool Variant::containsNumber(const std::string &string) {
 bool Variant::isNumber() const {
     if(containsType<bool>()
     || containsType<char>()
-    || containsType<signed char>()
     || containsType<unsigned char>()
+#ifdef _WCHAR_T_DEFINED
     || containsType<wchar_t>()
+#endif
+#ifdef __CHAR16_TYPE__
     || containsType<char16_t>()
+#endif
+#ifdef __CHAR32_TYPE__
     || containsType<char32_t>()
+#endif
     || containsType<short>()
     || containsType<unsigned short>()
+    || containsType<int>()
     || containsType<unsigned int>()
+    || containsType<long>()
     || containsType<unsigned long>()
     || containsType<long long>()
     || containsType<unsigned long long>()
@@ -236,7 +287,7 @@ std::string Variant::toJson() const {
 }
 
 Variant Variant::fromJson(const std::string &json) {
-    const auto trimed = Additional::removeSymbols(json, { ' ', '\n', '\t', '\r' });
+    const auto trimed = Additional::jsonRemoveSymbols(json, { ' ', '\n', '\t', '\r' });
     if(trimed.size() > 0) {
         if(trimed.front() == '{' && trimed.back() == '}') {
             VariantMap map;
@@ -270,46 +321,6 @@ Variant Variant::fromJson(const std::string &json) {
     return Variant();
 }
 
-
-
-
-
-
-
-int e172_Variant_ts_d;
-
-void e172_Variant_ts_foo(const e172::Variant &value) {
-    e172_Variant_ts_d = value.toInt();
-}
-
-void e172_Variant_ts_bar(int value) {
-    e172_Variant_ts_d = value;
-}
-
-std::pair<int64_t, int64_t> e172::Variant::testSpeed(size_t count) {
-    e172::ElapsedTimer t;
-    for(size_t i = 0; i < count; ++i) {
-        e172_Variant_ts_foo(i);
-    }
-    const auto t0 = t.elapsed();
-    t.reset();
-    for(size_t i = 0; i < count; ++i) {
-        e172_Variant_ts_bar(i);
-    }
-    const auto t1 = t.elapsed();
-    return { t0, t1 };
-}
-
-
-int64_t e172::Variant::testSpeed() {
-    size_t c = 1;
-    while (true) {
-        const auto result = testSpeed(c *= 2);
-        if(result.first != 0 && result.second != 0) {
-            return result.first / result.second;
-        }
-    }
-}
 
 
 

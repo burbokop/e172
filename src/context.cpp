@@ -116,6 +116,19 @@ ElapsedTimer::time_t Context::renderDelay() const {
     return 0;
 }
 
+ptr<Entity> Context::entityInFocus() const {
+    if(m_application) {
+        return m_application->entityInFocus();
+    }
+    return nullptr;
+}
+
+void Context::setEntityInFocus(const ptr<Entity> &entityInFocus) {
+    if(m_application) {
+        return m_application->setEntityInFocus(entityInFocus);
+    }
+}
+
 e172::ptr<Entity> Context::findEntity(const std::function<bool (const e172::ptr<Entity> &)> &condition) {
     if(m_application) {
         return m_application->findEntity(condition);

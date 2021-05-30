@@ -78,6 +78,8 @@ class GameApplication {
     std::list<std::pair<e172::Time::time_t, std::function<void()>>> m_scheduledTasks;
 
     FlagParser m_flagParser;
+
+    ptr<Entity> m_entityInFocus;
 public:
     GameApplication(int argc, char *argv[]);
     void quitLater();
@@ -125,6 +127,8 @@ public:
     e172::ptr<e172::Entity> findEntity(const std::function<bool(const e172::ptr<e172::Entity> &)>& condition);
 
     void schedule(e172::Time::time_t duration, const std::function<void()>& function);
+    ptr<Entity> entityInFocus() const;
+    void setEntityInFocus(const ptr<Entity> &entityInFocus);
 };
 
 }

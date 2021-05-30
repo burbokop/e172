@@ -4,10 +4,76 @@
 
 #include <src/testing.h>
 
+#include <src/time/elapsedtimer.h>
+
 void e172::VariantTest::testAll() {
+    Debug::print("benchmark: variant call time / int call time =", speedTest());
+    compareTest0();
+    compareTest1();
     fromJsonTest0();
     fromJsonTest1();
 }
+
+int e172_Variant_ts_d;
+
+void e172_Variant_ts_foo(const e172::Variant &value) {
+    e172_Variant_ts_d = value.toInt();
+}
+
+void e172_Variant_ts_bar(int value) {
+    e172_Variant_ts_d = value;
+}
+
+std::pair<int64_t, int64_t> e172::VariantTest::speedTest(size_t count) {
+    ElapsedTimer t;
+    for(size_t i = 0; i < count; ++i) {
+        e172_Variant_ts_foo(i);
+    }
+    const auto t0 = t.elapsed();
+    t.reset();
+    for(size_t i = 0; i < count; ++i) {
+        e172_Variant_ts_bar(i);
+    }
+    const auto t1 = t.elapsed();
+    return { t0, t1 };
+}
+
+
+double e172::VariantTest::speedTest() {
+    size_t c = 1;
+    while (true) {
+        const auto result = speedTest(c *= 2);
+        if(result.first != 0 && result.second != 0) {
+            return double(result.first) / double(result.second);
+        }
+    }
+}
+
+
+void e172::VariantTest::compareTest0() {
+    const auto v0 = e172::Variant("123");
+    shouldEqual(v0.typeName(), Type<std::string>().name())
+    shouldEqual(v0.isNumber(), true)
+    const auto v1 = e172::Variant(123);
+    shouldEqual(v1.typeName(), "int")
+    shouldEqual(v1.isNumber(), true)
+
+    shouldEqual(v0, v1)
+    shouldEqual(Variant::typeSafeCompare(v0, v1), false)
+}
+
+void e172::VariantTest::compareTest1() {
+    const auto v0 = e172::Variant(123.4);
+    shouldEqual(v0.typeName(), "double")
+    shouldEqual(v0.isNumber(), true)
+    const auto v1 = e172::Variant(123.4);
+    shouldEqual(v1.typeName(), "double")
+    shouldEqual(v1.isNumber(), true)
+
+    shouldEqual(v0, v1)
+    shouldEqual(Variant::typeSafeCompare(v0, v1), true)
+}
+
 
 void e172::VariantTest::fromJsonTest1() {
     const auto vec = Variant::fromJson("[\"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\"]").toVector();
@@ -79,6 +145,7 @@ void e172::VariantTest::fromJsonTest0() {
     const auto node1Offset = node1.at("offset").toMap();
     shouldEqual(node1Offset.at("x"), 50);
     shouldEqual(node1Offset.at("y"), 0);
-    shouldEqual(node1.at("angle"), 0);
+    shouldEqual(node1.at("angle"), "Pi");
 
 }
+

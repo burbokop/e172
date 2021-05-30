@@ -4,7 +4,6 @@
 #define E172_DISABLE_VARIANT_ABSTRACT_CONSTRUCTOR
 #define E172_USE_VARIANT_RTTI_OBJECT
 
-
 #include <vector>
 #include <ostream>
 #include <functional>
@@ -270,7 +269,7 @@ public:
 #else
     template<typename T>
     void assign(const T& value) {
-        auto hash = Type<T>::hash;
+        auto hash = Type<T>().hash();
         if(hash != m_typeHash) {
 
             if(m_data)
@@ -287,7 +286,7 @@ public:
             };
 
             // additional operators
-            if constexpr(sfinae::StreamOperator::exists<std::ostream, T>::value) {
+            if constexpr(sfinae::StreamOperator<std::ostream, T>::value) {
                 m_stream_value = [](VariantBaseHandle* obj) {
                     VariantHandle<T>* casted_obj = dynamic_cast<VariantHandle<T>*>(obj);
                     std::stringstream ss;
@@ -328,7 +327,7 @@ public:
                 m_less_operator = nullptr;
             }
 
-            m_typeName = Type<T>::name;
+            m_typeName = Type<T>().name();
             m_typeHash = hash;
         }
 
@@ -344,11 +343,13 @@ public:
 #else
     std::string typeName() const { return m_typeName; }
     template<typename T>
-    bool containsType() const { return m_typeHash == Type<T>::hash; }
+    bool containsType() const { return m_typeHash == Type<T>().hash(); }
 #endif
     friend bool operator==(const Variant &varian0, const Variant &varian1);
     inline friend bool operator!=(const Variant &varian0, const Variant &varian1) { return !(varian0 == varian1); };
     friend bool operator<(const Variant &varian0, const Variant &varian1);
+
+    static bool typeSafeCompare(const Variant &varian0, const Variant &varian1);
 
     template<typename T>
     static Variant fromValue(const T &value) { Variant v; v.assign(value); return v; }
@@ -398,6 +399,7 @@ public:
     static constexpr bool isNumberType();
 
     E172_VARIANT_NUM_CONVERTER(Double, double)
+    E172_VARIANT_NUM_CONVERTER(LongDouble, long double)
     E172_VARIANT_NUM_CONVERTER(Float, float)
     E172_VARIANT_NUM_CONVERTER(Int, int)
     E172_VARIANT_NUM_CONVERTER(UInt, unsigned int)
@@ -439,9 +441,6 @@ public:
 
     std::string toJson() const;
     static Variant fromJson(const std::string &json);
-
-    static std::pair<int64_t, int64_t> testSpeed(size_t count);
-    static int64_t testSpeed();
 };
 
 template<typename T>
@@ -473,16 +472,7 @@ T Variant::toNumber(bool *ok) const {
         *ok = true;
 
     if(containsType<bool>()) { return value_fast<bool>();
-    } else if(containsType<int                >()) { return value_fast<int>();
-    } else if(containsType<unsigned int       >()) { return value_fast<unsigned int>();
-    } else if(containsType<long               >()) { return value_fast<long>();
-    } else if(containsType<unsigned long      >()) { return value_fast<unsigned long>();
-    } else if(containsType<long long          >()) { return value_fast<long long>();
-    } else if(containsType<float              >()) { return value_fast<float>();
-    } else if(containsType<double             >()) { return value_fast<double>();
-    } else if(containsType<long double        >()) { return value_fast<long double>();
     } else if(containsType<char               >()) { return value_fast<char>();
-    } else if(containsType<signed char        >()) { return value_fast<signed char>();
     } else if(containsType<unsigned char      >()) { return value_fast<unsigned char>();
 #ifdef _WCHAR_T_DEFINED
     } else if(containsType<wchar_t            >()) { return value_fast<wchar_t>();
@@ -495,7 +485,15 @@ T Variant::toNumber(bool *ok) const {
 #endif
     } else if(containsType<short              >()) { return value_fast<short>();
     } else if(containsType<unsigned short     >()) { return value_fast<unsigned short>();
+    } else if(containsType<int                >()) { return value_fast<int>();
+    } else if(containsType<unsigned int       >()) { return value_fast<unsigned int>();
+    } else if(containsType<long               >()) { return value_fast<long>();
+    } else if(containsType<unsigned long      >()) { return value_fast<unsigned long>();
+    } else if(containsType<long long          >()) { return value_fast<long long>();
     } else if(containsType<unsigned long long >()) { return value_fast<unsigned long long>();
+    } else if(containsType<float              >()) { return value_fast<float>();
+    } else if(containsType<double             >()) { return value_fast<double>();
+    } else if(containsType<long double        >()) { return value_fast<long double>();
     } else if(containsType<std::string        >()) {
         try {
             return std::stod(value_fast<std::string>());

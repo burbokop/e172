@@ -49,6 +49,7 @@ public:
 
 private:
     e172::MessageQueue<MessageId, Variant> m_messageQueue;
+
 public:
     Context(GameApplication *application);
     std::string absolutePath(const std::string &path) const;
@@ -109,6 +110,9 @@ public:
             (object->*callback)(messageId, v);
         });
     }
+
+    ptr<Entity> entityInFocus() const;
+    void setEntityInFocus(const ptr<Entity> &entityInFocus);
 
 };
 

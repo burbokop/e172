@@ -38,6 +38,8 @@ struct Additional {
     static std::string fencedArea(const std::string &string, size_t beginIndex = 0, size_t *nextIndexPtr = nullptr);
     static std::string jsonTopLevelField(const std::string &string, size_t beginIndex = 0, size_t *nextIndexPtr = nullptr);
     static std::vector<std::string> jsonTopLevelFields(const std::string &string);
+    static std::string jsonRemoveSymbols(const std::string &string, const std::vector<char> &symbols);
+
     static std::vector<std::string> fencedAreas(const std::string &string);
     static char reversedFence(char symbol);
     template<typename T>

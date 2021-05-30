@@ -88,6 +88,14 @@ void GameApplication::destroyEntitiesWithTag(Context *, const Variant &value) {
     }
 }
 
+ptr<Entity> GameApplication::entityInFocus() const {
+    return m_entityInFocus;
+}
+
+void GameApplication::setEntityInFocus(const ptr<Entity> &entityInFocus) {
+    m_entityInFocus = entityInFocus;
+}
+
 
 std::list<ptr<Entity> > GameApplication::entities() const {
     return m_entities;
@@ -212,7 +220,14 @@ int GameApplication::exec() {
         }
         for(auto e : m_entities) {
             if(e->enabled()) {
-                if(!e->keyboardEnabled()) {
+                bool disableKeyboard;
+                if(m_entityInFocus) {
+                    disableKeyboard = m_entityInFocus != e;
+                } else {
+                    disableKeyboard = !e->keyboardEnabled();
+                }
+
+                if(disableKeyboard) {
                     m_eventHandler->disableKeyboard();
                 }
                 e->proceed(m_context, m_eventHandler);
