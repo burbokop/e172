@@ -265,11 +265,11 @@ int GameApplication::exec() {
                     r->setDepth(std::numeric_limits<int64_t>::min());
                     r->fill(0);
                 }
-                for(auto m : m_applicationExtensions) {
+                for(const auto& m : m_applicationExtensions) {
                     if(m.second->extensionType() == GameApplicationExtension::PreRenderExtension)
                         m.second->proceed(this);
                 }
-                for(auto e : m_entities) {
+                for(const auto& e : m_entities) {
                     render(e, r);
                 }
                 r->m_locked = true;
