@@ -96,6 +96,40 @@ void GameApplication::setEntityInFocus(const ptr<Entity> &entityInFocus) {
     m_entityInFocus = entityInFocus;
 }
 
+void GameApplication::render(const ptr<Entity> &entity, AbstractRenderer *renderer) {
+    if(entity) {
+        if(entity->enabled()) {
+            renderer->setDepth(entity->depth());
+            entity->render(renderer);
+            for(auto euf : entity->__euf) {
+                euf.second(entity.data(), renderer);
+            }
+        }
+    }
+}
+
+void GameApplication::proceed(const ptr<Entity> &entity, Context *context, AbstractEventHandler *eventHandler) {
+    if(entity && context) {
+        if(entity->enabled()) {
+            bool disableKeyboard;
+            if(context->entityInFocus()) {
+                disableKeyboard = context->entityInFocus() != entity;
+            } else {
+                disableKeyboard = !entity->keyboardEnabled();
+            }
+
+            if(disableKeyboard) {
+                eventHandler->disableKeyboard();
+            }
+            entity->proceed(context, eventHandler);
+            eventHandler->enableKeyboard();
+            for(auto euf : entity->__euf) {
+                euf.first(entity.data(), context, eventHandler);
+            }
+        }
+    }
+}
+
 
 std::list<ptr<Entity> > GameApplication::entities() const {
     return m_entities;
@@ -214,28 +248,12 @@ int GameApplication::exec() {
         }
 
         e172::ElapsedTimer measureTimer;
-        for(auto m : m_applicationExtensions) {
+        for(const auto& m : m_applicationExtensions) {
             if(m.second->extensionType() == GameApplicationExtension::PreProceedExtension)
                 m.second->proceed(this);
         }
-        for(auto e : m_entities) {
-            if(e->enabled()) {
-                bool disableKeyboard;
-                if(m_entityInFocus) {
-                    disableKeyboard = m_entityInFocus != e;
-                } else {
-                    disableKeyboard = !e->keyboardEnabled();
-                }
-
-                if(disableKeyboard) {
-                    m_eventHandler->disableKeyboard();
-                }
-                e->proceed(m_context, m_eventHandler);
-                m_eventHandler->enableKeyboard();
-                for(auto euf : e->__euf) {
-                    euf.first(e.data(), m_context, m_eventHandler);
-                }
-            }
+        for(const auto& e : m_entities) {
+            proceed(e, m_context, m_eventHandler);
         }
         m_proceedDelay = measureTimer.elapsed();
         if(m_graphicsProvider && m_renderTimer.check()) {
@@ -251,13 +269,7 @@ int GameApplication::exec() {
                         m.second->proceed(this);
                 }
                 for(auto e : m_entities) {
-                    if(e->enabled()) {
-                        r->setDepth(e->depth());
-                        e->render(r);
-                        for(auto euf : e->__euf) {
-                            euf.second(e.data(), r);
-                        }
-                    }
+                    render(e, r);
                 }
                 r->m_locked = true;
                 if(!r->update()) {

@@ -45,13 +45,11 @@ void Entity::setKeyboardEnabled(bool keyboardEnabled) {
     m_keyboardEnabled = keyboardEnabled;
 }
 
-int64_t Entity::depth() const
-{
+int64_t Entity::depth() const {
     return m_depth;
 }
 
-void Entity::setDepth(const int64_t &depth)
-{
+void Entity::setDepth(const int64_t &depth) {
     m_depth = depth;
 }
 

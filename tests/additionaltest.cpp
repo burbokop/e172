@@ -1,7 +1,6 @@
 #include "additionaltest.h"
 
 #include <src/additional.h>
-#include <cassert>
 #include <src/math/math.h>
 #include <src/testing.h>
 

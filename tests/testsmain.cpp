@@ -1,9 +1,10 @@
 #include "additionaltest.h"
+#include "priorityproceduretest.h"
 #include "varianttest.h"
-#include <cassert>
 
 int main() {
     e172::AdditionalTest::testAll();
     e172::VariantTest::testAll();
+    e172::PriorityProcedureTest::testAll();
     return 0;
 }

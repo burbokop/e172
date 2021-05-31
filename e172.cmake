@@ -29,6 +29,10 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/image.h
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/imageview.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/imageview.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/textformat.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/textformat.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/shapeformat.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/shapeformat.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/math/math.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/math.h
@@ -98,6 +102,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/either.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/optional.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/optional.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/priorityprocedure.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/priorityprocedure.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h
@@ -111,8 +117,6 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/gameapplication.h
     ${CMAKE_CURRENT_LIST_DIR}/src/sharedcontainer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/sharedcontainer.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/textformat.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/textformat.h
     ${CMAKE_CURRENT_LIST_DIR}/src/type.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/type.h
     ${CMAKE_CURRENT_LIST_DIR}/src/variant.cpp
@@ -158,6 +162,8 @@ add_executable(e172_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/varianttest.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/varianttest.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/priorityproceduretest.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/priorityproceduretest.h
     )
 
 target_link_libraries(e172_tests

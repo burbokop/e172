@@ -129,6 +129,9 @@ public:
     void schedule(e172::Time::time_t duration, const std::function<void()>& function);
     ptr<Entity> entityInFocus() const;
     void setEntityInFocus(const ptr<Entity> &entityInFocus);
+
+    static void render(const ptr<Entity>& entity, AbstractRenderer* renderer);
+    static void proceed(const ptr<Entity>& entity, e172::Context *context, AbstractEventHandler *eventHandler);
 };
 
 }

@@ -2,11 +2,12 @@
 #define ABSTRACTRENDERER_H
 
 #include "image.h"
+#include "shapeformat.h"
 #include "../math/vector.h"
 
 #include <inttypes.h>
 
-#include <src/textformat.h>
+#include "textformat.h"
 #include <src/variant.h>
 
 #include <src/math/line2d.h>
@@ -104,7 +105,7 @@ public:
     virtual void fill(uint32_t color) = 0;
     virtual void drawPixel(const Vector &point, uint32_t color) = 0;
     virtual void drawLine(const Vector &point0, const Vector &point1, uint32_t color) = 0;
-    virtual void drawRect(const Vector &point0, const Vector &point1, uint32_t color) = 0;
+    virtual void drawRect(const Vector &point0, const Vector &point1, uint32_t color, const ShapeFormat& format = ShapeFormat(false)) = 0;
     virtual void drawSquare(const Vector &point, int radius, uint32_t color) = 0;
     virtual void drawCircle(const Vector &point, int radius, uint32_t color) = 0;
     virtual void drawDiagonalGrid(const Vector &point0, const Vector &point1, int interval, uint32_t color) = 0;

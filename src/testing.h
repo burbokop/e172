@@ -2,6 +2,7 @@
 #define TESTING_H
 
 #include "debug.h"
+#include <cassert>
 
 #define shouldEqual(actual, expected) \
     if(actual != expected) { \
