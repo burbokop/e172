@@ -262,6 +262,7 @@ int GameApplication::exec() {
             if(r) {
                 r->m_locked = false;
                 if(r->m_autoClear) {
+                    r->setDepth(std::numeric_limits<int64_t>::min());
                     r->fill(0);
                 }
                 for(auto m : m_applicationExtensions) {
