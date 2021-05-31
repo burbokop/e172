@@ -84,6 +84,16 @@ struct Additional {
     static std::vector<std::string> coverArgs(int argc, char *argv[]);
 
     static Optional<double> parseRadians(const std::string& string);
+
+    template<typename T>
+    static T filter(const T& container, const std::function<bool(const typename T::value_type&)> cb) {
+        T result;
+        std::copy_if (container.begin(), container.end(), std::back_inserter(result), cb);
+        return result;
+    }
+
+    static std::string sameBeginningSubstring(const std::list<std::string> &list);
+    static std::string compleateString(const std::string& string, const std::list<std::string> &model);
 };
 
 }

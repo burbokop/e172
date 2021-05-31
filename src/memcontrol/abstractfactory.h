@@ -4,6 +4,7 @@
 
 
 #include <map>
+#include <list>
 #include <functional>
 
 #include "../type.h"
@@ -24,8 +25,8 @@ template<typename KeyType, typename BaseClass>
 class AbstractFactory {
     typedef std::map<KeyType, std::function<BaseClass*()>> CreaterMap;
 
-    CreaterMap creaters;
-    std::map<BaseClass*, KeyType> typeNames;
+    CreaterMap m_creaters;
+    std::map<BaseClass*, KeyType> m_objects;
 public:
     AbstractFactory();
     /**
@@ -58,13 +59,20 @@ public:
     template<typename T>
     KeyType registerType();
 
+    std::list<std::string> typeNames() const {
+        std::list<std::string> result;
+        for(const auto& c : m_creaters) {
+            result.push_back(c.first);
+        }
+        return result;
+    }
 
     /**
      * @brief clear factory
      */
     void clear() {
-        creaters.clear();
-        typeNames.clear();
+        m_creaters.clear();
+        m_objects.clear();
     }
 };
 
@@ -73,8 +81,8 @@ AbstractFactory<KeyType, BaseClass>::AbstractFactory() {}
 
 template<typename KeyType, typename BaseClass>
 KeyType AbstractFactory<KeyType, BaseClass>::type(BaseClass *object) const {
-    auto it = typeNames.find(object);
-    if(it != typeNames.end())
+    auto it = m_objects.find(object);
+    if(it != m_objects.end())
         return it->second;
     return KeyType();
 }
@@ -88,7 +96,7 @@ KeyType AbstractFactory<KeyType, BaseClass>::registerType() {
 template<typename KeyType, typename BaseClass>
 template<typename T>
 KeyType AbstractFactory<KeyType, BaseClass>::registerType(const KeyType &typeName) {
-    creaters[typeName] = []() {
+    m_creaters[typeName] = []() {
         return new T();
     };
     return typeName;
@@ -96,12 +104,12 @@ KeyType AbstractFactory<KeyType, BaseClass>::registerType(const KeyType &typeNam
 
 template<typename KeyType, typename BaseClass>
 BaseClass *AbstractFactory<KeyType, BaseClass>::create(const KeyType &typeName) {
-    const auto it = creaters.find(typeName);
-    if(it == creaters.end()) {
+    const auto it = m_creaters.find(typeName);
+    if(it == m_creaters.end()) {
         return nullptr;
     }
     auto obj = it->second();
-    typeNames[obj] = typeName;
+    m_objects[obj] = typeName;
     return obj;
 }
 

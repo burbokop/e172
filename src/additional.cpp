@@ -518,7 +518,6 @@ std::vector<std::string> e172::Additional::coverArgs(int argc, char *argv[]) {
     }
     return result;
 }
-#include <iostream>
 
 e172::Optional<double> e172::Additional::parseRadians(const std::string &string) {
     if(string.empty())
@@ -569,4 +568,38 @@ e172::Optional<double> e172::Additional::parseRadians(const std::string &string)
         }
     }
     return result;
+}
+
+std::string e172::Additional::sameBeginningSubstring(const std::list<std::string> &list) {
+    size_t i = 0;
+    std::string result;
+
+    size_t max = std::numeric_limits<size_t>::min();
+    for(auto l : list) {
+        if(l.size() > max) {
+            max = l.size();
+        }
+    }
+
+    while(true) {
+        std::string substr;
+        for(auto l : list) {
+            auto s = l.substr(0, i);
+            if(!substr.empty() && s != substr) {
+                return result;
+            }
+            substr = s;
+        }
+        result = substr;
+        if(i > max) {
+            return result;
+        }
+        ++i;
+    }
+}
+
+std::string e172::Additional::compleateString(const std::string &string, const std::list<std::string> &model) {
+    return sameBeginningSubstring(filter(model, [string](const std::string& m) {
+        return m.find(string) == 0;
+    }));
 }

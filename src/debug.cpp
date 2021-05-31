@@ -101,6 +101,16 @@ std::string Debug::codeLocation(const char *file, int line) {
     return std::string(file) + ":" + std::to_string(line) + ":";
 }
 
+std::string Debug::make_version(int a, int b, int c) {
+    std::ostringstream ss;
+    ss << a << '.' << b << '.' << c;
+    return ss.str();
+}
+
+Debug::CompilerInfo Debug::compilerInfo() {
+    return CompilerInfo(cxx, cxx_version);
+}
+
 void Debug::installHandler(const std::function<void (const std::string &, Debug::MessageType)> &handler) {
     m_proceedMessage = handler;
 }
@@ -135,6 +145,21 @@ std::ostream &operator<<(std::ostream &stream, const StackTraceInfo &info) {
 std::string StackTraceInfo::functionName() const {
     return m_functionName;
 }
+
+std::string Debug::CompilerInfo::name() const {
+    return m_name;
+}
+
+std::string Debug::CompilerInfo::version() const {
+    return m_version;
+}
+
+std::ostream &operator<<(std::ostream &stream, const Debug::CompilerInfo &info) {
+    return stream << info.m_name + "-" + info.m_version;
+}
+
+Debug::CompilerInfo::CompilerInfo(const std::string &name, const std::string &version)
+    : m_name(name), m_version(version) {}
 
 
 

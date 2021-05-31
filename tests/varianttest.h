@@ -2,6 +2,7 @@
 #define VARIANTTEST_H
 
 #include <tuple>
+#include <stdlib.h>
 
 namespace e172 {
 

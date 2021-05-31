@@ -38,7 +38,36 @@ private:
 
     static std::function<void(const std::string &, MessageType)> m_proceedMessage;
     static std::string m_separator;
+
+    static std::string make_version(int a, int b, int c);
+
+    static inline const std::string cxx =
+#ifdef __clang__
+            "clang++";
+#else
+            "g++";
+#endif
+
+    static inline const std::string cxx_version =
+#ifdef __clang__
+            make_version(__clang_major__, __clang_minor__, __clang_patchlevel__);
+#else
+            make_version(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+#endif
+
 public:
+    class CompilerInfo {
+        std::string m_name;
+        std::string m_version;
+    public:
+        CompilerInfo(const std::string& name, const std::string& version);
+        std::string name() const;
+        std::string version() const;
+        friend std::ostream &operator<<(std::ostream& stream, const CompilerInfo& info);
+    };
+
+    static CompilerInfo compilerInfo();
+
     static void installHandler(const std::function<void(const std::string &, MessageType)> &handler);
     static void setSeparator(const std::string &separator);
 
@@ -80,28 +109,8 @@ public:
     static std::list<StackTraceInfo> stackTrace();
     static void installSigsegvHandler(void(*function)(int));
 
-
-    static inline std::string make_version(int a, int b, int c) {
-        std::ostringstream ss;
-        ss << a << '.' << b << '.' << c;
-        return ss.str();
-    }
-
     static std::string codeLocation(const char* file, int line);
 
-    static inline const std::string cxx =
-#ifdef __clang__
-            "clang++";
-#else
-            "g++";
-#endif
-
-    static inline const std::string cxx_version =
-#ifdef __clang__
-            make_version(__clang_major__, __clang_minor__, __clang_patchlevel__);
-#else
-            make_version(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-#endif
 
 };
 
