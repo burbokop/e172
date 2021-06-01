@@ -104,6 +104,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/optional.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/priorityprocedure.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/priorityprocedure.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/closableoutputstream.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/closableoutputstream.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h

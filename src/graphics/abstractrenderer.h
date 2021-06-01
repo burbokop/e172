@@ -128,6 +128,8 @@ public:
     void drawVector(const e172::Vector& position, const e172::Vector& vector, e172::Color color);
     void drawVectorShifted(const e172::Vector& position, const e172::Vector& vector, e172::Color color);
 
+    Vector drawText(const std::string &text, const Vector &position, int width, uint32_t color, const TextFormat &format = TextFormat());
+
     virtual void applyLensEffect(const Vector &point0, const Vector &point1, double coefficient) = 0;
     virtual void applySmooth(const Vector &point0, const Vector &point1, double coefficient) = 0;
     virtual void enableEffect(uint64_t effect) = 0;

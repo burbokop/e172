@@ -2,6 +2,9 @@
 
 #include <math.h>
 
+#include <src/additional.h>
+#include <src/debug.h>
+
 namespace e172 {
 
 
@@ -44,6 +47,26 @@ void AbstractRenderer::drawVector(const Vector &position, const Vector &vector, 
 void AbstractRenderer::drawVectorShifted(const Vector &position, const Vector &vector, Color color) {
     drawLineShifted(position, position + vector, color);
     drawSquareShifted(position, 2, color);
+}
+
+Vector AbstractRenderer::drawText(const std::string &text, const Vector &position, int width, uint32_t color, const TextFormat &format) {
+    if(format.fontWidth() == 0)
+        return Vector();
+
+    auto lines = Additional::split(text, '\n');
+    double offsetY = 0;
+    size_t symWidth = width / format.fontWidth();
+    auto it = lines.begin();
+    while (it != lines.end()) {
+        if(it->size() > symWidth) {
+            offsetY += drawString(it->substr(0, symWidth), position + e172::Vector(0, offsetY), color, format).y();
+            it = lines.insert(it + 1, it->substr(symWidth, it->size() - symWidth));
+        } else {
+            offsetY += drawString(*it, position + e172::Vector(0, offsetY), color, format).y();
+            ++it;
+        }
+    }
+    return e172::Vector(width, offsetY);
 }
 
 Vector AbstractRenderer::offset() const {
