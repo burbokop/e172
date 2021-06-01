@@ -41,6 +41,10 @@ auto bind(C *object, T (C::*function)(A...)) {
     return [function, object](A ...a) -> T { return (object->*function)(a...); };
 }
 
+template<typename T, typename C, typename ...A>
+auto bind(const C *object, T (C::*function)(A...)const) {
+    return [function, object](A ...a) -> T { return (object->*function)(a...); };
+}
 
 
 template <typename VariantList

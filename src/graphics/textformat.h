@@ -29,9 +29,13 @@ public:
     TextFormat(Alignment alignment);
     TextFormat(Alignment alignment, int size);
 
+    static TextFormat fromFont(const std::string& font, int size = 16);
     static TextFormat fromFontSize(int size);
 
     int fontSize() const;
+    int fontWidth() const;
+    int fontHeight() const;
+
     Alignment alignment() const;
     void setAlignment(const Alignment &alignment);
     void setFontSize(int fontSize);

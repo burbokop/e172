@@ -3,9 +3,16 @@
 
 namespace e172 {
 
-int TextFormat::fontSize() const
-{
+int TextFormat::fontSize() const {
     return m_fontSize;
+}
+
+int TextFormat::fontWidth() const {
+    return m_fontSize / 2 + 1;
+}
+
+int TextFormat::fontHeight() const {
+    return m_fontSize + 1;
 }
 
 TextFormat::Alignment TextFormat::alignment() const
@@ -48,6 +55,12 @@ TextFormat::TextFormat(TextFormat::Alignment alignment) {
 TextFormat::TextFormat(TextFormat::Alignment alignment, int size) {
     m_alignment = alignment;
     m_fontSize = size;
+}
+
+TextFormat TextFormat::fromFont(const std::string &font, int size) {
+    TextFormat result = fromFontSize(size);
+    result.setFont(font);
+    return result;
 }
 
 TextFormat TextFormat::fromFontSize(int size) {
