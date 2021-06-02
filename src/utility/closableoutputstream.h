@@ -27,12 +27,22 @@ class CallbackOutputStream : public ClosableOutputStream {
         virtual std::streamsize xsputn(const char_type *s, std::streamsize n) override;
         virtual int_type overflow(int_type c) override;
     };
-    Buffer *m_buffer;
     std::function<void()> m_close;
 public:
     CallbackOutputStream(const std::function<void(const std::string&)>& write = nullptr, const std::function<void()>& close = nullptr);
 
     virtual void close() override;
+
+    class SingleElementPool {
+        CallbackOutputStream *m_stream = nullptr;
+        bool m_available = true;
+        std::function<void(const std::string&)> m_write;
+    public:
+        SingleElementPool(const std::function<void(const std::string&)>& write = nullptr);
+        CallbackOutputStream *use();
+        bool available() const;
+        ~SingleElementPool();
+    };
 };
 
 }
