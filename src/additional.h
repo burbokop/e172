@@ -6,7 +6,7 @@
 #include <map>
 #include <list>
 #include <functional>
-#include <src/utility/optional.h>
+#include <src/utility/option.h>
 #include "typedefs.h"
 
 namespace e172 {
@@ -83,7 +83,7 @@ struct Additional {
 
     static std::vector<std::string> coverArgs(int argc, char *argv[]);
 
-    static Optional<double> parseRadians(const std::string& string);
+    static Option<double> parseRadians(const std::string& string);
 
     template<typename T>
     static T filter(const T& container, const std::function<bool(const typename T::value_type&)> cb) {

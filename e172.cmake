@@ -100,8 +100,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/reflection.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/either.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/either.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/optional.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/optional.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/option.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/option.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/priorityprocedure.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/priorityprocedure.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/closableoutputstream.cpp

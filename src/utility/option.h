@@ -1,25 +1,25 @@
-#ifndef OPTIONAL_H
-#define OPTIONAL_H
+#ifndef OPTION_H
+#define OPTION_H
 
 #include <ostream>
 #include <functional>
+#include <sstream>
 
 namespace e172 {
 
 enum NoneType { None };
 
 template<typename T>
-class Optional {
+class Option {
     bool m_isDefined;
     T m_value;
 public:
-    Optional(const T& value) {
+    Option(const T& value) {
         m_value = value;
         m_isDefined = true;
     }
-    Optional(NoneType) {
-        m_isDefined = false;
-    }
+    Option(NoneType) { m_isDefined = false; }
+    Option() { m_isDefined = false; }
 
     T value() const {
         return m_value;
@@ -49,7 +49,15 @@ public:
         }
     }
 
-    friend std::ostream &operator<<(std::ostream &stream, const Optional<T>& opt) {
+    operator std::string() const {
+        std::stringstream ss;
+        ss << *this;
+        return ss.str();
+    }
+
+    std::string toString() const { return *this; }
+
+    friend std::ostream &operator<<(std::ostream &stream, const Option<T>& opt) {
         if(opt.m_isDefined) {
             return stream << opt.m_value;
         } else {
@@ -58,41 +66,41 @@ public:
     }
 
 
-    friend bool operator==(const Optional& v0, const T& v1) {
+    friend bool operator==(const Option& v0, const T& v1) {
         return v0.m_isDefined ? v0.m_value == v1 : false;
     }
-    friend bool operator!=(const Optional& v0, const T& v1) {
+    friend bool operator!=(const Option& v0, const T& v1) {
         return v0.m_isDefined ? v0.m_value != v1 : true;
     }
-    friend bool operator==(const T& v1, const Optional& v0) {
+    friend bool operator==(const T& v1, const Option& v0) {
         return v0.m_isDefined ? v0.m_value == v1 : false;
     }
-    friend bool operator!=(const T& v1, const Optional& v0) {
+    friend bool operator!=(const T& v1, const Option& v0) {
         return v0.m_isDefined ? v0.m_value != v1 : true;
     }
 
 
-    friend bool operator==(const Optional& v0, NoneType) {
+    friend bool operator==(const Option& v0, NoneType) {
         return !v0.m_isDefined;
     }
-    friend bool operator!=(const Optional& v0, NoneType) {
+    friend bool operator!=(const Option& v0, NoneType) {
         return v0.m_isDefined;
     }
-    friend bool operator==(NoneType, const Optional& v0) {
+    friend bool operator==(NoneType, const Option& v0) {
         return !v0.m_isDefined;
     }
-    friend bool operator!=(NoneType, const Optional& v0) {
+    friend bool operator!=(NoneType, const Option& v0) {
         return v0.m_isDefined;
     }
 
 
-    friend bool operator==(const Optional& v0, const Optional& v1) {
+    friend bool operator==(const Option& v0, const Option& v1) {
         return v0.m_isDefined && v1.m_isDefined ? v0.m_value == v1.m_value : v0.m_isDefined == v1.m_isDefined;
     }
-    friend bool operator!=(const Optional& v0, const Optional& v1) {
+    friend bool operator!=(const Option& v0, const Option& v1) {
         return v0.m_isDefined && v1.m_isDefined ? v0.m_value != v1.m_value : v0.m_isDefined != v1.m_isDefined;
     }
 };
 
 }
-#endif // OPTIONAL_H
+#endif // OPTION_H

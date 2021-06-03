@@ -32,7 +32,7 @@ void *e172::DynamicLibrary::__symbol(const std::string &name) const {
 std::list<std::string> e172::DynamicLibrary::polymorphicSymbols(const std::string &name) const {
     const auto stdout = e172::Additional::executeCommand(("objdump --syms " + m_path + " | grep \" _Z" + std::to_string(name.size()) + name + '"').c_str());
     std::list<std::string> result;
-    for(auto s : stdout) {
+    for(const auto& s : stdout) {
         const auto l = e172::Additional::split(s, ' ');
         if(l.size() > 0) {
             result.push_back(e172::Additional::trim(l[l.size() - 1]));

@@ -519,7 +519,7 @@ std::vector<std::string> e172::Additional::coverArgs(int argc, char *argv[]) {
     return result;
 }
 
-e172::Optional<double> e172::Additional::parseRadians(const std::string &string) {
+e172::Option<double> e172::Additional::parseRadians(const std::string &string) {
     if(string.empty())
         return None;
 
