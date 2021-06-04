@@ -142,14 +142,13 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/args.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/matrix.h
     ${CMAKE_CURRENT_LIST_DIR}/src/math/matrix.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/testprovider.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/testprovider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/conversion.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/conversion.h
     ${CMAKE_CURRENT_LIST_DIR}/src/consolecolor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/consolecolor.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/testing.cpp
     )
 
 if (UNIX)
@@ -163,7 +162,7 @@ endif (UNIX)
 
 
 add_executable(e172_tests
-    ${CMAKE_CURRENT_LIST_DIR}/tests/testsmain.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/main.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/varianttest.cpp
@@ -180,7 +179,7 @@ enable_testing()
 add_test(e172_tests e172_tests)
 add_custom_command(
      TARGET e172_tests
-     COMMENT "Run tests"
+     COMMENT "e172_tests"
      POST_BUILD
      COMMAND e172_tests
 )

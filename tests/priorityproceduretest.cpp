@@ -5,15 +5,6 @@
 #include <map>
 #include <src/testing.h>
 
-
-void e172::PriorityProcedureTest::testAll() {
-    execTest0();
-    execTest1();
-    execTest2();
-}
-
-
-
 void e172::PriorityProcedureTest::execTest0() {
     std::map<int64_t, size_t> map;
 
@@ -31,16 +22,16 @@ void e172::PriorityProcedureTest::execTest0() {
     push(100);
     push(0);
 
-    shouldEqual(queue.size(), 8);
+    e172_shouldEqual(queue.size(), 8);
 
     queue.exec();
 
-    shouldEqual(queue.size(), 0);
+    e172_shouldEqual(queue.size(), 0);
 
-    shouldEqual(map.at(0), 4);
-    shouldEqual(map.at(2), 2);
-    shouldEqual(map.at(-100), 1);
-    shouldEqual(map.at(100), 1);
+    e172_shouldEqual(map.at(0), 4);
+    e172_shouldEqual(map.at(2), 2);
+    e172_shouldEqual(map.at(-100), 1);
+    e172_shouldEqual(map.at(100), 1);
 }
 
 
@@ -64,14 +55,14 @@ void e172::PriorityProcedureTest::execTest1() {
 
     queue.exec();
 
-    shouldEqual(vector[0], -100);
-    shouldEqual(vector[1], 0);
-    shouldEqual(vector[2], 0);
-    shouldEqual(vector[3], 0);
-    shouldEqual(vector[4], 0);
-    shouldEqual(vector[5], 2);
-    shouldEqual(vector[6], 2);
-    shouldEqual(vector[7], 100);
+    e172_shouldEqual(vector[0], -100);
+    e172_shouldEqual(vector[1], 0);
+    e172_shouldEqual(vector[2], 0);
+    e172_shouldEqual(vector[3], 0);
+    e172_shouldEqual(vector[4], 0);
+    e172_shouldEqual(vector[5], 2);
+    e172_shouldEqual(vector[6], 2);
+    e172_shouldEqual(vector[7], 100);
 }
 
 void e172::PriorityProcedureTest::execTest2() {
@@ -85,8 +76,8 @@ void e172::PriorityProcedureTest::execTest2() {
 
     queue.exec();
 
-    shouldEqual(vector[0], 0);
-    shouldEqual(vector[1], 1);
-    shouldEqual(vector[2], 2);
-    shouldEqual(vector[3], 3);
+    e172_shouldEqual(vector[0], 0);
+    e172_shouldEqual(vector[1], 1);
+    e172_shouldEqual(vector[2], 2);
+    e172_shouldEqual(vector[3], 3);
 }

@@ -6,13 +6,6 @@
 
 #include <src/time/elapsedtimer.h>
 
-void e172::VariantTest::testAll() {
-    Debug::print("benchmark: variant call time / int call time =", speedTest());
-    compareTest0();
-    compareTest1();
-    fromJsonTest0();
-    fromJsonTest1();
-}
 
 int e172_Variant_ts_d;
 
@@ -52,34 +45,44 @@ double e172::VariantTest::speedTest() {
 
 void e172::VariantTest::compareTest0() {
     const auto v0 = e172::Variant("123");
-    shouldEqual(v0.typeName(), Type<std::string>().name())
-    shouldEqual(v0.isNumber(), true)
+    e172_shouldEqual(v0.typeName(), Type<std::string>().name())
+    e172_shouldEqual(v0.isNumber(), true)
     const auto v1 = e172::Variant(123);
-    shouldEqual(v1.typeName(), "int")
-    shouldEqual(v1.isNumber(), true)
+    e172_shouldEqual(v1.typeName(), "int")
+    e172_shouldEqual(v1.isNumber(), true)
 
-    shouldEqual(v0, v1)
-    shouldEqual(Variant::typeSafeCompare(v0, v1), false)
+    e172_shouldEqual(v0, v1)
+    e172_shouldEqual(Variant::typeSafeCompare(v0, v1), false)
 }
 
 void e172::VariantTest::compareTest1() {
     const auto v0 = e172::Variant(123.4);
-    shouldEqual(v0.typeName(), "double")
-    shouldEqual(v0.isNumber(), true)
+    e172_shouldEqual(v0.typeName(), "double")
+    e172_shouldEqual(v0.isNumber(), true)
     const auto v1 = e172::Variant(123.4);
-    shouldEqual(v1.typeName(), "double")
-    shouldEqual(v1.isNumber(), true)
+    e172_shouldEqual(v1.typeName(), "double")
+    e172_shouldEqual(v1.isNumber(), true)
 
-    shouldEqual(v0, v1)
-    shouldEqual(Variant::typeSafeCompare(v0, v1), true)
+    e172_shouldEqual(v0, v1)
+    e172_shouldEqual(Variant::typeSafeCompare(v0, v1), true)
 }
 
 
 void e172::VariantTest::fromJsonTest1() {
     const auto vec = Variant::fromJson("[\"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\"]").toVector();
-    shouldEqual(vec[0], "BuyWareTask>237 scrap");
-    shouldEqual(vec[1], "BuyWareTask>237 scrap");
-    shouldEqual(vec[2], "BuyWareTask>237 scrap");
+    e172_shouldEqual(vec[0], "BuyWareTask>237 scrap");
+    e172_shouldEqual(vec[1], "BuyWareTask>237 scrap");
+    e172_shouldEqual(vec[2], "BuyWareTask>237 scrap");
+}
+
+void e172::VariantTest::banchmark() {
+    size_t sum = 0;
+    for(size_t i = 0; i < 100; ++i) {
+        const auto s = speedTest();
+        Debug::print("[", i, "%] e172::VariantTest::speedTest:", s);
+        sum += s;
+    }
+    Debug::print("e172::VariantTest::speedTest (average):", sum / 100);
 }
 
 void e172::VariantTest::fromJsonTest0() {
@@ -116,36 +119,36 @@ void e172::VariantTest::fromJsonTest0() {
     } \
     ").toMap();
 
-    shouldEqual(map.at("id"), "st2")
-    shouldEqual(map.at("class"), "Station")
-    shouldEqual(map.at("sprite"), "./st2.png")
-    shouldEqual(map.at("health"), 340)
-    shouldEqual(map.at("explosive"), 114)
-    shouldEqual(map.at("mass"), 64)
+    e172_shouldEqual(map.at("id"), "st2")
+    e172_shouldEqual(map.at("class"), "Station")
+    e172_shouldEqual(map.at("sprite"), "./st2.png")
+    e172_shouldEqual(map.at("health"), 340)
+    e172_shouldEqual(map.at("explosive"), 114)
+    e172_shouldEqual(map.at("mass"), 64)
     const auto capabilitiesList = map.at("capabilities").toList();
-    shouldEqual(capabilitiesList.size(), 1)
+    e172_shouldEqual(capabilitiesList.size(), 1)
 
     const auto capabilities = map.at("capabilities").toVector();
-    shouldEqual(capabilities.size(), 1)
+    e172_shouldEqual(capabilities.size(), 1)
     const auto cap = capabilities[0].toMap();
 
-    shouldEqual(cap.at("id"), "docker");
-    shouldEqual(cap.at("class"), "Docker");
+    e172_shouldEqual(cap.at("id"), "docker");
+    e172_shouldEqual(cap.at("class"), "Docker");
 
     const auto nodes = cap.at("nodes").toVector();
-    shouldEqual(nodes.size(), 2);
+    e172_shouldEqual(nodes.size(), 2);
 
     const auto node0 = nodes[0].toMap();
     const auto node0Offset = node0.at("offset").toMap();
-    shouldEqual(node0Offset.at("x"), -50);
-    shouldEqual(node0Offset.at("y"), 0);
-    shouldEqual(node0.at("angle"), "Pi");
+    e172_shouldEqual(node0Offset.at("x"), -50);
+    e172_shouldEqual(node0Offset.at("y"), 0);
+    e172_shouldEqual(node0.at("angle"), "Pi");
 
     const auto node1 = nodes[0].toMap();
     const auto node1Offset = node1.at("offset").toMap();
-    shouldEqual(node1Offset.at("x"), 50);
-    shouldEqual(node1Offset.at("y"), 0);
-    shouldEqual(node1.at("angle"), "Pi");
+    e172_shouldEqual(node1Offset.at("x"), 50);
+    e172_shouldEqual(node1Offset.at("y"), 0);
+    e172_shouldEqual(node1.at("angle"), "Pi");
 
 }
 

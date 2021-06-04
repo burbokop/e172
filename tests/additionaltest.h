@@ -1,14 +1,12 @@
 #ifndef ADDITIONALTEST_H
 #define ADDITIONALTEST_H
 
+#include <src/testing.h>
+
 namespace e172 {
 
 class AdditionalTest {
-public:
-
-    static void testAll();
-
-    static void parseRadiansTest();
+    static void parseRadiansTest(); e172_test(parseRadiansTest)
 };
 
 }
