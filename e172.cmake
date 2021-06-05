@@ -163,12 +163,12 @@ endif (UNIX)
 
 add_executable(e172_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/main.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/additionaltest.h
-    ${CMAKE_CURRENT_LIST_DIR}/tests/varianttest.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/varianttest.h
-    ${CMAKE_CURRENT_LIST_DIR}/tests/priorityproceduretest.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/priorityproceduretest.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/additionalspec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/additionalspec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/variantspec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/variantspec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/priorityprocedurespec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/priorityprocedurespec.h
     )
 
 target_link_libraries(e172_tests

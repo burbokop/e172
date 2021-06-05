@@ -1,11 +1,11 @@
-#include "priorityproceduretest.h"
+#include "priorityprocedurespec.h"
 
 #include <src/utility/priorityprocedure.h>
 
 #include <map>
 #include <src/testing.h>
 
-void e172::PriorityProcedureTest::execTest0() {
+void e172::PriorityProcedureSpec::execTest0() {
     std::map<int64_t, size_t> map;
 
     PriorityProcedure::Queue queue;
@@ -35,7 +35,7 @@ void e172::PriorityProcedureTest::execTest0() {
 }
 
 
-void e172::PriorityProcedureTest::execTest1() {
+void e172::PriorityProcedureSpec::execTest1() {
     std::vector<int64_t> vector;
 
     PriorityProcedure::Queue queue;
@@ -65,7 +65,7 @@ void e172::PriorityProcedureTest::execTest1() {
     e172_shouldEqual(vector[7], 100);
 }
 
-void e172::PriorityProcedureTest::execTest2() {
+void e172::PriorityProcedureSpec::execTest2() {
     std::vector<int64_t> vector;
 
     PriorityProcedure::Queue queue;

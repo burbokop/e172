@@ -46,7 +46,6 @@ auto bind(const C *object, T (C::*function)(A...)const) {
     return [function, object](A ...a) -> T { return (object->*function)(a...); };
 }
 
-
 template <typename VariantList
 #ifdef QT_CORE_LIB
           = QVariantList

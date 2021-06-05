@@ -49,6 +49,14 @@ public:
         }
     }
 
+    template<typename R>
+    e172::Option<R> map(const std::function<R(const T&)>& f) {
+        if(m_isDefined) {
+            return f(m_value);
+        }
+        return e172::None;
+    }
+
     operator std::string() const {
         std::stringstream ss;
         ss << *this;

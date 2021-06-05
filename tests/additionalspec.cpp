@@ -1,11 +1,11 @@
-#include "additionaltest.h"
+#include "additionalspec.h"
 
 #include <src/additional.h>
 #include <src/math/math.h>
 #include <src/testing.h>
 
 
-void e172::AdditionalTest::parseRadiansTest() {
+void e172::AdditionalSpec::parseRadiansTest() {
     e172_shouldEqual(Additional::parseRadians("Pi/2"), Math::Pi / 2);
     e172_shouldEqual(Additional::parseRadians("Pi / 2"), Math::Pi / 2);
     e172_shouldEqual(Additional::parseRadians("-Pi / 2"), -Math::Pi / 2);

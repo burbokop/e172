@@ -1,4 +1,4 @@
-#include "varianttest.h"
+#include "variantspec.h"
 
 #include <src/variant.h>
 
@@ -17,7 +17,7 @@ void e172_Variant_ts_bar(int value) {
     e172_Variant_ts_d = value;
 }
 
-std::pair<int64_t, int64_t> e172::VariantTest::speedTest(size_t count) {
+std::pair<int64_t, int64_t> e172::VariantSpec::speedTest(size_t count) {
     ElapsedTimer t;
     for(size_t i = 0; i < count; ++i) {
         e172_Variant_ts_foo(i);
@@ -32,7 +32,7 @@ std::pair<int64_t, int64_t> e172::VariantTest::speedTest(size_t count) {
 }
 
 
-double e172::VariantTest::speedTest() {
+double e172::VariantSpec::speedTest() {
     size_t c = 1;
     while (true) {
         const auto result = speedTest(c *= 2);
@@ -43,7 +43,7 @@ double e172::VariantTest::speedTest() {
 }
 
 
-void e172::VariantTest::compareTest0() {
+void e172::VariantSpec::compareTest0() {
     const auto v0 = e172::Variant("123");
     e172_shouldEqual(v0.typeName(), Type<std::string>().name())
     e172_shouldEqual(v0.isNumber(), true)
@@ -55,7 +55,7 @@ void e172::VariantTest::compareTest0() {
     e172_shouldEqual(Variant::typeSafeCompare(v0, v1), false)
 }
 
-void e172::VariantTest::compareTest1() {
+void e172::VariantSpec::compareTest1() {
     const auto v0 = e172::Variant(123.4);
     e172_shouldEqual(v0.typeName(), "double")
     e172_shouldEqual(v0.isNumber(), true)
@@ -68,14 +68,14 @@ void e172::VariantTest::compareTest1() {
 }
 
 
-void e172::VariantTest::fromJsonTest1() {
+void e172::VariantSpec::fromJsonTest1() {
     const auto vec = Variant::fromJson("[\"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\"]").toVector();
     e172_shouldEqual(vec[0], "BuyWareTask>237 scrap");
     e172_shouldEqual(vec[1], "BuyWareTask>237 scrap");
     e172_shouldEqual(vec[2], "BuyWareTask>237 scrap");
 }
 
-void e172::VariantTest::banchmark() {
+void e172::VariantSpec::banchmark() {
     size_t sum = 0;
     for(size_t i = 0; i < 100; ++i) {
         const auto s = speedTest();
@@ -85,7 +85,7 @@ void e172::VariantTest::banchmark() {
     Debug::print("e172::VariantTest::speedTest (average):", sum / 100);
 }
 
-void e172::VariantTest::fromJsonTest0() {
+void e172::VariantSpec::fromJsonTest0() {
     const auto map = Variant::fromJson(" \
     { \
         \"id\": \"st2\", \
