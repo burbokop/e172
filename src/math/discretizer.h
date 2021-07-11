@@ -2,6 +2,7 @@
 #define KDISCRETIZER_H
 
 #include <vector>
+#include <tuple>
 
 namespace e172 {
 
