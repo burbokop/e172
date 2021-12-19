@@ -129,6 +129,12 @@ void Context::setEntityInFocus(const ptr<Entity> &entityInFocus) {
     }
 }
 
+void Context::later(time_t duration, const std::function<void ()> &callback) {
+    if (m_application) {
+        m_application->schedule(duration, callback);
+    }
+}
+
 e172::ptr<Entity> Context::findEntity(const std::function<bool (const e172::ptr<Entity> &)> &condition) {
     if(m_application) {
         return m_application->findEntity(condition);

@@ -114,6 +114,8 @@ public:
     ptr<Entity> entityInFocus() const;
     void setEntityInFocus(const ptr<Entity> &entityInFocus);
 
+    void later(time_t duration, const std::function<void()>& callback);
+
 };
 
 
