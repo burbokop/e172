@@ -1,3 +1,8 @@
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 add_library(e172 SHARED
@@ -182,4 +187,15 @@ add_custom_command(
      COMMENT "e172_tests"
      POST_BUILD
      COMMAND e172_tests
+)
+
+
+
+
+install(TARGETS e172 DESTINATION lib)
+
+install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/src/"
+        DESTINATION include/e172
+        FILES_MATCHING
+        PATTERN "*.h"
 )
