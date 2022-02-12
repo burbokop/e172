@@ -4,8 +4,8 @@
 
 #include <functional>
 #include <inttypes.h>
-#include <src/math/vector.h>
-#include <src/sharedcontainer.h>
+#include "../math/vector.h"
+#include "../sharedcontainer.h"
 
 namespace e172 {
 class Image : public SharedContainer {

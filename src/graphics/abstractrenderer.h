@@ -1,17 +1,14 @@
 #ifndef ABSTRACTRENDERER_H
 #define ABSTRACTRENDERER_H
 
+#include <inttypes.h>
+
 #include "image.h"
 #include "shapeformat.h"
 #include "../math/vector.h"
-
-#include <inttypes.h>
-
 #include "textformat.h"
-#include <src/variant.h>
-
-#include <src/math/line2d.h>
-
+#include "../variant.h"
+#include "../math/line2d.h"
 
 namespace e172 {
 

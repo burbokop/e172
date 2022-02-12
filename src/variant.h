@@ -13,10 +13,8 @@
 #include <map>
 #include <cassert>
 
-#include <src/math/vector.h>
-
+#include "math/vector.h"
 #include "type.h"
-
 #include "sfinae.h"
 #include "typedefs.h"
 
