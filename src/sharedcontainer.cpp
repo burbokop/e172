@@ -4,7 +4,7 @@
 namespace e172 {
 
 
-SharedContainer::ptr SharedContainer::id() const { return m_id; }
+SharedContainer::ptr SharedContainer::provider() const { return m_provider; }
 
 SharedContainer::data_ptr SharedContainer::data() const {
     return m_data;
@@ -43,7 +43,7 @@ void SharedContainer::operator=(const SharedContainer &obj) {
     m_destructor = obj.m_destructor;
     m_data = obj.m_data;
     ref_count_ptr = obj.ref_count_ptr;
-    m_id = obj.m_id;
+    m_provider = obj.m_provider;
 
     if(ref_count_ptr)
         ++(*ref_count_ptr);

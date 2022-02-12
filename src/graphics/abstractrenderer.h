@@ -89,7 +89,7 @@ public:
 protected:
     template<typename T>
     static T imageData(const Image &image) { return image.casted_handle<T>()->c; }
-    static Image::ptr imageId(const Image &image);
+    static Image::ptr imageProvider(const Image &image);
     AbstractGraphicsProvider *provider() const;
 public:
     virtual ~AbstractRenderer();

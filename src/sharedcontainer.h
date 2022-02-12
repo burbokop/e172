@@ -21,14 +21,14 @@ public:
 protected:
     template<typename T>
     handle<T> *casted_handle() const { return handle_cast<T>(m_data); }
-    ptr id() const;
+    ptr provider() const;
 
     template<typename T>
-    static T newSharedContainer(data_ptr data, ptr id, Destructor destructor) {
+    static T newSharedContainer(data_ptr data, ptr provider, Destructor destructor) {
         T i;
         i.ref_count_ptr = new int(1);
         i.m_data = data;
-        i.m_id = id;
+        i.m_provider = provider;
         i.m_destructor = destructor;
         return i;
     }
@@ -36,7 +36,7 @@ protected:
     void setData(const data_ptr &data);
 private:
     data_ptr m_data = nullptr;
-    ptr m_id = nullptr;
+    ptr m_provider = nullptr;
 
     Destructor m_destructor;
 

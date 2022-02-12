@@ -28,7 +28,7 @@ private:
     Bliter m_bliter;
 
     static Image newImage(data_ptr data,
-            ptr id,
+            ptr provider,
             int width,
             int height,
             Destructor destructor,

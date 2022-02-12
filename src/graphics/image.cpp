@@ -17,8 +17,8 @@ Vector Image::size() const {
     };
 }
 
-Image Image::newImage(data_ptr data, ptr id, int width, int height, Destructor destructor, BitmapGetter bitmapGetter, Saver saver, Bliter bliter, Fragment fragment, Transformer transformer) {
-    Image i = newSharedContainer<Image>(data, id, destructor);
+Image Image::newImage(data_ptr data, ptr provider, int width, int height, Destructor destructor, BitmapGetter bitmapGetter, Saver saver, Bliter bliter, Fragment fragment, Transformer transformer) {
+    Image i = newSharedContainer<Image>(data, provider, destructor);
     i.m_width = width;
     i.m_height = height;
 

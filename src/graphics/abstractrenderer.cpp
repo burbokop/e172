@@ -20,8 +20,8 @@ void AbstractRenderer::setAutoClear(bool autoClear) {
     m_autoClear = autoClear;
 }
 
-Image::ptr AbstractRenderer::imageId(const Image &image) {
-    return image.id();
+Image::ptr AbstractRenderer::imageProvider(const Image &image) {
+    return image.provider();
 }
 
 AbstractGraphicsProvider *AbstractRenderer::provider() const {
