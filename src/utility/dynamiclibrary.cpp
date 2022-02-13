@@ -6,7 +6,7 @@ std::string e172::DynamicLibrary::path() const {
     return m_path;
 }
 
-e172::DynamicLibrary::DynamicLibrary(void *handle, const std::string &path, const std::shared_ptr<DestroySignal> &destroySignal) {
+e172::DynamicLibrary::DynamicLibrary(void *handle, const std::string &path, const std::shared_ptr<Defer> &destroySignal) {
     m_handle = handle;
     m_path = path;
     m_destroySignal = destroySignal;
@@ -44,7 +44,7 @@ std::list<std::string> e172::DynamicLibrary::polymorphicSymbols(const std::strin
 e172::DynamicLibrary e172::DynamicLibrary::load(const std::string &path) {
 #ifdef __unix__
     const auto handle = dlopen(path.c_str(), RTLD_LAZY);
-    return DynamicLibrary(handle, path, std::make_shared<DestroySignal>([handle]{ dlclose(handle); }));
+    return DynamicLibrary(handle, path, std::make_shared<Defer>([handle]{ dlclose(handle); }));
 #else
     return DynamicLibrary(nullptr, path, nullptr);
 #endif

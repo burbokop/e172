@@ -89,8 +89,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/ptr.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/dynamiclibrary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/dynamiclibrary.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/destroysignal.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/destroysignal.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/defer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/defer.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/testing.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/testing.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/lightvector.cpp

@@ -1,7 +1,7 @@
 #ifndef DYNAMICLIBRARY_H
 #define DYNAMICLIBRARY_H
 
-#include "destroysignal.h"
+#include "defer.h"
 
 #include <string>
 #include <list>
@@ -23,10 +23,10 @@ template <typename T, typename ...Args>
 class DynamicLibraryFunction<T(Args...)> {
     friend class DynamicLibrary;
     std::function<T(Args...)> m_function;
-    std::shared_ptr<DestroySignal> m_signal;
-    DynamicLibraryFunction(const std::function<T(Args...)> &function, const std::shared_ptr<DestroySignal> &signal) {
+    std::shared_ptr<Defer> m_destroySignal;
+    DynamicLibraryFunction(const std::function<T(Args...)> &function, const std::shared_ptr<Defer> &destroySignal) {
         m_function = function;
-        m_signal = signal;
+        m_destroySignal = destroySignal;
     };
 public:
     DynamicLibraryFunction() {};
@@ -39,8 +39,8 @@ class DynamicLibrary {
     void *m_handle = nullptr;
     std::string m_path;
 
-    std::shared_ptr<DestroySignal> m_destroySignal;
-    DynamicLibrary(void *handle, const std::string &path, const std::shared_ptr<DestroySignal> &destroySignal);
+    std::shared_ptr<Defer> m_destroySignal;
+    DynamicLibrary(void *handle, const std::string &path, const std::shared_ptr<Defer> &destroySignal);
     void *__symbol(const std::string& name) const;
 
 
