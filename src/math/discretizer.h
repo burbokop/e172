@@ -10,11 +10,11 @@ namespace e172 {
 template<typename Container>
 class Discretizer {
     typedef typename Container::value_type val_type;
-    size_t m_count;
+    std::size_t m_count;
     val_type lastX;
     bool frst = true;
 public:
-    Discretizer(size_t count = 8) { m_count = count; }
+    Discretizer(std::size_t count = 8) { m_count = count; }
     inline Container proceed(const val_type &x) {
         if (frst) {
             frst = false;
@@ -24,7 +24,7 @@ public:
 
         typename Container::value_type result[m_count];
         auto dx = (x - lastX) / m_count;
-        for (size_t i = 0; i < m_count; ++i) {
+        for (std::size_t i = 0; i < m_count; ++i) {
             result[i] = lastX + i * dx;
         }
 
@@ -49,20 +49,22 @@ Container discretize(const Container& c, double count = 8) {
     return result;
 }
 
-template<size_t i0, size_t i1, typename Container>
-void discretize(Container* c, double count = 8) {
+template<std::size_t i0, std::size_t i1, typename Container>
+void discretize(Container *c, double count = 8)
+{
     std::get<i1>(*c) = discretize(std::get<i1>(*c), count);
     if constexpr(i0 < i1) {
         discretize<i0, i1 - 1>(c, count);
     }
 }
 
-template<size_t i0, size_t i1 = i0, typename Container>
-Container discretize(Container c, double count = 8) {
+template<std::size_t i0, std::size_t i1 = i0, typename Container>
+Container discretize(Container c, double count = 8)
+{
     discretize<i0, i1>(&c, count);
     return c;
 }
 
-}
+} // namespace e172
 
 #endif // KDISCRETIZER_H

@@ -14,16 +14,18 @@ public:
         m_pointers = pointers;
     }
 
-    size_t size() const {
-        size_t sum = 0;
+    std::size_t size() const
+    {
+        std::size_t sum = 0;
         for(auto p : m_pointers) {
             sum += p->size();
         }
         return sum;
     }
 
-    T &operator[](size_t index) {
-        size_t pi = 0;
+    T &operator[](std::size_t index)
+    {
+        std::size_t pi = 0;
         while(index >= m_pointers[pi]->size()) {
             index -= m_pointers[pi]->size();
             ++pi;
@@ -31,16 +33,15 @@ public:
         return (*m_pointers[pi])[index];
     }
 
-    T operator[](size_t index) const {
-        size_t pi = 0;
+    T operator[](std::size_t index) const
+    {
+        std::size_t pi = 0;
         while(index >= m_pointers[pi]->size()) {
             index -= m_pointers[pi]->size();
             ++pi;
         }
         return (*m_pointers[pi])[index];
     }
-
 };
-
 }
 #endif // VECTORPROXY_H

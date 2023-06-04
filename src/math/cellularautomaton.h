@@ -1,10 +1,11 @@
 #ifndef CELLULARAUTOMATON_H
 #define CELLULARAUTOMATON_H
 
-#include <set>
-#include <map>
-#include <functional>
 #include "../utility/matrixproxy.h"
+#include <functional>
+#include <map>
+#include <optional>
+#include <set>
 
 namespace e172 {
 
