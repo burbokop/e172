@@ -118,7 +118,7 @@ public:
     void setAudioProvider(AbstractAudioProvider *audioProvider);
     void setGraphicsProvider(AbstractGraphicsProvider *graphicsProvider);
 
-    std::list<ptr<Entity>> entities() const;
+    const std::list<ptr<Entity>> &entities() const { return m_entities; }
     ptr<Entity> autoIteratingEntity() const;
 
     ElapsedTimer::time_t proceedDelay() const;

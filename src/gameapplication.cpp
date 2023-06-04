@@ -130,11 +130,6 @@ void GameApplication::proceed(const ptr<Entity> &entity, Context *context, Abstr
     }
 }
 
-
-std::list<ptr<Entity> > GameApplication::entities() const {
-    return m_entities;
-}
-
 ptr<Entity> GameApplication::autoIteratingEntity() const {
     return m_entities.cyclicValue(nullptr);
 }

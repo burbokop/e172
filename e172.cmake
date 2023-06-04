@@ -75,6 +75,18 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/time/time.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/time/time.h
 
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/socket.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/server.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/networker.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/networker.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/socketimpl.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/socketimpl.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/networkerimpl.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/networkerimpl.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/serverimpl.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/serverimpl.cpp
+
+
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/vectorproxy.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/vectorproxy.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/systeminfo.cpp
@@ -113,6 +125,7 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/closableoutputstream.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/signalstreambuffer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/signalstreambuffer.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/buffer.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h
@@ -151,6 +164,7 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/conversion.h
     ${CMAKE_CURRENT_LIST_DIR}/src/consolecolor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/consolecolor.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/todo.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.h
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.cpp

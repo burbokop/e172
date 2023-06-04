@@ -1,0 +1,80 @@
+#include "networkerimpl.h"
+
+#include "serverimpl.h"
+#include "socketimpl.h"
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+namespace e172 {
+
+namespace {
+void setFdNonBlockingFlag(int fd, bool nbm)
+{
+    auto flags = fcntl(fd, F_GETFL, 0);
+    if (nbm) {
+        flags |= O_NONBLOCK;
+    } else {
+        flags &= !O_NONBLOCK;
+    }
+    fcntl(fd, F_SETFL, flags);
+}
+} // namespace
+
+Either<Networker::Error, std::shared_ptr<Server>> LinuxNetworkerImpl::listen(uint16_t port)
+{
+    const auto fd = ::socket(AF_INET, SOCK_STREAM, 0);
+    if (fd == -1) {
+        return Left(FailedToCreateSocket);
+    }
+
+    sockaddr_in servaddr;
+    ::memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servaddr.sin_port = htons(port);
+
+    if ((::bind(fd, reinterpret_cast<sockaddr *>(&servaddr), sizeof(servaddr))) != 0) {
+        return Left(BindingFailed);
+    }
+
+    if ((::listen(fd, 5)) != 0) {
+        return Left(ListenFailed);
+    }
+    setFdNonBlockingFlag(fd, true);
+    return Right<std::shared_ptr<Server>>(std::make_shared<LinuxServerImpl>(fd));
+}
+
+Either<Networker::Error, std::shared_ptr<Socket>> e172::LinuxNetworkerImpl::connect(
+    uint16_t port, const std::string &address)
+{
+    const auto fd = ::socket(AF_INET, SOCK_STREAM, 0);
+    if (fd == -1) {
+        return Left(FailedToCreateSocket);
+    }
+
+    sockaddr_in servaddr;
+    ::memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = ::inet_addr(address.c_str());
+    servaddr.sin_port = ::htons(port);
+
+    if (::connect(fd, reinterpret_cast<sockaddr *>(&servaddr), sizeof(servaddr)) != 0) {
+        switch (errno) {
+        case ECONNREFUSED:
+            return Left(ConnectionRefused);
+        default:
+            return Left(UnwnownConnectionError);
+        }
+    }
+    setFdNonBlockingFlag(fd, true);
+    return Right<std::shared_ptr<Socket>>(std::make_shared<LinuxSocketImpl>(fd));
+}
+
+} // namespace e172

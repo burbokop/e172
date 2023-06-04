@@ -12,7 +12,8 @@ class CyclicList {
     typename std::list<T>::iterator m_auto_it = m_container.begin();
 public:
     CyclicList() {}
-    operator std::list<T>() const { return m_container; }
+
+    operator const std::list<T> &() const { return m_container; }
 
     auto begin() const { return m_container.begin(); }
     auto begin() { return m_container.begin(); }

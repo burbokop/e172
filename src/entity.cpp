@@ -1,10 +1,45 @@
 #include "entity.h"
 
 #include "context.h"
+#include "net/networker.h"
+
+#include <optional>
 
 namespace e172 {
 
-uint64_t Entity::entityId() const {
+template<typename It>
+requires std::is_same<typename It::value_type, std::uint8_t>::value class WriteIndexMap
+{
+public:
+    WriteIndexMap() = default;
+
+    void add(It begin, It end) {}
+    void skip() {}
+
+    std::vector<std::uint8_t> collect() const { todo; }
+    bool parse(const std::vector<std::uint8_t> &bytes) { todo; }
+
+private:
+};
+
+template<typename It>
+requires std::is_same<typename It::value_type, std::uint8_t>::value class ReadIndexMap
+{
+    using Chunk = std::vector<std::uint8_t>;
+
+public:
+    ReadIndexMap(const std::vector<std::uint8_t> &bytes)
+        : m_bytes(bytes)
+    {}
+
+    std::optional<std::pair<std::size_t, Chunk>> next() { todo; }
+
+private:
+    const std::vector<std::uint8_t> &m_bytes;
+};
+
+uint64_t Entity::entityId() const
+{
     return m_entityId;
 }
 
@@ -53,9 +88,37 @@ void Entity::setDepth(const int64_t &depth) {
     m_depth = depth;
 }
 
-Entity::Entity() {}
-
-Entity::~Entity() {}
-
-
+bool Entity::anyNetSyncDirty() const
+{
+    for (const auto &s : m_netSyncs) {
+        if (s->dirty()) {
+            return true;
+        }
+    }
+    return false;
 }
+
+std::vector<uint8_t> Entity::collectBytes() const
+{
+    WriteIndexMap<std::vector<std::uint8_t>::const_iterator> map;
+    for (auto s : m_netSyncs) {
+        if (s->dirty()) {
+            const auto b = s->serialize();
+            map.add(b.begin(), b.end());
+        } else {
+            map.skip();
+        }
+    }
+    return map.collect();
+}
+
+void Entity::assignBytes(const std::vector<uint8_t> &b) const
+{
+    ReadIndexMap<std::vector<std::uint8_t>::const_iterator> map(b);
+    while (const auto c = map.next()) {
+        assert(c->first < m_netSyncs.size());
+        m_netSyncs[c->first]->deserAssign(c->second);
+    }
+}
+
+} // namespace e172
