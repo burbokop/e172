@@ -124,7 +124,13 @@ public:
     ElapsedTimer::time_t proceedDelay() const;
     ElapsedTimer::time_t renderDelay() const;
 
-    e172::ptr<e172::Entity> findEntity(const std::function<bool(const e172::ptr<e172::Entity> &)>& condition);
+    e172::ptr<e172::Entity> findEntity(
+        const std::function<bool(const e172::ptr<e172::Entity> &)> &condition) const;
+
+    e172::ptr<e172::Entity> entityById(Entity::id_t id) const
+    {
+        return findEntity([id](const e172::ptr<e172::Entity> &e) { return e->entityId() == id; });
+    }
 
     void schedule(e172::Time::time_t duration, const std::function<void()>& function);
     ptr<Entity> entityInFocus() const;

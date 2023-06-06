@@ -1,6 +1,7 @@
 #pragma once
 
 #include "server.h"
+#include "src/utility/package.h"
 #include <list>
 #include <src/entity.h>
 #include <src/todo.h>
@@ -38,8 +39,9 @@ public:
     virtual bool dirty() const = 0;
 
 protected:
-    virtual std::vector<std::uint8_t> serialize() const = 0;
-    virtual void deserAssign(const std::vector<std::uint8_t> &) = 0;
+    virtual Bytes serialize() const = 0;
+    virtual void deserAssign(Bytes &&, bool markDirty) = 0;
+    virtual void wash() = 0;
 };
 
 class GameApplication;
@@ -55,6 +57,8 @@ public:
         : m_app(app)
         , m_socket(socket)
     {}
+
+    bool isConnected() const { return m_socket != nullptr; }
 
     void sync();
 
@@ -76,6 +80,10 @@ public:
     {}
 
     void sync();
+
+private:
+    void refreshSockets();
+    void syncEntity(ReadPackage &&package);
 
 private:
     GameApplication &m_app;
@@ -167,7 +175,7 @@ public:
     bool dirty() const override { return m_dirty; }
 
 protected:
-    std::vector<uint8_t> serialize() const override
+    Bytes serialize() const override
     {
         if constexpr (std::is_fundamental<T>::value) {
             return WriteBuffer::toBytes(m_value);
@@ -176,14 +184,19 @@ protected:
         }
     }
 
-    void deserAssign(const std::vector<uint8_t> &b) override
+    void deserAssign(Bytes &&b, bool markDirty) override
     {
         if constexpr (std::is_fundamental<T>::value) {
-            m_value = ReadBuffer::fromBytes<T>(b);
+            m_value = ReadBuffer::fromBytes<T>(std::move(b)).value();
         } else {
             m_value = T::deserialize(b);
         }
+        if (markDirty) {
+            m_dirty = true;
+        }
     }
+
+    virtual void wash() { m_dirty = false; };
 
 private:
     T m_value;

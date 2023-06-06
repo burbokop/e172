@@ -17,11 +17,12 @@ public:
 
     // Socket interface
 public:
-    virtual std::size_t bufferize() override;
-    virtual std::size_t bytesReadyRead() override;
-    virtual std::size_t read(uint8_t *dst, std::size_t size) override;
-    virtual std::size_t write(const uint8_t *src, std::size_t size) override;
-    virtual bool isConnected() const override;
+    std::size_t bufferize() override;
+    std::size_t bytesAvailable() const override;
+    std::size_t read(uint8_t *dst, std::size_t size) override;
+    std::size_t peek(Byte *dst, std::size_t size) const override;
+    std::size_t write(const uint8_t *src, std::size_t size) override;
+    bool isConnected() const override;
 
 private:
     int m_fd;

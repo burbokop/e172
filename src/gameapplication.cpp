@@ -34,7 +34,9 @@ ElapsedTimer::time_t GameApplication::renderDelay() const {
     return m_renderDelay;
 }
 
-e172::ptr<Entity> GameApplication::findEntity(const std::function<bool (const e172::ptr<Entity> &)> &condition) {
+e172::ptr<Entity> GameApplication::findEntity(
+    const std::function<bool(const e172::ptr<Entity> &)> &condition) const
+{
     const auto it = std::find_if(m_entities.begin(), m_entities.end(), condition);
     if (it != m_entities.end()) {
         return *it;

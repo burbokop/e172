@@ -5,26 +5,50 @@
 #include <bit>
 #include <cstdint>
 #include <functional>
+#include <iomanip>
+#include <optional>
+#include <ostream>
 #include <vector>
 
 namespace e172 {
 
 using Byte = std::uint8_t;
-using Bytes = std::vector<std::uint8_t>;
+
+class Bytes : public std::vector<std::uint8_t>
+{
+public:
+    using std::vector<std::uint8_t>::vector;
+
+    inline friend std::ostream &operator<<(std::ostream &stream, const Bytes &bytes)
+    {
+        std::size_t i = 0;
+        for (const auto &b : bytes) {
+            stream << std::hex << std::setfill('0') << std::setw(2) << int(b);
+            if (i++ < bytes.size() - 1) {
+                stream << '.';
+            }
+        }
+        return stream;
+    }
+};
+
+constexpr void toBigEndian(Byte *p, std::size_t s)
+{
+    if constexpr (std::endian::native == std::endian::little) {
+        for (std::size_t i = 0; i < s / 2; ++i) {
+            const auto tmp = p[i];
+            p[i] = p[s - i - 1];
+            p[s - i - 1] = tmp;
+        }
+    }
+}
 
 class WriteBuffer
 {
 public:
-    static constexpr void toBigEndian(Byte *p, std::size_t s)
-    {
-        if constexpr (std::endian::native == std::endian::little) {
-            for (std::size_t i = 0; i < s / 2; ++i) {
-                const auto tmp = p[i];
-                p[i] = p[s - i - 1];
-                p[s - i - 1] = tmp;
-            }
-        }
-    }
+    WriteBuffer() = default;
+    WriteBuffer(WriteBuffer &&) = default;
+    WriteBuffer(const WriteBuffer &) = delete;
 
     std::size_t write(const Byte *bytes, std::size_t size)
     {
@@ -35,19 +59,26 @@ public:
     template<typename T>
     std::size_t write(const T &v)
     {
-        auto vCopy = v;
-        auto ptr = reinterpret_cast<Byte *>(&vCopy);
-        toBigEndian(ptr, sizeof(T));
-        const auto cnt = write(ptr, sizeof(T));
-        assert(cnt == sizeof(T));
-        return cnt;
+        static_assert(!std::is_same<T, WriteBuffer>::value,
+                      "T can not be WriteBuffer. use WriteBuffer::writeBuf");
+
+        if constexpr (std::is_same<T, Bytes>::value) {
+            return write(v.data(), v.size());
+        } else {
+            auto vCopy = v;
+            auto ptr = reinterpret_cast<Byte *>(&vCopy);
+            toBigEndian(ptr, sizeof(T));
+            const auto cnt = write(ptr, sizeof(T));
+            assert(cnt == sizeof(T));
+            return cnt;
+        }
     }
 
-    std::size_t writeBuf(const WriteBuffer &b) { return write(b.m_data.data(), b.m_data.size()); }
+    std::size_t writeBuf(WriteBuffer &&b) { return write(b.m_data.data(), b.m_data.size()); }
 
     std::size_t size() const { return m_data.size(); }
 
-    static std::vector<std::uint8_t> collect(WriteBuffer &&b) { return std::move(b.m_data); }
+    static Bytes collect(WriteBuffer &&b) { return std::move(b.m_data); }
 
     template<typename T>
     static Bytes toBytes(const T &v)
@@ -56,56 +87,59 @@ public:
     }
 
 private:
-    std::vector<std::uint8_t> m_data;
+    Bytes m_data;
 };
 
 class ReadBuffer
 {
 public:
-    template<typename T>
-    static T fromBytes(const Bytes &b)
-    {
-        todo;
-    }
-};
-
-class WritePackage
-{
-public:
-    std::size_t write(const Byte *bytes, std::size_t size)
-    {
-        m_buf.write(bytes, size);
-        return size;
-    }
+    ReadBuffer(Bytes &&b)
+        : m_data(std::move(b))
+    {}
+    ReadBuffer(ReadBuffer &&) = default;
+    ReadBuffer(const ReadBuffer &) = delete;
 
     template<typename T>
-    std::size_t write(const T &v)
+    static std::optional<T> fromBytes(Bytes &&b)
     {
-        return m_buf.write(v);
+        ReadBuffer r(std::move(b));
+        return r.read<T>();
     }
 
-    std::size_t writeBuf(const WriteBuffer &b) { return m_buf.writeBuf(b); }
+    std::size_t bytesAvailable() const { return m_data.size() - m_pos; }
 
-    friend Bytes pack(std::function<void(WritePackage)> writeFn);
+    static Bytes readAll(ReadBuffer &&p)
+    {
+        return Bytes(p.m_data.begin() + p.m_pos, p.m_data.end());
+    }
+
+    std::optional<Bytes> read(std::size_t size)
+    {
+        if (bytesAvailable() >= size) {
+            auto result = Bytes(m_data.begin() + m_pos, m_data.begin() + m_pos + size);
+            m_pos += size;
+            return std::move(result);
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    template<typename T>
+    std::optional<T> read()
+    {
+        if (bytesAvailable() >= sizeof(T)) {
+            toBigEndian(m_data.data() + m_pos, sizeof(T));
+            const auto ptr = reinterpret_cast<const T *>(m_data.data() + m_pos);
+            m_pos += sizeof(T);
+            return *ptr;
+        } else {
+            return std::nullopt;
+        }
+    }
 
 private:
-    WritePackage(WriteBuffer &buf)
-        : m_buf(buf)
-    {}
-
-    WriteBuffer &m_buf;
+    Bytes m_data;
+    std::size_t m_pos = 0;
 };
-
-inline Bytes pack(std::function<void(WritePackage)> writeFn)
-{
-    WriteBuffer tmp;
-    writeFn(WritePackage(tmp));
-
-    WriteBuffer result;
-    result.write(std::uint32_t(tmp.size()));
-    result.write(tmp);
-
-    return std::move(WriteBuffer::collect(std::move(result)));
-}
 
 } // namespace e172

@@ -126,6 +126,8 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/signalstreambuffer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/signalstreambuffer.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/buffer.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/package.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/io.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h
@@ -188,28 +190,30 @@ add_executable(e172_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/variantspec.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/priorityprocedurespec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/priorityprocedurespec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/bufferspec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/bufferspec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/packagespec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/packagespec.cpp
     )
 
 target_link_libraries(e172_tests
     e172
     )
 
+include(CTest)
 enable_testing()
-add_test(e172_tests e172_tests)
+add_test(NAME e172_tests COMMAND e172_tests)
 add_custom_command(
-     TARGET e172_tests
-     COMMENT "e172_tests"
-     POST_BUILD
-     COMMAND e172_tests
+    TARGET e172_tests
+    COMMENT "e172_tests"
+    POST_BUILD
+    COMMAND e172_tests
 )
-
-
-
 
 install(TARGETS e172 DESTINATION lib)
 
 install(DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/src/"
-        DESTINATION include/e172
-        FILES_MATCHING
-        PATTERN "*.h"
+    DESTINATION include/e172
+    FILES_MATCHING
+    PATTERN "*.h"
 )

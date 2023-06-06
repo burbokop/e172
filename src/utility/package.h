@@ -1,0 +1,96 @@
+#pragma once
+
+#include "buffer.h"
+#include "io.h"
+
+namespace e172 {
+
+using PackageLen = std::uint32_t;
+using PackageType = std::uint16_t;
+
+class WritePackage
+{
+public:
+    std::size_t write(const Byte *bytes, std::size_t size)
+    {
+        m_buf.write(bytes, size);
+        return size;
+    }
+
+    template<typename T>
+    std::size_t write(const T &v)
+    {
+        return m_buf.write(v);
+    }
+
+    std::size_t writeBuf(WriteBuffer &&b) { return m_buf.writeBuf(std::move(b)); }
+
+    static std::size_t pack(Write &dst,
+                            PackageType type,
+                            const std::function<void(WritePackage)> &writeFn)
+    {
+        WriteBuffer tmp;
+        writeFn(WritePackage(tmp));
+
+        WriteBuffer result;
+        result.write(PackageLen(tmp.size()));
+        result.write(type);
+        result.writeBuf(std::move(tmp));
+        return dst.write(std::move(result));
+    }
+
+private:
+    WritePackage(WriteBuffer &buf)
+        : m_buf(buf)
+    {}
+
+    WriteBuffer &m_buf;
+};
+
+class ReadPackage
+{
+public:
+    static bool pull(Read &r, const std::function<void(ReadPackage)> &readFn)
+    {
+        r.bufferize();
+        if (const auto len = r.peek<PackageLen>()) {
+            if (r.bytesAvailable() >= sizeof(PackageLen) + sizeof(PackageType) + *len) {
+                const auto ok = r.read<PackageLen>();
+                assert(ok);
+                const auto type = r.read<PackageType>();
+                assert(type);
+                auto result = r.read<ReadBuffer>(*len);
+                assert(result.bytesAvailable() == *len);
+                readFn(ReadPackage(type.right().value(), std::move(result)));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static Bytes readAll(ReadPackage &&p) { return ReadBuffer::readAll(std::move(p.m_buf)); }
+
+    std::size_t bytesAvailable() const { return m_buf.bytesAvailable(); }
+
+    std::optional<Bytes> read(std::size_t size) { return m_buf.read(size); }
+
+    template<typename T>
+    std::optional<T> read()
+    {
+        return m_buf.read<T>();
+    }
+
+    PackageType type() const { return m_type; };
+
+private:
+    ReadPackage(PackageType type, ReadBuffer buf)
+        : m_type(type)
+        , m_buf(std::move(buf))
+    {}
+
+private:
+    PackageType m_type;
+    ReadBuffer m_buf;
+};
+
+} // namespace e172

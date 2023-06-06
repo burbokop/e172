@@ -23,12 +23,6 @@ std::function<void(const std::string &, Debug::MessageType)> Debug::m_proceedMes
     }
 };
 
-std::string Debug::m_separator = " ";
-
-void Debug::setSeparator(const std::string &separator) {
-    m_separator = separator;
-}
-
 int Debug::functionName(void *addr, std::string *fname, std::string *sname) {
 #ifdef __unix__
     Dl_info info;
@@ -101,7 +95,8 @@ std::string Debug::codeLocation(const char *file, int line) {
     return std::string(file) + ":" + std::to_string(line) + ":";
 }
 
-std::string Debug::make_version(int a, int b, int c) {
+std::string Debug::makeVersion(int a, int b, int c)
+{
     std::ostringstream ss;
     ss << a << '.' << b << '.' << c;
     return ss.str();

@@ -16,8 +16,8 @@ public:
     void add(It begin, It end) {}
     void skip() {}
 
-    std::vector<std::uint8_t> collect() const { todo; }
-    bool parse(const std::vector<std::uint8_t> &bytes) { todo; }
+    Bytes collect() const { todo; }
+    bool parse(const Bytes &bytes) { todo; }
 
 private:
 };
@@ -25,14 +25,12 @@ private:
 template<typename It>
 requires std::is_same<typename It::value_type, std::uint8_t>::value class ReadIndexMap
 {
-    using Chunk = std::vector<std::uint8_t>;
-
 public:
     ReadIndexMap(const std::vector<std::uint8_t> &bytes)
         : m_bytes(bytes)
     {}
 
-    std::optional<std::pair<std::size_t, Chunk>> next() { todo; }
+    std::optional<std::pair<std::size_t, Bytes>> next() { todo; }
 
 private:
     const std::vector<std::uint8_t> &m_bytes;
@@ -98,7 +96,7 @@ bool Entity::anyNetSyncDirty() const
     return false;
 }
 
-std::vector<uint8_t> Entity::collectBytes() const
+Bytes Entity::collectBytes() const
 {
     WriteIndexMap<std::vector<std::uint8_t>::const_iterator> map;
     for (auto s : m_netSyncs) {
@@ -112,12 +110,12 @@ std::vector<uint8_t> Entity::collectBytes() const
     return map.collect();
 }
 
-void Entity::assignBytes(const std::vector<uint8_t> &b) const
+void Entity::assignBytes(const Bytes &b, bool markDirty) const
 {
-    ReadIndexMap<std::vector<std::uint8_t>::const_iterator> map(b);
-    while (const auto c = map.next()) {
+    ReadIndexMap<Bytes::const_iterator> map(b);
+    while (auto c = map.next()) {
         assert(c->first < m_netSyncs.size());
-        m_netSyncs[c->first]->deserAssign(c->second);
+        m_netSyncs[c->first]->deserAssign(std::move(c->second), markDirty);
     }
 }
 

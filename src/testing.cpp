@@ -1,5 +1,6 @@
 #include "testing.h"
 
+#include "consolecolor.h"
 #include <map>
 
 namespace e172 {
@@ -20,7 +21,6 @@ std::map<std::string, spec> specs;
 }
 
 int e172::testing::registerTest(const std::string &name, const std::string &spec, const std::function<void ()> &testFunc) {
-    e172::Debug::print("current test:", name, spec);
     specs[spec].tests.push_back({ name, testFunc });
     return 0;
 }
@@ -31,7 +31,7 @@ int e172::testing::exec() {
         for(const auto& t : s.second.tests) {
             e172::Debug::print("test: ", t.name);
             t.testFunc();
-            e172::Debug::print("      ", t.name, "OK");
+            e172::Debug::print("      ", t.name, Green.wrap("OK"));
         }
     }
     return 0;

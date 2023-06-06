@@ -5,6 +5,7 @@
 
 namespace e172 {
 
+class Bytes;
 class AbstractEventHandler;
 class AbstractRenderer;
 class Context;
@@ -34,8 +35,8 @@ public:
     void installNetSync(AbstractNetSync *s) { m_netSyncs.push_back(s); }
 
     bool anyNetSyncDirty() const;
-    std::vector<std::uint8_t> collectBytes() const;
-    void assignBytes(const std::vector<std::uint8_t> &b) const;
+    Bytes collectBytes() const;
+    void assignBytes(const Bytes &b, bool markDirty) const;
 
 private:
     static inline id_t nextId = 0;
