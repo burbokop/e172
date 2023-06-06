@@ -3,10 +3,12 @@
 #include "object.h"
 #include "typedefs.h"
 
+#include <src/utility/buffer.h>
+
 namespace e172 {
 
 class Bytes;
-class AbstractEventHandler;
+class EventHandler;
 class AbstractRenderer;
 class Context;
 class AbstractNetSync;
@@ -18,7 +20,7 @@ public:
     Entity() = default;
     virtual ~Entity() = default;
 
-    void virtual proceed(e172::Context *context, AbstractEventHandler *eventHandler) = 0;
+    void virtual proceed(e172::Context *context, EventHandler *eventHandler) = 0;
     void virtual render(AbstractRenderer *renderer) = 0;
 
     uint64_t entityId() const;
@@ -35,8 +37,9 @@ public:
     void installNetSync(AbstractNetSync *s) { m_netSyncs.push_back(s); }
 
     bool anyNetSyncDirty() const;
-    Bytes collectBytes() const;
-    void assignBytes(const Bytes &b, bool markDirty) const;
+
+    virtual void writeNet(WriteBuffer &buf);
+    virtual void readNet(ReadBuffer &&buf);
 
 private:
     static inline id_t nextId = 0;
@@ -49,7 +52,7 @@ private:
 
     //[EXPERIMENTAL] extended update functions
 private:
-    typedef std::pair<void (*)(Entity *, Context *, AbstractEventHandler *),
+    typedef std::pair<void (*)(Entity *, Context *, EventHandler *),
                       void (*)(Entity *, AbstractRenderer *)>
         __euf_t;
     std::list<__euf_t> __euf;

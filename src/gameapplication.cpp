@@ -2,12 +2,12 @@
 #include "debug.h"
 #include "gameapplication.h"
 
-#include <src/context.h>
 #include <src/assettools/assetprovider.h>
 #include <src/audio/abstractaudioprovider.h>
-#include <src/abstracteventhandler.h>
-#include <src/graphics/abstractrenderer.h>
+#include <src/context.h>
+#include <src/eventhandler.h>
 #include <src/graphics/abstractgraphicsprovider.h>
+#include <src/graphics/abstractrenderer.h>
 #include <src/time/time.h>
 
 #include <iostream>
@@ -110,7 +110,10 @@ void GameApplication::render(const ptr<Entity> &entity, AbstractRenderer *render
     }
 }
 
-void GameApplication::proceed(const ptr<Entity> &entity, Context *context, AbstractEventHandler *eventHandler) {
+void GameApplication::proceed(const ptr<Entity> &entity,
+                              Context *context,
+                              EventHandler *eventHandler)
+{
     if(entity && context) {
         if(entity->enabled()) {
             bool disableKeyboard;
@@ -140,6 +143,16 @@ AbstractGraphicsProvider *GameApplication::graphicsProvider() const {
     return m_graphicsProvider;
 }
 
+void GameApplication::setEventProvider(AbstractEventProvider *eventProvider)
+{
+    m_eventProvider = eventProvider;
+
+    if (m_eventHandler) {
+        delete m_eventHandler;
+    }
+    m_eventHandler = new EventHandler(m_eventProvider);
+}
+
 void GameApplication::setGraphicsProvider(AbstractGraphicsProvider *graphicsProvider) {
     if(graphicsProvider) {
         if(!graphicsProvider->fontLoaded(std::string())) {
@@ -159,16 +172,18 @@ void GameApplication::setAudioProvider(AbstractAudioProvider *audioProvider) {
     m_assetProvider->m_audioProvider = audioProvider;
 }
 
-void GameApplication::setEventHandler(AbstractEventHandler *eventHandler) {
-    m_eventHandler = eventHandler;
+Context *GameApplication::context() const {
+    return m_context;
 }
 
-AbstractEventHandler *GameApplication::eventHandler() const {
+EventHandler *GameApplication::eventHandler() const
+{
     return m_eventHandler;
 }
 
-Context *GameApplication::context() const {
-    return m_context;
+AbstractEventProvider *GameApplication::eventProvider() const
+{
+    return m_eventProvider;
 }
 
 AssetProvider *GameApplication::assetProvider() const {
@@ -235,26 +250,28 @@ int GameApplication::exec() {
         if(m.second->extensionType() == GameApplicationExtension::InitExtension)
             m.second->proceed(this);
     }
-    while (1) {
-        m_deltaTimeCalculator.update();
+    while (true) {
+        if (!!(m_mode & Mode::Proceed)) {
+            m_deltaTimeCalculator.update();
 
-        if(m_eventHandler) {
-            m_eventHandler->update();
-            if(m_eventHandler->exitFlag())
-                break;
-        }
+            if (m_eventHandler) {
+                m_eventHandler->update();
+                if (m_eventHandler->exitFlag())
+                    break;
+            }
 
-        e172::ElapsedTimer measureTimer;
-        for(const auto& m : m_applicationExtensions) {
-            if(m.second->extensionType() == GameApplicationExtension::PreProceedExtension)
-                m.second->proceed(this);
+            e172::ElapsedTimer measureTimer;
+            for (const auto &m : m_applicationExtensions) {
+                if (m.second->extensionType() == GameApplicationExtension::PreProceedExtension)
+                    m.second->proceed(this);
+            }
+            for (const auto &e : m_entities) {
+                proceed(e, m_context, m_eventHandler);
+            }
+            m_proceedDelay = measureTimer.elapsed();
         }
-        for(const auto& e : m_entities) {
-            proceed(e, m_context, m_eventHandler);
-        }
-        m_proceedDelay = measureTimer.elapsed();
-        if(m_graphicsProvider && m_renderTimer.check()) {
-            measureTimer.reset();
+        if (!!(m_mode & Mode::Render) && m_graphicsProvider && m_renderTimer.check()) {
+            e172::ElapsedTimer measureTimer;
             auto r = m_graphicsProvider->renderer();
             if(r) {
                 r->m_locked = false;
@@ -277,20 +294,28 @@ int GameApplication::exec() {
             m_renderDelay = measureTimer.elapsed();
         }
 
-        //AUTO ITERATOR RESET MUST BE BEFORE DESTRUCTION HANDLING
-        //if(++m_autoIterator == m_entities.end()) {
-        //    m_autoIterator = m_entities.begin();
-        //}
-        m_entities.nextCycle();
+        if (!!(m_mode & Mode::Proceed)) {
+            //AUTO ITERATOR RESET MUST BE BEFORE DESTRUCTION HANDLING
+            //if(++m_autoIterator == m_entities.end()) {
+            //    m_autoIterator = m_entities.begin();
+            //}
+            m_entities.nextCycle();
 
-        if(m_context) {
-            m_context->popMessage(Context::DESTROY_ENTITY, this, &GameApplication::destroyEntity);
-            m_context->popMessage(Context::DESTROY_ALL_ENTITIES, this, &GameApplication::destroyAllEntities);
-            m_context->popMessage(Context::DESTROY_ENTITIES_WITH_TAG, this, &GameApplication::destroyEntitiesWithTag);
+            if (m_context) {
+                m_context->popMessage(Context::DESTROY_ENTITY,
+                                      this,
+                                      &GameApplication::destroyEntity);
+                m_context->popMessage(Context::DESTROY_ALL_ENTITIES,
+                                      this,
+                                      &GameApplication::destroyAllEntities);
+                m_context->popMessage(Context::DESTROY_ENTITIES_WITH_TAG,
+                                      this,
+                                      &GameApplication::destroyEntitiesWithTag);
 
-            m_context->m_messageQueue.invokeInternalFunctions();
-            m_context->m_messageQueue.flushMessages();
-            m_context->m_deltaTime = m_deltaTimeCalculator.deltaTime();
+                m_context->m_messageQueue.invokeInternalFunctions();
+                m_context->m_messageQueue.flushMessages();
+                m_context->m_deltaTime = m_deltaTimeCalculator.deltaTime();
+            }
         }
 
         {

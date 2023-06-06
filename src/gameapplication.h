@@ -12,14 +12,14 @@
 #include <list>
 #include <src/type.h>
 #include <src/utility/cycliciterator.h>
-
 #include <src/utility/flagparser.h>
-
 #include <src/time/time.h>
 
 namespace e172 {
 
 class Time;
+class EventHandler;
+class AbstractEventProvider;
 class AbstractAudioProvider;
 class AbstractGraphicsProvider;
 class AssetProvider;
@@ -45,8 +45,8 @@ public:
     virtual void proceed(GameApplication *application) = 0;
 };
 
-
-class GameApplication {
+class GameApplication
+{
     static size_t static_constructor();
     static const inline size_t static_call = static_constructor();
 
@@ -58,9 +58,11 @@ class GameApplication {
     ElapsedTimer::time_t m_renderDelay = 0;
 
     CyclicList<ptr<Entity>> m_entities;
-    std::map<size_t, GameApplicationExtension*> m_applicationExtensions;
+    std::map<size_t, GameApplicationExtension *> m_applicationExtensions;
 
-    AbstractEventHandler *m_eventHandler = nullptr;
+    EventHandler *m_eventHandler = nullptr;
+
+    AbstractEventProvider *m_eventProvider = nullptr;
     AbstractGraphicsProvider *m_graphicsProvider = nullptr;
     AbstractAudioProvider *m_audioProvider = nullptr;
 
@@ -80,19 +82,29 @@ class GameApplication {
     FlagParser m_flagParser;
 
     ptr<Entity> m_entityInFocus;
+
 public:
+    enum class Mode { Proceed = 1 << 0, Render = 1 << 1, All = Proceed | Render };
+
+    inline friend bool operator!(Mode m) { return m == static_cast<Mode>(0); }
+    inline friend Mode operator&(Mode l, Mode r) { return Mode(int(l) & int(r)); }
+    inline friend Mode operator|(Mode l, Mode r) { return Mode(int(l) & int(r)); }
+
     GameApplication(int argc, char *argv[]);
     void quitLater();
     int exec();
     std::vector<std::string> arguments() const;
 
-    void registerValueFlag(const std::string& shortName, const std::string& fullName = std::string(), const std::string& description = std::string());
-    void registerBoolFlag(const std::string& shortName, const std::string& fullName = std::string(), const std::string& description = std::string());
-    void displayHelp(std::ostream& stream);
+    void registerValueFlag(const std::string &shortName,
+                           const std::string &fullName = std::string(),
+                           const std::string &description = std::string());
+    void registerBoolFlag(const std::string &shortName,
+                          const std::string &fullName = std::string(),
+                          const std::string &description = std::string());
+    void displayHelp(std::ostream &stream);
     VariantMap flags() const;
     bool containsFlag(const std::string &shortName) const;
     Variant flag(const std::string &shortName) const;
-
 
     void setRenderInterval(ElapsedTimer::time_t interval);
     inline void addEntity(const ptr<Entity> &entity) { m_entities.push_back(entity); }
@@ -110,11 +122,12 @@ public:
 
     AssetProvider *assetProvider() const;
     e172::Context *context() const;
-    AbstractEventHandler *eventHandler() const;
+    EventHandler *eventHandler() const;
+    AbstractEventProvider *eventProvider() const;
     AbstractAudioProvider *audioProvider() const;
     AbstractGraphicsProvider *graphicsProvider() const;
 
-    void setEventHandler(AbstractEventHandler *eventHandler);
+    void setEventProvider(AbstractEventProvider *eventProvider);
     void setAudioProvider(AbstractAudioProvider *audioProvider);
     void setGraphicsProvider(AbstractGraphicsProvider *graphicsProvider);
 
@@ -137,8 +150,17 @@ public:
     void setEntityInFocus(const ptr<Entity> &entityInFocus);
 
     static void render(const ptr<Entity>& entity, AbstractRenderer* renderer);
-    static void proceed(const ptr<Entity>& entity, e172::Context *context, AbstractEventHandler *eventHandler);
-};
+    static void proceed(const ptr<Entity> &entity,
+                        e172::Context *context,
+                        EventHandler *eventHandler);
 
-}
+    Mode mode() const { return m_mode; };
+    void setMode(Mode m) { m_mode = m; };
+
+private:
+    Mode m_mode = Mode::All;
+}; // namespace e172
+
+} // namespace e172
+
 #endif // GAMEAPPLICATION_H

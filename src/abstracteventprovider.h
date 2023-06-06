@@ -1,9 +1,10 @@
-#ifndef ABSTRACTEVENTHANDLER_H
-#define ABSTRACTEVENTHANDLER_H
+#pragma once
 
 #include <src/math/vector.h>
 
+#include <optional>
 
+#include <src/utility/buffer.h>
 
 namespace e172 {
 
@@ -379,25 +380,66 @@ typedef enum
                                  for array bounds */
 } Scancode;
 
-
-
-class AbstractEventHandler {
+class Event
+{
 public:
-    virtual bool exitFlag() const = 0;
-    virtual bool keyHolded(Scancode key) const = 0;
-    virtual bool keySinglePressed(Scancode key) const = 0;
-    virtual std::string pullText() = 0;
-    virtual void update() = 0;
-    virtual Vector mousePosition() const = 0;
-    virtual void enableKeyboard() = 0;
-    virtual void disableKeyboard() = 0;
-    AbstractEventHandler();
-    virtual ~AbstractEventHandler();
+    enum Type { KeyDown, KeyUp, MouseMotion, Quit };
+
+    Type type() const { return m_type; };
+
+    std::optional<Scancode> scancode() const
+    {
+        return Data::hasScancode(m_type) ? std::optional<Scancode>(m_data.scancode) : std::nullopt;
+    };
+
+    std::optional<Vector> pos() const
+    {
+        return Data::hasPos(m_type) ? std::optional<Vector>(m_data.pos) : std::nullopt;
+    };
+
+    void writeNet(WriteBuffer &buf);
+    static Event readNet(ReadBuffer &&buf);
+
+    static Event keyDown(Scancode scancode) { return Event(KeyDown, Data(scancode)); }
+    static Event keyUp(Scancode scancode) { return Event(KeyUp, Data(scancode)); }
+    static Event mouseMotion(const Vector &pos) { return Event(MouseMotion, Data(pos)); }
+    static Event quit() { return Event(Quit, ScancodeUnknown); }
+
+private:
+    union Data {
+        Data(Scancode s)
+            : scancode(s)
+        {}
+
+        Data(Vector s)
+            : pos(s)
+        {}
+
+        static bool hasScancode(Event::Type t) { return t == KeyDown || t == KeyUp; }
+        static bool hasPos(Event::Type t) { return t == MouseMotion; }
+
+        Scancode scancode;
+        Vector pos;
+    };
+
+    Event(Type type, Data data)
+        : m_type(type)
+        , m_data(data)
+    {}
+
+private:
+    Type m_type;
+    Data m_data;
 };
 
+class AbstractEventProvider
+{
+public:
+    AbstractEventProvider() = default;
 
+    virtual std::optional<Event> pullEvent() = 0;
 
+    virtual ~AbstractEventProvider() = default;
+};
 
-
-}
-#endif // ABSTRACTEVENTHANDLER_H
+} // namespace e172

@@ -1,7 +1,7 @@
 #include "entity.h"
 
 #include "context.h"
-#include "net/networker.h"
+#include "net/netsync.h"
 
 #include <optional>
 
@@ -96,27 +96,31 @@ bool Entity::anyNetSyncDirty() const
     return false;
 }
 
-Bytes Entity::collectBytes() const
-{
-    WriteIndexMap<std::vector<std::uint8_t>::const_iterator> map;
-    for (auto s : m_netSyncs) {
-        if (s->dirty()) {
-            const auto b = s->serialize();
-            map.add(b.begin(), b.end());
-        } else {
-            map.skip();
-        }
-    }
-    return map.collect();
-}
+void Entity::writeNet(WriteBuffer &buf) {}
 
-void Entity::assignBytes(const Bytes &b, bool markDirty) const
-{
-    ReadIndexMap<Bytes::const_iterator> map(b);
-    while (auto c = map.next()) {
-        assert(c->first < m_netSyncs.size());
-        m_netSyncs[c->first]->deserAssign(std::move(c->second), markDirty);
-    }
-}
+void Entity::readNet(ReadBuffer &&buf) {}
+
+//Bytes Entity::collectBytes() const
+//{
+//    WriteIndexMap<std::vector<std::uint8_t>::const_iterator> map;
+//    for (auto s : m_netSyncs) {
+//        if (s->dirty()) {
+//            const auto b = s->serialize();
+//            map.add(b.begin(), b.end());
+//        } else {
+//            map.skip();
+//        }
+//    }
+//    return map.collect();
+//}
+//
+//void Entity::assignBytes(const Bytes &b, bool markDirty) const
+//{
+//    ReadIndexMap<Bytes::const_iterator> map(b);
+//    while (auto c = map.next()) {
+//        assert(c->first < m_netSyncs.size());
+//        m_netSyncs[c->first]->deserAssign(std::move(c->second), markDirty);
+//    }
+//}
 
 } // namespace e172

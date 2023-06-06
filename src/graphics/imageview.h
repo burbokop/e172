@@ -19,7 +19,7 @@ public:
 
     // Entity interface
 public:
-    virtual void proceed(Context *, AbstractEventHandler *) override;
+    virtual void proceed(Context *, EventHandler *) override;
     virtual void render(AbstractRenderer *renderer) override;
     Image image() const;
     void setImage(const Image &image);

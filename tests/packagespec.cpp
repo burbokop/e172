@@ -79,7 +79,7 @@ void PackageSpec::writePackageTest()
 {
     TestWrite w;
 
-    const auto size = WritePackage::pack(w, 1, [](WritePackage p) {
+    const auto size = WritePackage::push(w, 1, [](WritePackage p) {
         p.write<std::uint8_t>(2);
         p.write<std::uint16_t>(4);
         p.write<std::uint32_t>(8);
@@ -120,7 +120,7 @@ void PackageSpec::readWritePackageTest()
 {
     TestWrite w;
 
-    (void) WritePackage::pack(w, 1, [](WritePackage p) {
+    (void) WritePackage::push(w, 1, [](WritePackage p) {
         p.write<std::uint8_t>(2);
         p.write<std::uint16_t>(4);
         p.write<std::uint32_t>(8);

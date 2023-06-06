@@ -7,7 +7,7 @@ e172::ImageView::ImageView(const Image &image) {
     m_image = image;
 }
 
-void e172::ImageView::proceed(e172::Context *, e172::AbstractEventHandler *) {}
+void e172::ImageView::proceed(e172::Context *, e172::EventHandler *) {}
 
 void e172::ImageView::render(e172::AbstractRenderer *renderer) {
     if(m_image.isValid() && m_scale != e172::Math::null)

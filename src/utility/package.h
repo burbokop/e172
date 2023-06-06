@@ -25,7 +25,7 @@ public:
 
     std::size_t writeBuf(WriteBuffer &&b) { return m_buf.writeBuf(std::move(b)); }
 
-    static std::size_t pack(Write &dst,
+    static std::size_t push(Write &dst,
                             PackageType type,
                             const std::function<void(WritePackage)> &writeFn)
     {
@@ -68,7 +68,16 @@ public:
         return false;
     }
 
-    static Bytes readAll(ReadPackage &&p) { return ReadBuffer::readAll(std::move(p.m_buf)); }
+    template<typename T>
+        static T readAll(ReadPackage &&p) requires std::is_same<T, Bytes>::value
+        || std::is_same<T, ReadBuffer>::value
+    {
+        if constexpr (std::is_same<T, Bytes>::value) {
+            return ReadBuffer::readAll(std::move(p.m_buf));
+        } else {
+            return std::move(p.m_buf);
+        }
+    }
 
     std::size_t bytesAvailable() const { return m_buf.bytesAvailable(); }
 
@@ -91,6 +100,20 @@ private:
 private:
     PackageType m_type;
     ReadBuffer m_buf;
+};
+
+class UnknownPackageTypeException : public std::exception
+{
+public:
+    UnknownPackageTypeException(PackageType type)
+        : m_message(std::string("Unknown package type: ") + std::to_string(type)){};
+
+    // exception interface
+public:
+    const char *what() const noexcept override { return m_message.c_str(); }
+
+private:
+    std::string m_message;
 };
 
 } // namespace e172

@@ -79,6 +79,12 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/net/server.h
     ${CMAKE_CURRENT_LIST_DIR}/src/net/networker.h
     ${CMAKE_CURRENT_LIST_DIR}/src/net/networker.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/gameserver.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/gameserver.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/gameclient.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/gameclient.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/netsync.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/common.h
     ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/socketimpl.h
     ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/socketimpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/networkerimpl.h
@@ -129,8 +135,10 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/package.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/io.h
 
-    ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventhandler.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/eventhandler.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/eventhandler.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventprovider.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventprovider.h
     ${CMAKE_CURRENT_LIST_DIR}/src/additional.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/additional.h
     ${CMAKE_CURRENT_LIST_DIR}/src/context.cpp
