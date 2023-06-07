@@ -44,7 +44,8 @@ void Context::setSettingValue(const std::string &id, const Variant &value) {
     }
 }
 
-AssetProvider *Context::assetProvider() const {
+std::shared_ptr<AssetProvider> Context::assetProvider() const
+{
     if(m_application)
         return m_application->assetProvider();
     return nullptr;

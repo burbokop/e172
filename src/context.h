@@ -62,7 +62,7 @@ public:
     Observer<Variant> settingValue(const std::string &id) const;
     void setSettingValue(const std::string &id, const e172::Variant &value);
 
-    AssetProvider *assetProvider() const;
+    std::shared_ptr<AssetProvider> assetProvider() const;
     std::list<ptr<Entity> > entities() const;
     void addEntity(const ptr<Entity> &entity);
     std::shared_ptr<Promice> emitMessage(const MessageId &messageId, const Variant &value = Variant());

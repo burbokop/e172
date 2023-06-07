@@ -14,18 +14,23 @@
 
 namespace e172 {
 
-void __on_sigsegv(int s) {
+namespace {
+
+void handleSigsegv(int s)
+{
     const auto st = e172::Debug::stackTrace();
     Debug::warning("Segmentation Fault");
     Debug::warning("Stack trace info:");
-    for(auto s : st) {
+    for (const auto &s : st) {
         Debug::print('\t', s);
     }
     exit(s);
 }
 
+} // namespace
+
 size_t GameApplication::static_constructor() {
-    e172::Debug::installSigsegvHandler(__on_sigsegv);
+    e172::Debug::installSigsegvHandler(handleSigsegv);
     return 0;
 }
 
@@ -135,25 +140,26 @@ void GameApplication::proceed(const ptr<Entity> &entity,
     }
 }
 
+/// declared in .cpp because unique_ptr
+GameApplication::~GameApplication() = default;
+
 ptr<Entity> GameApplication::autoIteratingEntity() const {
     return m_entities.cyclicValue(nullptr);
 }
 
-AbstractGraphicsProvider *GameApplication::graphicsProvider() const {
-    return m_graphicsProvider;
-}
-
-void GameApplication::setEventProvider(AbstractEventProvider *eventProvider)
+void GameApplication::setEventProvider(const std::shared_ptr<AbstractEventProvider> &eventProvider)
 {
     m_eventProvider = eventProvider;
 
-    if (m_eventHandler) {
-        delete m_eventHandler;
+    m_eventHandler = nullptr;
+    if (m_eventProvider) {
+        m_eventHandler = std::make_unique<EventHandler>(m_eventProvider);
     }
-    m_eventHandler = new EventHandler(m_eventProvider);
 }
 
-void GameApplication::setGraphicsProvider(AbstractGraphicsProvider *graphicsProvider) {
+void GameApplication::setGraphicsProvider(
+    const std::shared_ptr<AbstractGraphicsProvider> &graphicsProvider)
+{
     if(graphicsProvider) {
         if(!graphicsProvider->fontLoaded(std::string())) {
             graphicsProvider->loadFont(std::string(), e172::Additional::defaultFont());
@@ -163,31 +169,10 @@ void GameApplication::setGraphicsProvider(AbstractGraphicsProvider *graphicsProv
     m_assetProvider->m_graphicsProvider = graphicsProvider;
 }
 
-AbstractAudioProvider *GameApplication::audioProvider() const {
-    return m_audioProvider;
-}
-
-void GameApplication::setAudioProvider(AbstractAudioProvider *audioProvider) {
+void GameApplication::setAudioProvider(const std::shared_ptr<AbstractAudioProvider> &audioProvider)
+{
     m_audioProvider = audioProvider;
     m_assetProvider->m_audioProvider = audioProvider;
-}
-
-Context *GameApplication::context() const {
-    return m_context;
-}
-
-EventHandler *GameApplication::eventHandler() const
-{
-    return m_eventHandler;
-}
-
-AbstractEventProvider *GameApplication::eventProvider() const
-{
-    return m_eventProvider;
-}
-
-AssetProvider *GameApplication::assetProvider() const {
-    return m_assetProvider;
 }
 
 std::vector<std::string> GameApplication::arguments() const {
@@ -231,9 +216,9 @@ void GameApplication::removeApplicationExtension(size_t hash) {
 GameApplication::GameApplication(int argc, char *argv[]) {
     m_arguments = Additional::coverArgs(argc, argv);
     m_flagParser  = m_arguments;
-    m_assetProvider = new AssetProvider();
-    m_context = new Context(this);
-    m_assetProvider->m_context = m_context;
+    m_assetProvider = std::make_shared<AssetProvider>();
+    m_context = std::make_unique<Context>(this);
+    m_assetProvider->m_context = m_context.get();
 }
 
 void GameApplication::quitLater() {
@@ -266,7 +251,7 @@ int GameApplication::exec() {
                     m.second->proceed(this);
             }
             for (const auto &e : m_entities) {
-                proceed(e, m_context, m_eventHandler);
+                proceed(e, m_context.get(), m_eventHandler.get());
             }
             m_proceedDelay = measureTimer.elapsed();
         }
@@ -333,8 +318,6 @@ int GameApplication::exec() {
         if(mustQuit)
             break;
     }
-    delete m_assetProvider;
-    delete m_context;
     return 0;
 }
 

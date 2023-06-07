@@ -15,27 +15,30 @@ class AssetProvider;
 class AbstractAssetExecutor {
     friend AssetProvider;
 
-    AssetProvider* m_provider = nullptr;
-    AbstractGraphicsProvider *m_graphicsProvider = nullptr;
-    AbstractAudioProvider *m_audioProvider = nullptr;
-
-    std::string executor_path;
 public:
+    AbstractAssetExecutor() = default;
+
     std::string fullPath(const std::string &path);
 
     LoadableTemplate createTemplate(const e172::VariantMap& object);
-    LoadableTemplate loadTemplate(const std::string& templateId);
+    LoadableTemplate loadTemplate(const std::string &templateId);
 
+    std::shared_ptr<AbstractGraphicsProvider> graphicsProvider() const
+    {
+        return m_graphicsProvider;
+    }
+    std::shared_ptr<AbstractAudioProvider> audioProvider() const { return m_audioProvider; }
 
-    AbstractGraphicsProvider *graphicsProvider() const;
-    AbstractAudioProvider *audioProvider() const;
-
-    AbstractAssetExecutor();
-    virtual ~AbstractAssetExecutor();
     virtual Variant proceed(const Variant &value) = 0;
+    virtual ~AbstractAssetExecutor() = default;
+
+private:
+    std::shared_ptr<AssetProvider> m_provider;
+    std::shared_ptr<AbstractGraphicsProvider> m_graphicsProvider;
+    std::shared_ptr<AbstractAudioProvider> m_audioProvider;
+
+    std::string executorPath;
 };
-
-
-}
+} // namespace e172
 
 #endif // ABSTRACTASSETEXECUTOR_H

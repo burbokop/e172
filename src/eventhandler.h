@@ -1,13 +1,14 @@
 #pragma once
 
 #include "abstracteventprovider.h"
+#include <memory>
 
 namespace e172 {
 
 class EventHandler
 {
 public:
-    EventHandler(AbstractEventProvider *provider);
+    EventHandler(std::shared_ptr<AbstractEventProvider> provider);
 
     bool exitFlag() const;
     bool keyHolded(Scancode key) const;
@@ -18,8 +19,8 @@ public:
     void enableKeyboard();
     void disableKeyboard();
 
-    AbstractEventProvider *provider() { return m_provider; };
-    const AbstractEventProvider *provider() const { return m_provider; };
+    std::shared_ptr<AbstractEventProvider> provider() { return m_provider; };
+    std::shared_ptr<const AbstractEventProvider> provider() const { return m_provider; };
 
 private:
     void handleEvent(const Event &event);
@@ -28,7 +29,7 @@ private:
 private:
     static constexpr size_t bufferSize = 512;
 
-    AbstractEventProvider *m_provider;
+    std::shared_ptr<AbstractEventProvider> m_provider;
 
     bool m_holdedKeys[bufferSize];
     bool m_singlePressedKeys[bufferSize];

@@ -35,8 +35,6 @@ void e172::GameServer::sync()
                })) {
         }
     }
-
-    todo;
 }
 
 std::optional<e172::Event> e172::GameServer::pullEvent()

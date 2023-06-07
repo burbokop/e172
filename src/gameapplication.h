@@ -60,16 +60,15 @@ class GameApplication
     CyclicList<ptr<Entity>> m_entities;
     std::map<size_t, GameApplicationExtension *> m_applicationExtensions;
 
-    EventHandler *m_eventHandler = nullptr;
+    std::unique_ptr<Context> m_context;
+    std::unique_ptr<EventHandler> m_eventHandler;
 
-    AbstractEventProvider *m_eventProvider = nullptr;
-    AbstractGraphicsProvider *m_graphicsProvider = nullptr;
-    AbstractAudioProvider *m_audioProvider = nullptr;
+    std::shared_ptr<AbstractEventProvider> m_eventProvider;
+    std::shared_ptr<AbstractGraphicsProvider> m_graphicsProvider;
+    std::shared_ptr<AbstractAudioProvider> m_audioProvider;
+    std::shared_ptr<AssetProvider> m_assetProvider;
 
-    AssetProvider *m_assetProvider = nullptr;
-    Context *m_context = nullptr;
-
-    void destroyAllEntities(Context*, const Variant&);
+    void destroyAllEntities(Context *, const Variant &);
     void destroyEntity(Context*, const Variant& value);
     void destroyEntitiesWithTag(Context*, const Variant& value);
 
@@ -120,16 +119,20 @@ public:
     }
     void removeApplicationExtension(size_t hash);
 
-    AssetProvider *assetProvider() const;
-    e172::Context *context() const;
-    EventHandler *eventHandler() const;
-    AbstractEventProvider *eventProvider() const;
-    AbstractAudioProvider *audioProvider() const;
-    AbstractGraphicsProvider *graphicsProvider() const;
+    e172::Context *context() const { return m_context.get(); }
+    EventHandler *eventHandler() const { return m_eventHandler.get(); }
 
-    void setEventProvider(AbstractEventProvider *eventProvider);
-    void setAudioProvider(AbstractAudioProvider *audioProvider);
-    void setGraphicsProvider(AbstractGraphicsProvider *graphicsProvider);
+    std::shared_ptr<AbstractEventProvider> eventProvider() const { return m_eventProvider; }
+    std::shared_ptr<AbstractAudioProvider> audioProvider() const { return m_audioProvider; }
+    std::shared_ptr<AbstractGraphicsProvider> graphicsProvider() const
+    {
+        return m_graphicsProvider;
+    }
+    std::shared_ptr<AssetProvider> assetProvider() const { return m_assetProvider; }
+
+    void setEventProvider(const std::shared_ptr<AbstractEventProvider> &eventProvider);
+    void setAudioProvider(const std::shared_ptr<AbstractAudioProvider> &audioProvider);
+    void setGraphicsProvider(const std::shared_ptr<AbstractGraphicsProvider> &graphicsProvider);
 
     const std::list<ptr<Entity>> &entities() const { return m_entities; }
     ptr<Entity> autoIteratingEntity() const;
@@ -156,6 +159,8 @@ public:
 
     Mode mode() const { return m_mode; };
     void setMode(Mode m) { m_mode = m; };
+
+    ~GameApplication();
 
 private:
     Mode m_mode = Mode::All;

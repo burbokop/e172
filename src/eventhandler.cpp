@@ -2,9 +2,10 @@
 
 namespace e172 {
 
-EventHandler::EventHandler(AbstractEventProvider *provider)
-    : m_provider(provider)
+EventHandler::EventHandler(std::shared_ptr<AbstractEventProvider> provider)
+    : m_provider(std::move(provider))
 {
+    assert(m_provider);
     for (size_t i = 0; i < bufferSize; i++) {
         m_singlePressedKeys[i] = false;
         m_holdedKeys[i] = false;

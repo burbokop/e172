@@ -87,8 +87,8 @@ LoadableTemplate AssetProvider::createTemplate(const VariantMap &root, const std
             } else {
                 auto it = executors.find(assetId);
                 if(it != executors.end() && it->second) {
-                    it->second->executor_path = m_context->absolutePath(path);
-                    it->second->m_provider = this;
+                    it->second->executorPath = m_context->absolutePath(path);
+                    it->second->m_provider = shared_from_this();
                     it->second->m_graphicsProvider = m_graphicsProvider;
                     it->second->m_audioProvider = m_audioProvider;
                     resultAssets[assetId] = it->second->proceed(item->second);
