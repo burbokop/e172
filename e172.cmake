@@ -134,6 +134,7 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/buffer.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/package.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/io.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/ringbuf.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/eventhandler.h
     ${CMAKE_CURRENT_LIST_DIR}/src/eventhandler.cpp
@@ -202,6 +203,8 @@ add_executable(e172_tests
     ${CMAKE_CURRENT_LIST_DIR}/tests/bufferspec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tests/packagespec.h
     ${CMAKE_CURRENT_LIST_DIR}/tests/packagespec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/tests/ringbufspec.h
+    ${CMAKE_CURRENT_LIST_DIR}/tests/ringbufspec.cpp
     )
 
 target_link_libraries(e172_tests
