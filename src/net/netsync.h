@@ -5,24 +5,6 @@
 
 namespace e172 {
 
-template<typename T>
-concept Serialize = requires(T const v)
-{
-    {
-        v.serialize()
-    } -> std::convertible_to<std::vector<std::uint8_t>>;
-}
-|| std::is_fundamental<T>::value;
-
-template<typename T>
-concept Deserialize = requires(std::vector<std::uint8_t> input)
-{
-    {
-        T::deserialize(input)
-    } -> std::convertible_to<T>;
-}
-|| std::is_fundamental<T>::value;
-
 class AbstractNetSync
 {
     friend Entity;

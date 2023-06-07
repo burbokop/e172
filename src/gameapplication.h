@@ -76,8 +76,6 @@ class GameApplication
 
     //std::list<Entity*>::iterator m_autoIterator = m_entities.begin();
 
-    std::list<std::pair<e172::Time::time_t, std::function<void()>>> m_scheduledTasks;
-
     FlagParser m_flagParser;
 
     ptr<Entity> m_entityInFocus;
@@ -149,6 +147,8 @@ public:
     }
 
     void schedule(e172::Time::time_t duration, const std::function<void()>& function);
+    void scheduleRepeated(e172::Time::time_t duration, const std::function<void()> &function);
+
     ptr<Entity> entityInFocus() const;
     void setEntityInFocus(const ptr<Entity> &entityInFocus);
 
@@ -163,6 +163,15 @@ public:
     ~GameApplication();
 
 private:
+    struct Task
+    {
+        bool repeat = false;
+        ElapsedTimer timer;
+        std::function<void()> proceed;
+    };
+
+    std::list<Task> m_scheduledTasks;
+
     Mode m_mode = Mode::All;
 }; // namespace e172
 

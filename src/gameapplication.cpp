@@ -51,7 +51,12 @@ e172::ptr<Entity> GameApplication::findEntity(
 }
 
 void GameApplication::schedule(e172::Time::time_t duration, const std::function<void ()> &function) {
-    m_scheduledTasks.push_back({ Time::currentMilliseconds() + duration, function });
+    m_scheduledTasks.push_back({.repeat = false, .timer = duration, .proceed = function});
+}
+
+void GameApplication::scheduleRepeated(Time::time_t duration, const std::function<void()> &function)
+{
+    m_scheduledTasks.push_back({.repeat = true, .timer = duration, .proceed = function});
 }
 
 ElapsedTimer::time_t GameApplication::proceedDelay() const {
@@ -306,11 +311,15 @@ int GameApplication::exec() {
         {
             auto it = m_scheduledTasks.begin();
             while(it != m_scheduledTasks.end()) {
-                if(Time::currentMilliseconds() > it->first) {
-                    it->second();
-                    it = m_scheduledTasks.erase(it);
+                if (it->timer.check()) {
+                    it->proceed();
+                    if (it->repeat) {
+                        ++it;
+                    } else {
+                        it = m_scheduledTasks.erase(it);
+                    }
                 } else {
-                    it++;
+                    ++it;
                 }
             }
         }

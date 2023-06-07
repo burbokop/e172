@@ -13,6 +13,7 @@ public:
         m_data.insert(m_data.end(), src, src + size);
         return size;
     }
+    void flush() override {}
 
     const Bytes &data() const { return m_data; }
 

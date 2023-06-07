@@ -1,21 +1,18 @@
 #pragma once
 
 #include "../../socket.h"
-
-#include <queue>
+#include "src/utility/ringbuf.h"
 
 namespace e172 {
 
 class LinuxSocketImpl : public Socket
 {
 public:
-    LinuxSocketImpl(int fd)
-        : m_fd(fd)
-    {
-        assert(fd >= 0);
-    }
+    LinuxSocketImpl(int fd);
 
     ~LinuxSocketImpl();
+
+    static void setFdNonBlockingFlag(int fd, bool nbm);
 
     // Socket interface
 public:
@@ -24,14 +21,18 @@ public:
     std::size_t read(uint8_t *dst, std::size_t size) override;
     std::size_t peek(Byte *dst, std::size_t size) const override;
     std::size_t write(const uint8_t *src, std::size_t size) override;
+    void flush() override;
     bool isConnected() const override { return m_isConnected; }
+
+private:
+    std::size_t bufferizeChunk();
 
 private:
     static constexpr std::size_t s_chunkSize = 256;
 
     int m_fd;
     bool m_isConnected = true;
-    std::queue<std::uint8_t> m_buf;
+    RingBuf<Byte, 4096> m_buf;
 };
 
 } // namespace e172

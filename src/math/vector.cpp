@@ -1,24 +1,12 @@
 #include <complex>
 #include <math.h>
 
-
-#include "vector.h"
-#include "math.h"
 #include "complex.h"
+#include "math.h"
+#include "vector.h"
 #include <ostream>
 
-
 namespace e172 {
-
-Vector::Vector() {
-    this->m_x = 0;
-    this->m_y = 0;
-}
-
-Vector::Vector(double x, double y) {
-    this->m_x = x;
-    this->m_y = y;
-}
 
 Vector::Vector(const Complex &complex) : Vector(complex.real(), complex.imag()) {}
 
@@ -213,7 +201,8 @@ bool Vector::moduleLessComparator(const Vector &v0, const Vector &v1) {
     return v0.module() < v1.module();
 }
 
-std::ostream &operator<<(std::ostream &os, const e172::Vector &dt) {
+std::ostream &operator<<(std::ostream &os, const e172::Vector &dt)
+{
     return os << "Vector(" << std::to_string(dt.x()) << ", " << std::to_string(dt.y()) << ")";
 }
 
@@ -221,4 +210,17 @@ bool operator<(const e172::Vector &vec0, const e172::Vector &vec1) {
     return vec0.cheapModule() < vec1.cheapModule();
 }
 
+void Vector::serialize(WriteBuffer &buf) const
+{
+    buf.write(m_x);
+    buf.write(m_y);
 }
+
+std::optional<Vector> Vector::deserialize(ReadBuffer &buf)
+{
+    const auto x = buf.read<double>().value();
+    const auto y = buf.read<double>().value();
+    return Vector(x, y);
+}
+
+} // namespace e172

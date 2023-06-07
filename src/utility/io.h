@@ -60,6 +60,7 @@ public:
     virtual ~Write() = default;
 
     virtual std::size_t write(const Byte *bytes, std::size_t size) = 0;
+    virtual void flush() = 0;
 
     std::size_t write(const Bytes &bytes) { return write(bytes.data(), bytes.size()); }
 

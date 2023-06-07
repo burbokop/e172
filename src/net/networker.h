@@ -15,7 +15,8 @@ public:
         FailedToCreateSocket,
         ConnectionRefused,
         UnwnownConnectionError,
-        BindingFailed,
+        AddressAlreadyInUse,
+        UnwnownBindingError,
         ListenFailed
     };
 
@@ -32,8 +33,10 @@ public:
             return stream << "ConnectionRefused";
         case Networker::UnwnownConnectionError:
             return stream << "UnwnownConnectionError";
-        case Networker::BindingFailed:
-            return stream << "BindingFailed";
+        case Networker::AddressAlreadyInUse:
+            return stream << "AddressAlreadyInUse";
+        case Networker::UnwnownBindingError:
+            return stream << "UnwnownBindingError";
         case Networker::ListenFailed:
             return stream << "ListenFailed";
         }

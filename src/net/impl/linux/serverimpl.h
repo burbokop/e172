@@ -7,9 +7,7 @@ namespace e172 {
 class LinuxServerImpl : public Server
 {
 public:
-    LinuxServerImpl(int fd)
-        : m_fd(fd)
-    {}
+    LinuxServerImpl(int fd);
 
     ~LinuxServerImpl();
 

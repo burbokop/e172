@@ -4,8 +4,10 @@
 #define RELATIVISTIC_ADDITION_CONSTANT 0.7
 
 #include <complex>
-#include <sstream>
 #include <functional>
+#include <sstream>
+
+#include <src/utility/buffer.h>
 
 namespace e172 {
 
@@ -14,18 +16,14 @@ typedef std::function<Complex(const Complex&)> ComplexFunction;
 
 class Vector {
 public:
-    enum Quarter {
-        QUARTER_RIGHT_DOWN = 0,
-        QUARTER_LEFT_DOWN,
-        QUARTER_LEFT_UP,
-        QUARTER_RIGHT_UP
-    };
-private:
-    double m_x;
-    double m_y;
-public:
-    Vector();
-    Vector(double x, double y);
+    enum Quarter { QUARTER_RIGHT_DOWN = 0, QUARTER_LEFT_DOWN, QUARTER_LEFT_UP, QUARTER_RIGHT_UP };
+
+    constexpr Vector() = default;
+    constexpr Vector(double x, double y)
+        : m_x(x)
+        , m_y(y)
+    {}
+
     Vector(const Complex &complex);
     static Vector createByAngle(double module, double angle); //checkpoint
     static Vector createRandom(double max);
@@ -93,10 +91,16 @@ public:
 
     friend bool operator<(const e172::Vector& vec0, const e172::Vector& vec1);
 
-    static bool moduleLessComparator(const Vector& v0, const Vector& v1);
+    static bool moduleLessComparator(const Vector &v0, const Vector &v1);
+
+    void serialize(WriteBuffer &buf) const;
+    static std::optional<Vector> deserialize(ReadBuffer &buf);
+    static std::optional<Vector> deserializeConsume(ReadBuffer &&buf) { return deserialize(buf); }
+
+private:
+    double m_x = 0;
+    double m_y = 0;
 };
-
-}
-
+} // namespace e172
 
 #endif // VECTOR_H

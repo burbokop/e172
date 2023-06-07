@@ -18,8 +18,9 @@ void e172::GameServer::sync()
                                    PackageType(GamePackageType::SyncEntity),
                                    [id, &buf](WritePackage p) {
                                        p.write(PackedEntityId(id));
-                                       p.writeBuf(std::move(buf));
+                                       p.write(std::move(buf));
                                    });
+                s->flush();
             }
         }
     }
@@ -29,6 +30,7 @@ void e172::GameServer::sync()
                    switch (GamePackageType(package.type())) {
                    case GamePackageType::Event:
                        processEventPackage(std::move(package));
+                       break;
                    default:
                        throw UnknownPackageTypeException(package.type());
                    }
@@ -66,5 +68,6 @@ void e172::GameServer::refreshSockets()
 void e172::GameServer::processEventPackage(ReadPackage &&package)
 {
     const auto playerId = package.read<PackedPlayerId>();
-    m_eventQueue.push(Event::readNet(ReadPackage::readAll<ReadBuffer>(std::move(package))));
+    m_eventQueue.push(
+        Event::deserializeConsume(ReadPackage::readAll<ReadBuffer>(std::move(package))).value());
 }

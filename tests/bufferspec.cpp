@@ -18,14 +18,14 @@ void e172::tests::BufferSpec::writeBufferToBufferTest()
     WriteBuffer buf;
     buf.write<std::uint8_t>(12);
 
-    buf.writeBuf([] {
+    buf.write([] {
         WriteBuffer innerBuf;
         innerBuf.write<std::uint16_t>(6);
         innerBuf.write<std::uint16_t>(5);
         return innerBuf;
     }());
     buf.write<std::uint8_t>(12);
-    buf.write<Bytes>({1, 2});
+    buf.write({1, 2});
     buf.write<std::uint8_t>(3);
 
     const auto bytes = WriteBuffer::collect(std::move(buf));

@@ -11,19 +11,15 @@ using PackageType = std::uint16_t;
 class WritePackage
 {
 public:
-    std::size_t write(const Byte *bytes, std::size_t size)
-    {
-        m_buf.write(bytes, size);
-        return size;
-    }
+    std::size_t write(const Byte *bytes, std::size_t size) { return m_buf.write(bytes, size); }
+    std::size_t write(const Bytes &v) { return m_buf.write(v.data(), v.size()); }
+    std::size_t write(WriteBuffer &&b) { return m_buf.write(std::move(b)); }
 
-    template<typename T>
+    template<Serialize T>
     std::size_t write(const T &v)
     {
         return m_buf.write(v);
     }
-
-    std::size_t writeBuf(WriteBuffer &&b) { return m_buf.writeBuf(std::move(b)); }
 
     static std::size_t push(Write &dst,
                             PackageType type,
@@ -35,7 +31,7 @@ public:
         WriteBuffer result;
         result.write(PackageLen(tmp.size()));
         result.write(type);
-        result.writeBuf(std::move(tmp));
+        result.write(std::move(tmp));
         return dst.write(std::move(result));
     }
 
@@ -77,6 +73,12 @@ public:
         } else {
             return std::move(p.m_buf);
         }
+    }
+
+    template<Deserialize T>
+    static std::optional<T> consume(ReadPackage &&p)
+    {
+        return ReadBuffer::consume<T>(std::move(p.m_buf));
     }
 
     std::size_t bytesAvailable() const { return m_buf.bytesAvailable(); }

@@ -12,8 +12,7 @@ namespace e172 {
  *  \brief These values are taken from SDL library
  *
  */
-typedef enum
-{
+enum Scancode : std::uint16_t {
     ScancodeUnknown = 0,
 
     /**
@@ -179,8 +178,8 @@ typedef enum
                                         *   LESS-THAN SIGN and GREATER-THAN SIGN
                                         *   in a Swiss German, German, or French
                                         *   layout. */
-    ScancodeApplication = 101, /**< windows contextual menu, compose */
-    ScancodePower = 102, /**< The USB document says this is a status flag,
+    ScancodeApplication = 101,    /**< windows contextual menu, compose */
+    ScancodePower = 102,          /**< The USB document says this is a status flag,
                                *   not a physical key - but some Mac keyboards
                                *   do have a power key. */
     ScancodeKPEquals = 103,
@@ -201,7 +200,7 @@ typedef enum
     ScancodeMenu = 118,
     ScancodeSelect = 119,
     ScancodeStop = 120,
-    ScancodeAgain = 121,   /**< redo */
+    ScancodeAgain = 121, /**< redo */
     ScancodeUndo = 122,
     ScancodeCut = 123,
     ScancodeCopy = 124,
@@ -210,10 +209,10 @@ typedef enum
     ScancodeMute = 127,
     ScancodeVolumeUp = 128,
     ScancodeVolumeDown = 129,
-/* not sure whether there's a reason to enable these */
-/*     ScancodeLOCKINGCAPSLOCK = 130,  */
-/*     ScancodeLOCKINGNUMLOCK = 131, */
-/*     ScancodeLOCKINGSCROLLLOCK = 132, */
+    /* not sure whether there's a reason to enable these */
+    /*     ScancodeLOCKINGCAPSLOCK = 130,  */
+    /*     ScancodeLOCKINGNUMLOCK = 131, */
+    /*     ScancodeLOCKINGSCROLLLOCK = 132, */
     ScancodeKPComma = 133,
     ScancodeKPEqualSas400 = 134,
 
@@ -306,12 +305,12 @@ typedef enum
     ScancodeRAlt = 230, /**< alt gr, option */
     ScancodeRGui = 231, /**< windows, command (apple), meta */
 
-    ScancodeMode = 257,    /**< I'm not sure if this is really not covered
+    ScancodeMode = 257, /**< I'm not sure if this is really not covered
                                  *   by any of the above, but since there's a
                                  *   special KMOD_MODE for it I'm adding it here
                                  */
 
-    /* @} *//* Usage page 0x07 */
+    /* @} */ /* Usage page 0x07 */
 
     /**
      *  \name Usage page 0x0C
@@ -338,7 +337,7 @@ typedef enum
     ScancodeAcRefresh = 273,
     ScancodeAcBookmarks = 274,
 
-    /* @} *//* Usage page 0x0C */
+    /* @} */ /* Usage page 0x0C */
 
     /**
      *  \name Walther keys
@@ -360,7 +359,7 @@ typedef enum
     ScancodeApp1 = 283,
     ScancodeApp2 = 284,
 
-    /* @} *//* Walther keys */
+    /* @} */ /* Walther keys */
 
     /**
      *  \name Usage page 0x0C (additional media keys)
@@ -372,18 +371,18 @@ typedef enum
     ScancodeAudioRewind = 285,
     ScancodeAudioFastForward = 286,
 
-    /* @} *//* Usage page 0x0C (additional media keys) */
+    /* @} */ /* Usage page 0x0C (additional media keys) */
 
     /* Add any other keys here. */
 
     ScancodesCount = 512 /**< not a key, just marks the number of scancodes
                                  for array bounds */
-} Scancode;
+};
 
 class Event
 {
 public:
-    enum Type { KeyDown, KeyUp, MouseMotion, Quit };
+    enum Type : std::uint8_t { KeyDown, KeyUp, MouseMotion, Quit };
 
     Type type() const { return m_type; };
 
@@ -397,13 +396,29 @@ public:
         return Data::hasPos(m_type) ? std::optional<Vector>(m_data.pos) : std::nullopt;
     };
 
-    void writeNet(WriteBuffer &buf);
-    static Event readNet(ReadBuffer &&buf);
+    void serialize(WriteBuffer &buf) const;
+    static std::optional<Event> deserialize(ReadBuffer &buf);
+    static std::optional<Event> deserializeConsume(ReadBuffer &&buf) { return deserialize(buf); }
 
     static Event keyDown(Scancode scancode) { return Event(KeyDown, Data(scancode)); }
     static Event keyUp(Scancode scancode) { return Event(KeyUp, Data(scancode)); }
     static Event mouseMotion(const Vector &pos) { return Event(MouseMotion, Data(pos)); }
     static Event quit() { return Event(Quit, ScancodeUnknown); }
+
+    inline friend std::ostream &operator<<(std::ostream &stream, const Event &event)
+    {
+        switch (event.m_type) {
+        case Event::KeyDown:
+            return stream << "KeyDown { " << event.scancode().value() << " }";
+        case Event::KeyUp:
+            return stream << "KeyUp { " << event.scancode().value() << " }";
+        case Event::MouseMotion:
+            return stream << "MouseMotion { " << event.pos().value() << " }";
+        case Event::Quit:
+            return stream << "Quit";
+        }
+        return stream;
+    }
 
 private:
     union Data {

@@ -32,6 +32,38 @@ public:
     }
 };
 
+class WriteBuffer;
+class ReadBuffer;
+
+/// TODO add check whether enum has explicit undeliying type
+template<typename T>
+concept SerializePrimitive = std::is_arithmetic<T>::value || std::is_enum<T>::value;
+
+template<typename T>
+concept Serialize = requires(T const v, WriteBuffer &buf)
+{
+    {v.serialize(buf)};
+}
+|| SerializePrimitive<T>;
+
+/// TODO add check whether enum has explicit undeliying type
+template<typename T>
+concept DeserializePrimitive = std::is_arithmetic<T>::value || std::is_enum<T>::value;
+
+template<typename T>
+concept Deserialize = requires(ReadBuffer & buf, ReadBuffer &&tmpbuf)
+{
+    {
+        /// if returns std::nullopt deserialize implementation should guarantee that buf not changed
+        T::deserialize(buf)
+    } -> std::convertible_to<std::optional<T>>;
+
+    {
+        T::deserializeConsume(std::move(tmpbuf))
+    } -> std::convertible_to<std::optional<T>>;
+}
+|| DeserializePrimitive<T>;
+
 constexpr void toBigEndian(Byte *p, std::size_t s)
 {
     if constexpr (std::endian::native == std::endian::little) {
@@ -56,25 +88,25 @@ public:
         return size;
     }
 
-    template<typename T>
+    std::size_t write(const Bytes &v) { return write(v.data(), v.size()); }
+    std::size_t write(WriteBuffer &&b) { return write(b.m_data.data(), b.m_data.size()); }
+
+    template<Serialize T>
     std::size_t write(const T &v)
     {
-        static_assert(!std::is_same<T, WriteBuffer>::value,
-                      "T can not be WriteBuffer. use WriteBuffer::writeBuf");
-
-        if constexpr (std::is_same<T, Bytes>::value) {
-            return write(v.data(), v.size());
-        } else {
+        if constexpr (SerializePrimitive<T>) {
             auto vCopy = v;
             auto ptr = reinterpret_cast<Byte *>(&vCopy);
             toBigEndian(ptr, sizeof(T));
             const auto cnt = write(ptr, sizeof(T));
             assert(cnt == sizeof(T));
             return cnt;
+        } else {
+            const auto s = size();
+            v.serialize(*this);
+            return size() - s;
         }
     }
-
-    std::size_t writeBuf(WriteBuffer &&b) { return write(b.m_data.data(), b.m_data.size()); }
 
     std::size_t size() const { return m_data.size(); }
 
@@ -108,6 +140,12 @@ public:
 
     std::size_t bytesAvailable() const { return m_data.size() - m_pos; }
 
+    template<Deserialize T>
+    static std::optional<T> consume(ReadBuffer &&p)
+    {
+        return T::deserializeConsume(p);
+    }
+
     static Bytes readAll(ReadBuffer &&p)
     {
         return Bytes(p.m_data.begin() + p.m_pos, p.m_data.end());
@@ -124,16 +162,20 @@ public:
         }
     }
 
-    template<typename T>
+    template<Deserialize T>
     std::optional<T> read()
     {
-        if (bytesAvailable() >= sizeof(T)) {
-            toBigEndian(m_data.data() + m_pos, sizeof(T));
-            const auto ptr = reinterpret_cast<const T *>(m_data.data() + m_pos);
-            m_pos += sizeof(T);
-            return *ptr;
+        if constexpr (SerializePrimitive<T>) {
+            if (bytesAvailable() >= sizeof(T)) {
+                toBigEndian(m_data.data() + m_pos, sizeof(T));
+                const auto ptr = reinterpret_cast<const T *>(m_data.data() + m_pos);
+                m_pos += sizeof(T);
+                return *ptr;
+            } else {
+                return std::nullopt;
+            }
         } else {
-            return std::nullopt;
+            return T::deserialize(*this);
         }
     }
 

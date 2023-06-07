@@ -3,7 +3,6 @@
 #include "serverimpl.h"
 #include "socketimpl.h"
 #include <arpa/inet.h>
-#include <fcntl.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,19 +12,6 @@
 #include <unistd.h>
 
 namespace e172 {
-
-namespace {
-void setFdNonBlockingFlag(int fd, bool nbm)
-{
-    auto flags = fcntl(fd, F_GETFL, 0);
-    if (nbm) {
-        flags |= O_NONBLOCK;
-    } else {
-        flags &= !O_NONBLOCK;
-    }
-    fcntl(fd, F_SETFL, flags);
-}
-} // namespace
 
 Either<Networker::Error, std::shared_ptr<Server>> LinuxNetworkerImpl::listen(uint16_t port)
 {
@@ -41,13 +27,17 @@ Either<Networker::Error, std::shared_ptr<Server>> LinuxNetworkerImpl::listen(uin
     servaddr.sin_port = htons(port);
 
     if ((::bind(fd, reinterpret_cast<sockaddr *>(&servaddr), sizeof(servaddr))) != 0) {
-        return Left(BindingFailed);
+        switch (errno) {
+        case EADDRINUSE:
+            return Left(AddressAlreadyInUse);
+        default:
+            return Left(UnwnownBindingError);
+        }
     }
 
     if ((::listen(fd, 5)) != 0) {
         return Left(ListenFailed);
     }
-    setFdNonBlockingFlag(fd, true);
     return Right<std::shared_ptr<Server>>(std::make_shared<LinuxServerImpl>(fd));
 }
 
@@ -73,7 +63,6 @@ Either<Networker::Error, std::shared_ptr<Socket>> e172::LinuxNetworkerImpl::conn
             return Left(UnwnownConnectionError);
         }
     }
-    setFdNonBlockingFlag(fd, true);
     return Right<std::shared_ptr<Socket>>(std::make_shared<LinuxSocketImpl>(fd));
 }
 

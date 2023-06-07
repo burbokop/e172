@@ -18,20 +18,27 @@ void e172::GameClient::sync()
         assert(eventProvider);
 
         while (auto event = eventProvider->pullEvent()) {
+            if (event->type() == Event::Quit) {
+                m_app.quitLater();
+                return;
+            }
+
             WriteBuffer buf;
-            event->writeNet(buf);
+            buf.write(*event);
             WritePackage::push(*m_socket,
                                PackageType(GamePackageType::Event),
                                [&buf](WritePackage p) {
                                    p.write<PackedPlayerId>(0 /*TODO*/);
-                                   p.writeBuf(std::move(buf));
+                                   p.write(std::move(buf));
                                });
         }
+        m_socket->flush();
 
         while (auto package = ReadPackage::pull(*m_socket, [this](ReadPackage package) {
                    switch (GamePackageType(package.type())) {
                    case GamePackageType::SyncEntity:
                        syncEntity(std::move(package));
+                       break;
                    default:
                        throw UnknownPackageTypeException(package.type());
                    }

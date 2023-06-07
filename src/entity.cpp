@@ -96,9 +96,15 @@ bool Entity::anyNetSyncDirty() const
     return false;
 }
 
-void Entity::writeNet(WriteBuffer &buf) {}
+void Entity::writeNet(WriteBuffer &buf)
+{
+    todo;
+}
 
-void Entity::readNet(ReadBuffer &&buf) {}
+void Entity::readNet(ReadBuffer &&buf)
+{
+    todo;
+}
 
 //Bytes Entity::collectBytes() const
 //{
