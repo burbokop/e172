@@ -1,13 +1,11 @@
 #ifndef TESTING_H
 #define TESTING_H
 
-#include <vector>
-#include <functional>
-#include <list>
-#include <iostream>
 #include <chrono>
-
-#include "lightvector.h"
+#include <functional>
+#include <iostream>
+#include <list>
+#include <vector>
 
 namespace e172 {
 class Testing {

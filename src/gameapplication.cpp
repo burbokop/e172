@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "gameapplication.h"
 
+#include <iostream>
 #include <src/assettools/assetprovider.h>
 #include <src/audio/abstractaudioprovider.h>
 #include <src/context.h>
@@ -9,8 +10,6 @@
 #include <src/graphics/abstractgraphicsprovider.h>
 #include <src/graphics/abstractrenderer.h>
 #include <src/time/time.h>
-
-#include <iostream>
 
 namespace e172 {
 

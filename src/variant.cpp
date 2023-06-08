@@ -31,7 +31,7 @@ std::ostream &operator<<(std::ostream &stream, const Variant &arg) {
 std::ostream &operator<<(std::ostream &stream, const VariantVector &vector) {
     stream << "[";
     VariantVector::size_type i = 0;
-    for(auto v : vector) {
+    for (const auto &v : vector) {
         stream << v;
         if(i < vector.size() - 1) {
             stream << ", ";
@@ -45,7 +45,7 @@ std::ostream &operator<<(std::ostream &stream, const VariantVector &vector) {
 std::ostream &operator<<(std::ostream &stream, const VariantList &list) {
     stream << "[";
     VariantList::size_type i = 0;
-    for(auto v : list) {
+    for (const auto &v : list) {
         stream << v;
         if(i < list.size() - 1) {
             stream << ", ";
@@ -59,7 +59,7 @@ std::ostream &operator<<(std::ostream &stream, const VariantList &list) {
 std::ostream &operator<<(std::ostream &stream, const VariantMap &map) {
     stream << "{";
     VariantList::size_type i = 0;
-    for(auto v : map) {
+    for (const auto &v : map) {
         stream << v.first << ": " << v.second;
         if(i < map.size() - 1) {
             stream << ", ";
@@ -254,7 +254,7 @@ Variant Variant::fromString(const std::string &string) {
 
 VariantMap Variant::fromString(const std::map<std::string, std::string> &map) {
     VariantMap result;
-    for(auto m : map) {
+    for (const auto &m : map) {
         result[m.first] = m.second;
     }
     return result;
@@ -266,7 +266,7 @@ std::string Variant::toJson() const {
         result += "{";
         const auto c = value_fast<VariantMap>();
         size_t i = 0;
-        for(auto cc : c) {
+        for (const auto &cc : c) {
             result += "\"" + cc.first + "\" : " + cc.second.toJson();
             if(i < c.size() - 1) {
                 result += ", ";

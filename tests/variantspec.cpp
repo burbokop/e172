@@ -6,14 +6,15 @@
 
 #include <src/time/elapsedtimer.h>
 
+volatile int e172_Variant_ts_d;
 
-int e172_Variant_ts_d;
-
-void e172_Variant_ts_foo(const e172::Variant &value) {
+void e172_Variant_ts_foo(const e172::Variant &value)
+{
     e172_Variant_ts_d = value.toInt();
 }
 
-void e172_Variant_ts_bar(int value) {
+void e172_Variant_ts_bar(int value)
+{
     e172_Variant_ts_d = value;
 }
 
@@ -35,10 +36,14 @@ std::pair<int64_t, int64_t> e172::tests::VariantSpec::speedTest(size_t count)
 double e172::tests::VariantSpec::speedTest()
 {
     size_t c = 1;
+    ElapsedTimer timeout(100000);
     while (true) {
         const auto result = speedTest(c *= 2);
         if(result.first != 0 && result.second != 0) {
             return double(result.first) / double(result.second);
+        }
+        if (timeout.check()) {
+            throw std::runtime_error("can not measure Variant speed: timeout");
         }
     }
 }

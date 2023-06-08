@@ -4,9 +4,14 @@
 #include <stdlib.h>
 #include <src/testing.h>
 
+namespace e172 {
+class Variant;
+}
+
 namespace e172::tests {
 
-class VariantSpec {
+class VariantSpec
+{
     static void compareTest0() e172_test(VariantSpec, compareTest0);
     static void compareTest1() e172_test(VariantSpec, compareTest1);
 

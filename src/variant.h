@@ -255,7 +255,7 @@ public:
 #ifdef E172_USE_VARIANT_RTTI_OBJECT
     template<typename T>
     void assign(const T& value) {
-        if(m_rttiObject != VariantRTTITable<T>::object()) {
+        if (!m_data || m_rttiObject != VariantRTTITable<T>::object()) {
             if(m_data)
                 m_rttiObject->destruct(m_data);
 
