@@ -40,7 +40,7 @@ public:
         friend std::ostream &operator<<(std::ostream& stream, const CompilerInfo& info);
     };
 
-    static Debug withSepar(std::string &str) { return Debug(str); }
+    static Debug withSepar(const std::string &str) { return Debug(str); }
 
     static CompilerInfo compilerInfo();
 

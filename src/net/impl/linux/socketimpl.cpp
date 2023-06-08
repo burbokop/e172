@@ -113,6 +113,9 @@ std::size_t e172::LinuxSocketImpl::bufferizeChunk()
         switch (errno) {
         case EAGAIN:
             return 0;
+        case ECONNRESET:
+            m_isConnected = false;
+            return 0;
         default:
             throw LinuxSocketBufferizeException(errno);
         }

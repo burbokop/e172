@@ -211,15 +211,31 @@ target_link_libraries(e172_tests
     e172
     )
 
-include(CTest)
 enable_testing()
-add_test(NAME e172_tests COMMAND e172_tests)
-add_custom_command(
-    TARGET e172_tests
-    COMMENT "e172_tests"
-    POST_BUILD
-    COMMAND e172_tests
-)
+include(CTest)
+
+function(e172_register_tests TARGET)
+    get_target_property(TARGET_SOURCES ${TARGET} SOURCES)
+
+    foreach(SOURCE_FILE ${TARGET_SOURCES})
+        message("SOURCE_FILE: ${SOURCE_FILE}")
+
+        file(READ ${SOURCE_FILE} FILE_CONTENT)
+        STRING(REGEX REPLACE ";" "\\\\;" FILE_CONTENT "${FILE_CONTENT}")
+        STRING(REGEX REPLACE "\n" ";" FILE_CONTENT "${FILE_CONTENT}")
+
+        foreach(LINE ${FILE_CONTENT})
+            string(REGEX MATCH "e172_test\\((.*),[ ]*(.*)\\)" _ ${LINE})
+            if(CMAKE_MATCH_1 AND CMAKE_MATCH_2)
+                message("ARGS_STR: ${CMAKE_MATCH_1}:${CMAKE_MATCH_2}")
+                set(TEST_NAME "${CMAKE_MATCH_1}:${CMAKE_MATCH_2}")
+                add_test(NAME ${TEST_NAME} COMMAND ${TARGET} one ${TEST_NAME})
+            endif()
+        endforeach()
+    endforeach()
+endfunction(download_file)
+
+e172_register_tests(e172_tests)
 
 install(TARGETS e172 DESTINATION lib)
 

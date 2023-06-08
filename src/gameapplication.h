@@ -141,7 +141,7 @@ public:
     e172::ptr<e172::Entity> findEntity(
         const std::function<bool(const e172::ptr<e172::Entity> &)> &condition) const;
 
-    e172::ptr<e172::Entity> entityById(Entity::id_t id) const
+    e172::ptr<e172::Entity> entityById(Entity::Id id) const
     {
         return findEntity([id](const e172::ptr<e172::Entity> &e) { return e->entityId() == id; });
     }

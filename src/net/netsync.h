@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <src/entity.h>
+#include <src/utility/buffer.h>
 
 namespace e172 {
 
@@ -10,28 +11,26 @@ class AbstractNetSync
     friend Entity;
 
 public:
-    AbstractNetSync() = default;
+    AbstractNetSync(Entity &e) { e.installNetSync(this); };
     ~AbstractNetSync() = default;
 
     virtual bool dirty() const = 0;
 
 protected:
-    virtual Bytes serialize() const = 0;
-    virtual void deserAssign(Bytes &&, bool markDirty) = 0;
+    virtual void serialize(WriteBuffer &) const = 0;
+    virtual bool deserialize(ReadBuffer &) = 0;
     virtual void wash() = 0;
 };
 
-// clang-format off
 template<typename T>
 requires Serialize<T> && Deserialize<T>
     class NetSync : public AbstractNetSync
-// clang-format on
 {
 public:
     NetSync(const T &val, Entity &e)
-        : m_value(val)
+        : AbstractNetSync(e)
+        , m_value(val)
     {
-        e.installNetSync(this);
     }
 
     NetSync<T> &operator=(const T &val)
@@ -48,24 +47,15 @@ public:
     bool dirty() const override { return m_dirty; }
 
 protected:
-    Bytes serialize() const override
-    {
-        if constexpr (std::is_fundamental<T>::value) {
-            return WriteBuffer::toBytes(m_value);
-        } else {
-            return m_value.serialize();
-        }
-    }
+    void serialize(WriteBuffer &buffer) const override { buffer.write(m_value); }
 
-    void deserAssign(Bytes &&b, bool markDirty) override
+    bool deserialize(ReadBuffer &b) override
     {
-        if constexpr (std::is_fundamental<T>::value) {
-            m_value = ReadBuffer::fromBytes<T>(std::move(b)).value();
+        if (const auto v = b.read<T>()) {
+            m_value = *v;
+            return true;
         } else {
-            m_value = T::deserialize(b);
-        }
-        if (markDirty) {
-            m_dirty = true;
+            return false;
         }
     }
 

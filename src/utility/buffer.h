@@ -54,7 +54,6 @@ template<typename T>
 concept Deserialize = requires(ReadBuffer & buf, ReadBuffer &&tmpbuf)
 {
     {
-        /// if returns std::nullopt deserialize implementation should guarantee that buf not changed
         T::deserialize(buf)
     } -> std::convertible_to<std::optional<T>>;
 
@@ -82,6 +81,8 @@ public:
     WriteBuffer(WriteBuffer &&) = default;
     WriteBuffer(const WriteBuffer &) = delete;
 
+    std::size_t size() const { return m_data.size(); }
+
     std::size_t write(const Byte *bytes, std::size_t size)
     {
         m_data.insert(m_data.end(), bytes, bytes + size);
@@ -108,14 +109,14 @@ public:
         }
     }
 
-    std::size_t size() const { return m_data.size(); }
-
     static Bytes collect(WriteBuffer &&b) { return std::move(b.m_data); }
 
-    template<typename T>
+    template<Serialize T>
     static Bytes toBytes(const T &v)
     {
-        todo;
+        WriteBuffer b;
+        b.write(v);
+        return b.m_data;
     }
 
 private:
@@ -131,33 +132,19 @@ public:
     ReadBuffer(ReadBuffer &&) = default;
     ReadBuffer(const ReadBuffer &) = delete;
 
-    template<typename T>
-    static std::optional<T> fromBytes(Bytes &&b)
-    {
-        ReadBuffer r(std::move(b));
-        return r.read<T>();
-    }
-
     std::size_t bytesAvailable() const { return m_data.size() - m_pos; }
-
-    template<Deserialize T>
-    static std::optional<T> consume(ReadBuffer &&p)
-    {
-        return T::deserializeConsume(p);
-    }
-
-    static Bytes readAll(ReadBuffer &&p)
-    {
-        return Bytes(p.m_data.begin() + p.m_pos, p.m_data.end());
-    }
 
     std::optional<Bytes> read(std::size_t size)
     {
+        assert(m_valid);
         if (bytesAvailable() >= size) {
             auto result = Bytes(m_data.begin() + m_pos, m_data.begin() + m_pos + size);
             m_pos += size;
             return std::move(result);
         } else {
+#ifndef NDEBUG
+            m_valid = false;
+#endif
             return std::nullopt;
         }
     }
@@ -165,23 +152,67 @@ public:
     template<Deserialize T>
     std::optional<T> read()
     {
-        if constexpr (SerializePrimitive<T>) {
-            if (bytesAvailable() >= sizeof(T)) {
-                toBigEndian(m_data.data() + m_pos, sizeof(T));
-                const auto ptr = reinterpret_cast<const T *>(m_data.data() + m_pos);
-                m_pos += sizeof(T);
-                return *ptr;
-            } else {
-                return std::nullopt;
-            }
+        assert(m_valid);
+        if constexpr (DeserializePrimitive<T>) {
+            const auto result = readPrimitive<T>();
+#ifndef NDEBUG
+            if (!result)
+                m_valid = false;
+#endif
+            return result;
         } else {
-            return T::deserialize(*this);
+            const auto result = T::deserialize(*this);
+#ifndef NDEBUG
+            if (!result)
+                m_valid = false;
+#endif
+            return result;
+        }
+    }
+
+    static Bytes readAll(ReadBuffer &&p)
+    {
+        assert(p.m_valid);
+        return Bytes(p.m_data.begin() + p.m_pos, p.m_data.end());
+    }
+
+    template<Deserialize T>
+    static std::optional<T> consume(ReadBuffer &&p)
+    {
+        assert(p.m_valid);
+        if constexpr (DeserializePrimitive<T>) {
+            return p.readPrimitive<T>();
+        } else {
+            return T::deserializeConsume(p);
+        }
+    }
+
+    template<Deserialize T>
+    static std::optional<T> fromBytes(Bytes &&b)
+    {
+        return consume<T>(ReadBuffer(std::move(b)));
+    }
+
+private:
+    template<DeserializePrimitive T>
+    std::optional<T> readPrimitive()
+    {
+        if (bytesAvailable() >= sizeof(T)) {
+            toBigEndian(m_data.data() + m_pos, sizeof(T));
+            const auto ptr = reinterpret_cast<const T *>(m_data.data() + m_pos);
+            m_pos += sizeof(T);
+            return *ptr;
+        } else {
+            return std::nullopt;
         }
     }
 
 private:
     Bytes m_data;
     std::size_t m_pos = 0;
+#ifndef NDEBUG
+    bool m_valid = true;
+#endif
 };
 
 } // namespace e172

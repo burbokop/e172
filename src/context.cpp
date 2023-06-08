@@ -87,7 +87,7 @@ std::shared_ptr<Promice> Context::emitMessage(const MessageId &messageId, const 
     return m_messageQueue.emitMessage(messageId, value);
 }
 
-ptr<Entity> Context::entityById(const Entity::id_t &id) const {
+ptr<Entity> Context::entityById(const Entity::Id &id) const {
     const auto e = m_application->entities();
     for(auto a : e) {
         if(a && a->entityId() == id)

@@ -75,20 +75,17 @@ public:
         m_messageQueue.popMessage(messageId, [object, this, callback](const auto& value) { (object->*callback)(this, value); });
     }
 
-
-
-    ptr<Entity> entityById(const Entity::id_t &id) const;
+    ptr<Entity> entityById(const Entity::Id &id) const;
 
     ptr<Entity> autoIteratingEntity() const;
     ElapsedTimer::time_t proceedDelay() const;
     ElapsedTimer::time_t renderDelay() const;
 
-
     template<typename T>
-    auto entityById(const Entity::id_t &id) const {
+    auto entityById(const Entity::Id &id) const
+    {
         return e172::smart_cast<T>(entityById(id));
     }
-
 
     e172::ptr<e172::Entity> findEntity(const std::function<bool(const e172::ptr<e172::Entity> &)>& condition);
 

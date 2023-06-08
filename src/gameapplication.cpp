@@ -34,7 +34,6 @@ size_t GameApplication::static_constructor() {
     return 0;
 }
 
-
 ElapsedTimer::time_t GameApplication::renderDelay() const {
     return m_renderDelay;
 }
@@ -63,7 +62,6 @@ ElapsedTimer::time_t GameApplication::proceedDelay() const {
     return m_proceedDelay;
 }
 
-
 void GameApplication::destroyAllEntities(Context *, const Variant &) {
     auto it = m_entities.begin();
     while (it != m_entities.end()) {
@@ -78,7 +76,7 @@ void GameApplication::destroyAllEntities(Context *, const Variant &) {
 
 void GameApplication::destroyEntity(Context*, const Variant &value) {
     for(auto it = m_entities.begin(); it != m_entities.end(); ++it) {
-        if((*it)->entityId() == value.toNumber<Entity::id_t>()) {
+        if ((*it)->entityId() == value.toNumber<Entity::Id>()) {
             safeDestroy(*it);
             m_entities.erase(it);
             return;
@@ -341,6 +339,5 @@ void GameApplicationExtension::setExtensionType(const ExtensionType &extensionTy
 GameApplicationExtension::GameApplicationExtension(GameApplicationExtension::ExtensionType extensionType) {
     m_extensionType = extensionType;
 }
-
 
 }

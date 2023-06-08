@@ -16,7 +16,7 @@ std::function<void(const std::string &, Debug::MessageType)> Debug::m_proceedMes
     if(type == Debug::PrintMessage) {
         std::cout << data << std::endl;
     } else if(type == Debug::WarningMessage) {
-        std::cout << "\033[33m" << data << "\033[0m" << std::endl;
+        std::cerr << "\033[33m" << data << "\033[0m" << std::endl;
     } else if(type == Debug::FatalMessage) {
         std::cerr << data << std::endl;
         exit(1);

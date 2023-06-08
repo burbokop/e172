@@ -49,7 +49,7 @@ void e172::GameClient::sync()
 
 void e172::GameClient::syncEntity(ReadPackage &&package)
 {
-    const Entity::id_t id = package.read<PackedEntityId>().value();
+    const Entity::Id id = package.read<PackedEntityId>().value();
     if (const auto entity = m_app.entityById(id)) {
         entity->readNet(ReadPackage::readAll<ReadBuffer>(std::move(package)));
     }

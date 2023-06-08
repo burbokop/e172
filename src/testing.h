@@ -19,21 +19,21 @@
                            "is not", \
                            expected, \
                            "in test function:", \
-                           __ASSERT_FUNCTION); \
+                           __PRETTY_FUNCTION__); \
     }
 
 #define e172_shouldBeDefined(option) \
     if (option.isEmpty()) { \
         e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
                            "Option is not defined in test function:", \
-                           __ASSERT_FUNCTION); \
+                           __PRETTY_FUNCTION__); \
     }
 
 namespace e172 {
 namespace testing {
 
 int registerTest(const std::string& name, const std::string& spec, const std::function<void()> &testFunc);
-int exec();
+int exec(int argc, const char **argv);
 
 template<typename T>
 class class_registerer {
