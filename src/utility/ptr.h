@@ -1,12 +1,11 @@
-#ifndef PTR_H
-#define PTR_H
+#pragma once
 
 #include <src/object.h>
 #include <src/sfinae.h>
 #include <functional>
 #include <set>
-namespace e172 {
 
+namespace e172 {
 
 template <typename T>
 class ptr {
@@ -61,7 +60,7 @@ public:
 
     bool safeDestroy() const {
         if(operator bool()) {
-            if(m_data->liveInHeap()) {
+            if (m_data->liveInHeap() && !m_data->liveInSharedPtr()) {
                 delete m_data;
                 return true;
             }
@@ -178,6 +177,3 @@ template<typename A>
 bool operator !=(std::nullptr_t, const e172::ptr<A> &ptr) {
     return ptr;
 }
-
-
-#endif // PTR_H

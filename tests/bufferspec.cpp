@@ -25,7 +25,7 @@ void e172::tests::BufferSpec::writeBufferToBufferTest()
         return innerBuf;
     }());
     buf.write<std::uint8_t>(12);
-    buf.write({1, 2});
+    buf.write(Bytes{1, 2});
     buf.write<std::uint8_t>(3);
 
     const auto bytes = WriteBuffer::collect(std::move(buf));

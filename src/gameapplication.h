@@ -1,5 +1,4 @@
-#ifndef GAMEAPPLICATION_H
-#define GAMEAPPLICATION_H
+#pragma once
 
 #include "entity.h"
 
@@ -24,7 +23,7 @@ class AbstractAudioProvider;
 class AbstractGraphicsProvider;
 class AssetProvider;
 class Context;
-
+class EntityAddedObserver;
 class GameApplication;
 
 class GameApplicationExtension {
@@ -104,9 +103,17 @@ public:
     Variant flag(const std::string &shortName) const;
 
     void setRenderInterval(ElapsedTimer::time_t interval);
-    inline void addEntity(const ptr<Entity> &entity) { m_entities.push_back(entity); }
+
+    void addEntity(const ptr<Entity> &entity);
+
+    void observeEntityAdded(const std::weak_ptr<EntityAddedObserver> &obs)
+    {
+        m_entityAddedObservers.push_back(obs);
+    }
+
     template<typename T>
-    inline void addApplicationExtension() {
+    inline void addApplicationExtension()
+    {
         const auto it = m_applicationExtensions.find(Type<T>::hash());
         if(it == m_applicationExtensions.end())
             m_applicationExtensions[Type<T>::hash()] = new T();
@@ -171,10 +178,9 @@ private:
     };
 
     std::list<Task> m_scheduledTasks;
+    std::list<std::weak_ptr<EntityAddedObserver>> m_entityAddedObservers;
 
     Mode m_mode = Mode::All;
 }; // namespace e172
 
 } // namespace e172
-
-#endif // GAMEAPPLICATION_H

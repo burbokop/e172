@@ -21,6 +21,9 @@ public:
         return m_buf.write(v);
     }
 
+    std::size_t writeDyn(const Bytes &v) { return m_buf.writeDyn(v); }
+    std::size_t writeDyn(const std::string &str) { return m_buf.writeDyn(str); }
+
     static std::size_t push(Write &dst,
                             PackageType type,
                             const std::function<void(WritePackage)> &writeFn)
@@ -46,6 +49,26 @@ private:
 class ReadPackage
 {
 public:
+
+    std::size_t bytesAvailable() const { return m_buf.bytesAvailable(); }
+
+    std::optional<Bytes> read(std::size_t size) { return m_buf.read(size); }
+
+    template<typename T>
+    std::optional<T> read()
+    {
+        return m_buf.read<T>();
+    }
+
+    template<typename T>
+        std::optional<T> readDyn() requires std::is_same<T, Bytes>::value
+        || std::is_same<T, std::string>::value
+    {
+        return m_buf.readDyn<T>();
+    }
+
+    PackageType type() const { return m_type; };
+
     static bool pull(Read &r, const std::function<void(ReadPackage)> &readFn)
     {
         r.bufferize();
@@ -80,18 +103,6 @@ public:
     {
         return ReadBuffer::consume<T>(std::move(p.m_buf));
     }
-
-    std::size_t bytesAvailable() const { return m_buf.bytesAvailable(); }
-
-    std::optional<Bytes> read(std::size_t size) { return m_buf.read(size); }
-
-    template<typename T>
-    std::optional<T> read()
-    {
-        return m_buf.read<T>();
-    }
-
-    PackageType type() const { return m_type; };
 
 private:
     ReadPackage(PackageType type, ReadBuffer buf)

@@ -15,7 +15,7 @@ class ImageView : public Entity {
     double m_rotation = 0;
     double m_scale = 1;
 public:
-    ImageView(const Image &image = Image());
+    ImageView(FactoryMeta &&meta, const Image &image = Image());
 
     // Entity interface
 public:

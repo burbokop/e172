@@ -3,9 +3,10 @@
 
 #include <src/math/math.h>
 
-e172::ImageView::ImageView(const Image &image) {
-    m_image = image;
-}
+e172::ImageView::ImageView(FactoryMeta &&meta, const Image &image)
+    : Entity(std::move(meta))
+    , m_image(image)
+{}
 
 void e172::ImageView::proceed(e172::Context *, e172::EventHandler *) {}
 

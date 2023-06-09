@@ -7,6 +7,7 @@ namespace e172 {
 
 class GameApplication;
 class ReadPackage;
+class Networker;
 
 class GameClient
 {
@@ -15,8 +16,12 @@ class GameClient
     {};
 
 public:
-    GameClient(GameApplication &app, const std::shared_ptr<Socket> &socket, Private)
+    GameClient(GameApplication &app,
+               Networker *networker,
+               const std::shared_ptr<Socket> &socket,
+               Private)
         : m_app(app)
+        , m_networker(networker)
         , m_socket(socket)
     {}
 
@@ -25,10 +30,12 @@ public:
     void sync();
 
 private:
-    void syncEntity(ReadPackage &&package);
+    bool processAddEntityPackage(ReadPackage &&package);
+    bool processSyncEntityPackage(ReadPackage &&package);
 
 private:
     GameApplication &m_app;
+    Networker *m_networker = nullptr;
     std::shared_ptr<Socket> m_socket;
 };
 

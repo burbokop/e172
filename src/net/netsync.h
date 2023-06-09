@@ -63,7 +63,7 @@ protected:
 
 private:
     T m_value;
-    bool m_dirty = false;
+    bool m_dirty = true;
 };
 
 } // namespace e172

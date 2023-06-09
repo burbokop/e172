@@ -90,6 +90,7 @@ public:
     }
 
     std::size_t write(const Bytes &v) { return write(v.data(), v.size()); }
+
     std::size_t write(WriteBuffer &&b) { return write(b.m_data.data(), b.m_data.size()); }
 
     template<Serialize T>
@@ -107,6 +108,22 @@ public:
             v.serialize(*this);
             return size() - s;
         }
+    }
+
+    std::size_t writeDyn(const Bytes &v)
+    {
+        const auto s = size();
+        write(std::uint32_t(v.size()));
+        write(v.data(), v.size());
+        return size() - s;
+    }
+
+    std::size_t writeDyn(const std::string &str)
+    {
+        const auto s = size();
+        write(std::uint32_t(str.size()));
+        write(reinterpret_cast<const Byte *>(str.data()), str.size());
+        return size() - s;
     }
 
     static Bytes collect(WriteBuffer &&b) { return std::move(b.m_data); }
@@ -168,6 +185,22 @@ public:
 #endif
             return result;
         }
+    }
+
+    template<typename T>
+        std::optional<T> readDyn() requires std::is_same<T, Bytes>::value
+        || std::is_same<T, std::string>::value
+    {
+        if (const auto size = read<std::uint32_t>()) {
+            if (const auto dynData = read(*size)) {
+                if constexpr (std::is_same<T, Bytes>::value) {
+                    return dynData;
+                } else {
+                    return std::string(dynData->begin(), dynData->end());
+                }
+            }
+        }
+        return std::nullopt;
     }
 
     static Bytes readAll(ReadBuffer &&p)

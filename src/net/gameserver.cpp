@@ -1,11 +1,40 @@
 #include "gameserver.h"
 #include "../gameapplication.h"
 #include "common.h"
+#include "networker.h"
 #include "src/utility/package.h"
+
+e172::GameServer::GameServer(GameApplication &app,
+                             Networker *networker,
+                             const std::shared_ptr<Server> &server,
+                             Private)
+    : m_app(app)
+    , m_networker(networker)
+    , m_server(server)
+{}
 
 void e172::GameServer::sync()
 {
+    assert(m_networker);
     refreshSockets();
+
+    while (!m_entityAddEventQueue.empty()) {
+        const auto &entity = m_entityAddEventQueue.front();
+        assert(entity);
+        const auto type = entity->meta().typeName();
+        const auto id = entity->entityId();
+
+        for (const auto &s : m_sockets) {
+            WritePackage::push(*s,
+                               PackageType(GamePackageType::AddEntity),
+                               [type, id](WritePackage p) {
+                                   p.writeDyn(type);
+                                   p.write(PackedEntityId(id));
+                               });
+        }
+
+        m_entityAddEventQueue.pop();
+    }
 
     for (const auto &e : m_app.entities()) {
         if (e->anyNetSyncDirty()) {
@@ -47,6 +76,11 @@ std::optional<e172::Event> e172::GameServer::pullEvent()
         return e;
     }
     return std::nullopt;
+}
+
+void e172::GameServer::entityAdded(const e172::ptr<Entity> &entity)
+{
+    m_entityAddEventQueue.push(entity);
 }
 
 void e172::GameServer::refreshSockets()

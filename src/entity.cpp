@@ -5,6 +5,8 @@
 
 #include <optional>
 
+#include <src/math/physicalobject.h>
+
 namespace e172 {
 
 bool Entity::removeTag(const String &tag) {
@@ -31,13 +33,24 @@ void Entity::writeNet(WriteBuffer &buf)
     for (auto s : m_netSyncs) {
         s->serialize(buf);
     }
+    if (const auto po = dynamic_cast<e172::PhysicalObject *>(this)) {
+        po->writeNet(buf);
+    }
 }
 
-void Entity::readNet(ReadBuffer &&buf)
+bool Entity::readNet(ReadBuffer &&buf)
 {
     for (auto s : m_netSyncs) {
-        s->deserialize(buf);
+        if (!s->deserialize(buf)) {
+            return false;
+        }
     }
+    if (const auto po = dynamic_cast<e172::PhysicalObject *>(this)) {
+        if (!po->readNet(buf)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 } // namespace e172

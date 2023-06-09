@@ -6,8 +6,12 @@ bool e172::Object::liveInHeap() const {
     return m_liveInHeap;
 }
 
-int *heap_example = new int();
+bool e172::Object::liveInSharedPtr() const
+{
+    return const_cast<Object *>(this)->shared_from_this() != std::shared_ptr<Object>();
+}
 
+int *heap_example = new int();
 
 e172::Object::Object() {
     int stack_example;

@@ -1,11 +1,10 @@
 #ifndef ABSTRACTFACTORY_H
 #define ABSTRACTFACTORY_H
 
-
-
-#include <map>
-#include <list>
 #include <functional>
+#include <list>
+#include <map>
+#include <optional>
 
 #include "../type.h"
 
@@ -22,12 +21,12 @@
 namespace e172 {
 
 template<typename KeyType, typename BaseClass>
-class AbstractFactory {
-    typedef std::map<KeyType, std::function<BaseClass*()>> CreaterMap;
-
-    CreaterMap m_creaters;
-    std::map<BaseClass*, KeyType> m_objects;
+class AbstractFactory
+{
 public:
+    using Creater = std::function<BaseClass *()>;
+    using CreaterMap = std::map<KeyType, Creater>;
+
     AbstractFactory();
     /**
      * @brief create function creates object with type name <b>typeName</b>.
@@ -39,9 +38,9 @@ public:
     /**
      * @brief type function provide getting type name from object pointer.
      * @param object
-     * @return type name
+     * @return type name or std::nullopt if object
      */
-    KeyType type(BaseClass *object) const;
+    std::optional<KeyType> type(BaseClass *object) const;
 
     /**
      * @brief registerType function provide registering type <b>T</b>.
@@ -50,14 +49,14 @@ public:
      * @return type name passed as paremeter without changes
      */
     template<typename T>
-    KeyType registerType(const KeyType &typeName);
+    requires std::is_base_of<BaseClass, T>::value KeyType registerType(const KeyType &typeName);
 
     /**
      * @brief registerType overload provide registering type <b>T</b> but use KType for setting type name.
      * @return type name
      */
     template<typename T>
-    KeyType registerType();
+    requires std::is_base_of<BaseClass, T>::value KeyType registerType();
 
     std::list<std::string> typeNames() const {
         std::list<std::string> result;
@@ -67,6 +66,14 @@ public:
         return result;
     }
 
+    template<typename T>
+        requires std::is_base_of<BaseClass, T>::value
+    const KeyType &registerType(const KeyType &typeName, const Creater &creater)
+    {
+        m_creaters[typeName] = creater;
+        return typeName;
+    }
+
     /**
      * @brief clear factory
      */
@@ -74,28 +81,37 @@ public:
         m_creaters.clear();
         m_objects.clear();
     }
+
+private:
+    CreaterMap m_creaters;
+    std::map<BaseClass *, KeyType> m_objects;
 };
 
 template<typename KeyType, typename BaseClass>
 AbstractFactory<KeyType, BaseClass>::AbstractFactory() {}
 
 template<typename KeyType, typename BaseClass>
-KeyType AbstractFactory<KeyType, BaseClass>::type(BaseClass *object) const {
+std::optional<KeyType> AbstractFactory<KeyType, BaseClass>::type(BaseClass *object) const
+{
     auto it = m_objects.find(object);
     if(it != m_objects.end())
         return it->second;
-    return KeyType();
+    return std::nullopt;
 }
 
 template<typename KeyType, typename BaseClass>
 template<typename T>
-KeyType AbstractFactory<KeyType, BaseClass>::registerType() {
+requires std::is_base_of<BaseClass, T>::value KeyType
+AbstractFactory<KeyType, BaseClass>::registerType()
+{
     return registerType<T>(Type<T>::name());
 }
 
 template<typename KeyType, typename BaseClass>
 template<typename T>
-KeyType AbstractFactory<KeyType, BaseClass>::registerType(const KeyType &typeName) {
+requires std::is_base_of<BaseClass, T>::value KeyType
+AbstractFactory<KeyType, BaseClass>::registerType(const KeyType &typeName)
+{
     m_creaters[typeName] = []() {
         return new T();
     };

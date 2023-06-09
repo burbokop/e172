@@ -8,14 +8,14 @@
 
 namespace e172 {
 
-
 template<typename T, typename P>
-inline P verbatim_cast(T value) { return reinterpret_cast<P*>(&value)[0]; }
+inline P verbatim_cast(T value)
+{
+    return reinterpret_cast<P *>(&value)[0];
+}
 
-
-class Object {
-    bool m_liveInHeap = false;
-    std::shared_ptr<bool> m_lifeInfoData = std::make_shared<bool>(true);
+class Object : public std::enable_shared_from_this<Object>
+{
 public:
     Object();
 
@@ -48,7 +48,11 @@ public:
 
     virtual ~Object();
     bool liveInHeap() const;
-};
+    bool liveInSharedPtr() const;
 
-}
+private:
+    bool m_liveInHeap = false;
+    std::shared_ptr<bool> m_lifeInfoData = std::make_shared<bool>(true);
+};
+} // namespace e172
 #endif // OBJECT_H

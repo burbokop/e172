@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "gameapplication.h"
 
+#include "entityaddedobserver.h"
 #include <iostream>
 #include <src/assettools/assetprovider.h>
 #include <src/audio/abstractaudioprovider.h>
@@ -64,7 +65,7 @@ ElapsedTimer::time_t GameApplication::proceedDelay() const {
 void GameApplication::destroyAllEntities(Context *, const Variant &) {
     auto it = m_entities.begin();
     while (it != m_entities.end()) {
-        if((*it)->liveInHeap()) {
+        if ((*it)->liveInHeap() && !(*it)->liveInSharedPtr()) {
             safeDestroy(*it);
             it = m_entities.erase(it);
         } else {
@@ -207,6 +208,22 @@ Variant GameApplication::flag(const std::string &shortName) const {
 
 void GameApplication::setRenderInterval(ElapsedTimer::time_t interval) {
     m_renderTimer = ElapsedTimer(interval);
+}
+
+void GameApplication::addEntity(const ptr<Entity> &entity)
+{
+    if (entity) {
+        m_entities.push_back(entity);
+        auto it = m_entityAddedObservers.begin();
+        while (it != m_entityAddedObservers.end()) {
+            if (const auto obs = it->lock()) {
+                obs->entityAdded(entity);
+                ++it;
+            } else {
+                it = m_entityAddedObservers.erase(it);
+            }
+        }
+    }
 }
 
 void GameApplication::removeApplicationExtension(size_t hash) {

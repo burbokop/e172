@@ -1,5 +1,6 @@
 #pragma once
 
+#include "meta.h"
 #include "object.h"
 #include "typedefs.h"
 
@@ -14,20 +15,24 @@ class GameApplication;
 class WriteBuffer;
 class ReadBuffer;
 
-class Entity : public Object {
+class Entity : public Object
+{
     friend GameApplication;
     friend AbstractNetSync;
 
 public:
     using Id = std::size_t;
 
-    Entity() = default;
+    Entity(FactoryMeta &&meta)
+        : m_meta(meta.meta())
+    {}
+
     virtual ~Entity() = default;
 
     virtual void proceed(e172::Context *context, EventHandler *eventHandler) = 0;
     virtual void render(AbstractRenderer *renderer) = 0;
     virtual void writeNet(WriteBuffer &buf);
-    virtual void readNet(ReadBuffer &&buf);
+    virtual bool readNet(ReadBuffer &&buf);
 
     Id entityId() const { return m_entityId; }
     StringSet tags() const { return m_tags; }
@@ -42,11 +47,13 @@ public:
     void setDepth(const int64_t &depth) { m_depth = depth; }
 
     bool anyNetSyncDirty() const;
+    const Meta &meta() const { return m_meta; };
 
 private:
     void installNetSync(AbstractNetSync *s) { m_netSyncs.push_back(s); }
 
 private:
+    Meta m_meta;
     static inline Id s_nextId = 0;
     Id m_entityId = ++s_nextId;
     StringSet m_tags;

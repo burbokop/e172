@@ -3,6 +3,8 @@
 #include "gameclient.h"
 #include "gameserver.h"
 #include <list>
+#include <src/memcontrol/abstractfactory.h>
+#include <src/meta.h>
 #include <src/utility/either.h>
 #include <vector>
 
@@ -10,6 +12,8 @@ namespace e172 {
 
 class Networker
 {
+    friend GameClient;
+
 public:
     enum Error {
         FailedToCreateSocket,
@@ -43,21 +47,26 @@ public:
         return stream << "UnknownError";
     }
 
-    Either<Error, std::shared_ptr<GameServer>> listen(GameApplication &app, std::uint16_t port)
-    {
-        return listen(port).map<std::shared_ptr<GameServer>>(
-            [&app](const std::shared_ptr<Server> &s) {
-                return std::make_shared<GameServer>(app, s, GameServer::Private{});
-            });
-    }
+    Either<Error, std::shared_ptr<GameServer>> listen(GameApplication &app, std::uint16_t port);
 
     Either<Error, std::shared_ptr<GameClient>> connect(GameApplication &app,
                                                        std::uint16_t port,
                                                        const std::string &address = localhost)
     {
-        return connect(port, address).map<std::shared_ptr<GameClient>>([&app](auto s) {
-            return std::make_shared<GameClient>(app, s, GameClient::Private{});
+        return connect(port, address).map<std::shared_ptr<GameClient>>([&app, this](auto s) {
+            return std::make_shared<GameClient>(app, this, s, GameClient::Private{});
         });
+    }
+
+    template<typename T, typename... Args>
+    std::string registerEntityType(Args &&...args)
+        requires std::is_base_of<Entity, T>::value
+    {
+        const auto tn = Meta::fromType<T>().typeName();
+        return m_entityFactory.registerType<T>(tn, [args...]() -> Entity * {
+            return FactoryMeta::make<T>(args...);
+        });
+        return tn;
     }
 
     virtual Either<Error, std::shared_ptr<Server>> listen(std::uint16_t port) = 0;
@@ -66,6 +75,9 @@ public:
         = 0;
 
     virtual ~Networker() = default;
+
+private:
+    AbstractFactory<std::string, Entity> m_entityFactory;
 };
 
 } // namespace e172

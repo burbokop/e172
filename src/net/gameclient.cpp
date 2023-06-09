@@ -4,6 +4,7 @@
 #include "../entity.h"
 #include "../gameapplication.h"
 #include "common.h"
+#include "networker.h"
 #include "src/utility/package.h"
 
 void e172::GameClient::sync()
@@ -36,8 +37,13 @@ void e172::GameClient::sync()
 
         while (auto package = ReadPackage::pull(*m_socket, [this](ReadPackage package) {
                    switch (GamePackageType(package.type())) {
+                   case GamePackageType::AddEntity:
+                       processAddEntityPackage(std::move(package));
+                       // todo throw error if false
+                       break;
                    case GamePackageType::SyncEntity:
-                       syncEntity(std::move(package));
+                       processSyncEntityPackage(std::move(package));
+                       // todo throw error if false
                        break;
                    default:
                        throw UnknownPackageTypeException(package.type());
@@ -46,11 +52,39 @@ void e172::GameClient::sync()
         }
     }
 }
+#include <iostream>
 
-void e172::GameClient::syncEntity(ReadPackage &&package)
+#include <src/debug.h>
+bool e172::GameClient::processAddEntityPackage(ReadPackage &&package)
 {
-    const Entity::Id id = package.read<PackedEntityId>().value();
-    if (const auto entity = m_app.entityById(id)) {
-        entity->readNet(ReadPackage::readAll<ReadBuffer>(std::move(package)));
+    assert(m_networker);
+    const auto type = package.readDyn<std::string>();
+    if (!type)
+        return false;
+    const auto id = package.read<PackedEntityId>();
+    if (!id)
+        return false;
+    std::cout << "processAddEntityPackage: " << *type << ", " << *id << std::endl;
+
+    if (const auto &e = m_networker->m_entityFactory.create(*type)) {
+        m_app.addEntity(e);
+    } else {
+        Debug::warning("GameClient::processAddEntityPackage: unknown entity type:", *type);
+        return false;
     }
+    return true;
+}
+
+bool e172::GameClient::processSyncEntityPackage(ReadPackage &&package)
+{
+    const auto id = package.read<PackedEntityId>();
+    if (!id)
+        return false;
+
+    if (const auto entity = m_app.entityById(*id)) {
+        if (!entity->readNet(ReadPackage::readAll<ReadBuffer>(std::move(package)))) {
+            return false;
+        }
+    }
+    return true;
 }
