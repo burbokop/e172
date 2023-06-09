@@ -24,11 +24,23 @@ std::optional<Event> Event::deserialize(ReadBuffer &buf)
 {
     switch (buf.read<Event::Type>().value()) {
     case KeyDown:
-        return Event::keyDown(buf.read<Scancode>().value());
+        if (const auto &s = buf.read<Scancode>()) {
+            return Event::keyDown(*s);
+        } else {
+            return std::nullopt;
+        }
     case KeyUp:
-        return Event::keyUp(buf.read<Scancode>().value());
+        if (const auto &s = buf.read<Scancode>()) {
+            return Event::keyUp(*s);
+        } else {
+            return std::nullopt;
+        }
     case MouseMotion:
-        return Event::mouseMotion(buf.read<Vector>().value());
+        if (const auto &s = buf.read<Vector>()) {
+            return Event::mouseMotion(*s);
+        } else {
+            return std::nullopt;
+        }
     case Quit:
         return Event::quit();
     }

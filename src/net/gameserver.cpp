@@ -4,6 +4,8 @@
 #include "networker.h"
 #include "src/utility/package.h"
 
+#include <src/debug.h>
+
 e172::GameServer::GameServer(GameApplication &app,
                              Networker *networker,
                              const std::shared_ptr<Server> &server,
@@ -37,7 +39,7 @@ void e172::GameServer::sync()
     }
 
     for (const auto &e : m_app.entities()) {
-        if (e->anyNetSyncDirty()) {
+        if (e->needSyncNet()) {
             const auto id = e->entityId();
             WriteBuffer buf;
             e->writeNet(buf);
@@ -58,7 +60,9 @@ void e172::GameServer::sync()
         while (auto package = ReadPackage::pull(*s, [this](ReadPackage package) {
                    switch (GamePackageType(package.type())) {
                    case GamePackageType::Event:
-                       processEventPackage(std::move(package));
+                       if (!processEventPackage(std::move(package))) {
+                           Debug::warning("Event package processing failed");
+                       }
                        break;
                    default:
                        throw UnknownPackageTypeException(package.type());
@@ -99,9 +103,13 @@ void e172::GameServer::refreshSockets()
     }
 }
 
-void e172::GameServer::processEventPackage(ReadPackage &&package)
+bool e172::GameServer::processEventPackage(ReadPackage &&package)
 {
     const auto playerId = package.read<PackedPlayerId>();
-    m_eventQueue.push(
-        Event::deserializeConsume(ReadPackage::readAll<ReadBuffer>(std::move(package))).value());
+    if (const auto event = Event::deserializeConsume(
+            ReadPackage::readAll<ReadBuffer>(std::move(package)))) {
+        m_eventQueue.push(*event);
+        return true;
+    }
+    return false;
 }

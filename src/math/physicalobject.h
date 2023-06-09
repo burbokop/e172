@@ -6,8 +6,12 @@
 
 namespace e172 {
 
+class Entity;
+
 class PhysicalObject
 {
+    friend Entity;
+
 public:
     PhysicalObject();
 
@@ -82,26 +86,24 @@ public:
 
     static Proximity nodesProximity(const ConnectionNode &node0, const ConnectionNode &node1);
 
-    double mass() const;
+    double mass() const { return m_mass; }
     void setMass(double mass);
-    double friction() const;
+    double friction() const { return m_friction; }
     void setFriction(double friction);
 
     void proceedPhysics(double deltaTime);
 
-    Matrix rotationMatrix() const;
+    Matrix rotationMatrix() const { return m_rotationMatrix; }
     void blockFrictionPerTick();
-
-    bool writeNet(WriteBuffer &buf);
-    bool readNet(ReadBuffer &buf);
 
 private:
     Kinematics<double> m_rotationKinematics;
     Kinematics<Vector> m_positionKinematics;
     double m_mass = 1;
     double m_friction = 1;
-    Matrix m_rotationMatrix;
+    Matrix m_rotationMatrix = Matrix::identity();
     bool m_blockFrictionPerTick = false;
+    bool m_needSyncNet = true;
 };
 
 } // namespace e172

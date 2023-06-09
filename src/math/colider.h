@@ -32,7 +32,7 @@ private:
     std::vector<PositionalVector> m_projections;
     std::vector<PositionalVector> m_escapeVectors;
     Vector m_collisionPoint;
-    Matrix m_matrix;
+    Matrix m_matrix = Matrix::identity();
     Vector m_position;
 
     size_t m_collisionCount = 0;

@@ -14,11 +14,14 @@ class AbstractNetSync;
 class GameApplication;
 class WriteBuffer;
 class ReadBuffer;
+class PhysicalObject;
+class GameClient;
 
 class Entity : public Object
 {
     friend GameApplication;
     friend AbstractNetSync;
+    friend GameClient;
 
 public:
     using Id = std::size_t;
@@ -33,6 +36,7 @@ public:
     virtual void render(AbstractRenderer *renderer) = 0;
     virtual void writeNet(WriteBuffer &buf);
     virtual bool readNet(ReadBuffer &&buf);
+    virtual bool needSyncNet() const;
 
     Id entityId() const { return m_entityId; }
     StringSet tags() const { return m_tags; }
@@ -46,11 +50,14 @@ public:
     int64_t depth() const { return m_depth; }
     void setDepth(const int64_t &depth) { m_depth = depth; }
 
-    bool anyNetSyncDirty() const;
     const Meta &meta() const { return m_meta; };
 
 private:
     void installNetSync(AbstractNetSync *s) { m_netSyncs.push_back(s); }
+
+    static void writePhysicsToNet(PhysicalObject &po, WriteBuffer &buf);
+    static bool readPhysicsFromNet(PhysicalObject &po, ReadBuffer &buf);
+    static bool physicsNeedSyncNet(const PhysicalObject &po);
 
 private:
     Meta m_meta;

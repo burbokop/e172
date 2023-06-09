@@ -1,20 +1,84 @@
-#ifndef LKINEMATICS_H
-#define LKINEMATICS_H
+#pragma once
 
-#include <type_traits>
+#include "../utility/buffer.h"
 #include <functional>
-
-#include "../sfinae.h"
+#include <type_traits>
 
 namespace e172 {
+
+template<typename T>
+concept Length = requires(const T v) {
+    {
+        v.length()
+    } -> std::convertible_to<double>;
+};
+
+template<typename T>
+concept MathModule = requires(const T v) {
+    {
+        v.module()
+    } -> std::convertible_to<double>;
+};
 
 double eFunction(double x, double c);
 
 template<typename T>
 class Kinematics {
-    template<typename VT>
-    static constexpr VT initValue() {
-        if constexpr(std::is_integral<VT>::value) {
+public:
+    Kinematics() = default;
+
+    void addAcceleration(T value) { m_acceleration += value; }
+
+    void addLimitedAcceleration(T value, double maxVelocity)
+        requires std::is_arithmetic<T>::value || Length<T> || MathModule<T>
+    {
+        if constexpr (std::is_arithmetic<T>::value) {
+            addAcceleration(eFunction(m_velocity, maxVelocity) * value);
+        } else if constexpr (Length<T>) {
+            addAcceleration(eFunction(m_velocity.length(), maxVelocity) * value);
+        } else {
+            addAcceleration(eFunction(m_velocity.module(), maxVelocity) * value);
+        }
+    }
+
+    void addFriction(double coeficient);
+    void addLimitedFriction(double maxVelocity, double coeficient);
+    void accept(double deltaTime);
+    T value() const { return m_value; }
+    T velocity() const { return m_velocity; }
+    T acceleration() const { return m_acceleration; }
+
+    std::function<T(const T &)> valueProcessor() const { return m_valueProcessor; }
+    void setValueProcessor(const std::function<T(const T &)> &valueProcessor)
+    {
+        m_valueProcessor = valueProcessor;
+    }
+
+    void setVelocity(const T &value) { m_velocity = value; }
+    void setValue(const T &value) { m_value = value; }
+
+    void serialize(WriteBuffer &buf) const
+        requires Serialize<T>
+    {
+        buf.write(m_value);
+        buf.write(m_velocity);
+        buf.write(m_acceleration);
+    }
+
+    bool deserializeAssign(ReadBuffer &buf)
+        requires Deserialize<T>
+    {
+        e172_chainingAssignOrElse(m_value, buf.read<T>(), false);
+        e172_chainingAssignOrElse(m_velocity, buf.read<T>(), false);
+        e172_chainingAssignOrElse(m_acceleration, buf.read<T>(), false);
+        return true;
+    }
+
+private:
+    template<typename V>
+    static constexpr V initValue()
+    {
+        if constexpr (std::is_integral<V>::value) {
             return 0;
         } else {
             return T();
@@ -25,62 +89,8 @@ class Kinematics {
     T m_velocity = initValue<T>();
     T m_acceleration = initValue<T>();
 
-    std::function<T(const T&)> m_valueProcessor;
-
-    E172_SFINAE_METHOD_CHECKER(length)
-    E172_SFINAE_METHOD_CHECKER(module)
-
-public:
-    Kinematics();
-    void addAcceleration(T value);
-    void addLimitedAcceleration(T value, double maxVelocity);
-    void addFriction(double coeficient);
-    void addLimitedFriction(double maxVelocity, double coeficient);
-    void accept(double deltaTime);
-    T value() const;
-    T velocity() const;
-    T acceleration() const;
-    std::function<T (const T&)> valueProcessor() const;
-
-    void setValueProcessor(const std::function<T (const T&)> &valueProcessor);
-    void setVelocity(const T& value) { m_velocity = value; }
-    void setValue(const T& value) { m_value = value; }
+    std::function<T(const T &)> m_valueProcessor;
 };
-
-template<typename T>
-T Kinematics<T>::velocity() const { return m_velocity; }
-template<typename T>
-T Kinematics<T>::acceleration() const { return m_acceleration; }
-template<typename T>
-T Kinematics<T>::value() const { return m_value; }
-
-template<typename T>
-Kinematics<T>::Kinematics() {}
-
-template<typename T>
-void Kinematics<T>::addAcceleration(T value) {
-    m_acceleration += value;
-}
-
-template<typename T>
-void Kinematics<T>::addLimitedAcceleration(T value, double maxVelocity) {
-    if constexpr (std::is_integral<T>::value || std::is_same<T, double>::value || std::is_same<T, long double>::value) {
-        addAcceleration(eFunction(m_velocity, maxVelocity) * value);
-    } else if constexpr (has_length_method<T>::value) {
-        addAcceleration(eFunction(m_velocity.length(), maxVelocity) * value);
-    } else if constexpr (has_module_method<T>::value) {
-        addAcceleration(eFunction(m_velocity.module(), maxVelocity) * value);
-    } else {
-        static_assert (
-                std::is_integral<T>::value
-                || std::is_same<T, double>::value
-                || std::is_same<T, long double>::value
-                || has_length_method<T>::value
-                || has_module_method<T>::value,
-                "Kinematics<T>::addLimitedForce: T must be number type or have 'length' or 'module' method."
-                );
-    }
-}
 
 template<typename T>
 void Kinematics<T>::addFriction(double coeficient) {
@@ -91,7 +101,6 @@ template<typename T>
 void Kinematics<T>::addLimitedFriction(double maxVelocity, double coeficient) {
     addLimitedAcceleration(m_velocity * coeficient * -1, maxVelocity);
 }
-
 
 template<typename T>
 void Kinematics<T>::accept(double deltaTime) {
@@ -105,17 +114,4 @@ void Kinematics<T>::accept(double deltaTime) {
 }
 
 
-template<typename T>
-std::function<T (const T&)> Kinematics<T>::valueProcessor() const {
-    return m_valueProcessor;
 }
-
-template<typename T>
-void Kinematics<T>::setValueProcessor(const std::function<T (const T&)> &valueProcessor) {
-    m_valueProcessor = valueProcessor;
-}
-
-
-}
-
-#endif // LKINEMATICS_H

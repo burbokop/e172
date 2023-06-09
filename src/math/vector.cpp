@@ -210,17 +210,4 @@ bool operator<(const e172::Vector &vec0, const e172::Vector &vec1) {
     return vec0.cheapModule() < vec1.cheapModule();
 }
 
-void Vector::serialize(WriteBuffer &buf) const
-{
-    buf.write(m_x);
-    buf.write(m_y);
-}
-
-std::optional<Vector> Vector::deserialize(ReadBuffer &buf)
-{
-    const auto x = buf.read<double>().value();
-    const auto y = buf.read<double>().value();
-    return Vector(x, y);
-}
-
 } // namespace e172

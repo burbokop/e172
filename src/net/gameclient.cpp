@@ -5,6 +5,7 @@
 #include "../gameapplication.h"
 #include "common.h"
 #include "networker.h"
+#include "src/debug.h"
 #include "src/utility/package.h"
 
 void e172::GameClient::sync()
@@ -38,12 +39,14 @@ void e172::GameClient::sync()
         while (auto package = ReadPackage::pull(*m_socket, [this](ReadPackage package) {
                    switch (GamePackageType(package.type())) {
                    case GamePackageType::AddEntity:
-                       processAddEntityPackage(std::move(package));
-                       // todo throw error if false
+                       if (!processAddEntityPackage(std::move(package))) {
+                           Debug::warning("AddEntity package processing failed");
+                       }
                        break;
                    case GamePackageType::SyncEntity:
-                       processSyncEntityPackage(std::move(package));
-                       // todo throw error if false
+                       if (!processSyncEntityPackage(std::move(package))) {
+                           Debug::warning("SyncEntity package processing failed");
+                       }
                        break;
                    default:
                        throw UnknownPackageTypeException(package.type());
@@ -67,6 +70,7 @@ bool e172::GameClient::processAddEntityPackage(ReadPackage &&package)
     std::cout << "processAddEntityPackage: " << *type << ", " << *id << std::endl;
 
     if (const auto &e = m_networker->m_entityFactory.create(*type)) {
+        e->m_entityId = *id;
         m_app.addEntity(e);
     } else {
         Debug::warning("GameClient::processAddEntityPackage: unknown entity type:", *type);

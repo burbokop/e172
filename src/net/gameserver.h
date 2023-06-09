@@ -36,7 +36,7 @@ protected:
 
 private:
     void refreshSockets();
-    void processEventPackage(ReadPackage &&package);
+    bool processEventPackage(ReadPackage &&package);
 
 private:
     GameApplication &m_app;

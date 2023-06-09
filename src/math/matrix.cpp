@@ -1,18 +1,6 @@
 #include "matrix.h"
 
-#include <math.h>
-
-e172::Matrix::Matrix(double value) {
-    m_a11 = value;
-    m_a22 = value;
-}
-
-e172::Vector e172::Matrix::operator*(const e172::Vector &vector) const {
-    return {
-        m_a11 * vector.x() + m_a12 * vector.y(),
-        m_a21 * vector.x() + m_a22 * vector.y()
-    };
-}
+#include <cmath>
 
 e172::Matrix e172::Matrix::fromRadians(double value) {
     Matrix m;

@@ -136,6 +136,11 @@ public:
         return b.m_data;
     }
 
+    inline friend std::ostream &operator<<(std::ostream &stream, const WriteBuffer &buf)
+    {
+        return stream << buf.m_data;
+    }
+
 private:
     Bytes m_data;
 };
@@ -226,6 +231,11 @@ public:
         return consume<T>(ReadBuffer(std::move(b)));
     }
 
+    inline friend std::ostream &operator<<(std::ostream &stream, const ReadBuffer &buf)
+    {
+        return stream << buf.m_data;
+    }
+
 private:
     template<DeserializePrimitive T>
     std::optional<T> readPrimitive()
@@ -249,3 +259,14 @@ private:
 };
 
 } // namespace e172
+
+#define e172_chainingAssignOrElse(OUTPUT, OPT, ELSE) \
+    { \
+        if (const auto &opt = OPT) { \
+            OUTPUT = *opt; \
+        } else { \
+            return ELSE; \
+        } \
+    }
+
+#define e172_chainingAssign(OUTPUT, OPT) e172_chainingAssignOrElse(OUTPUT, OPT, std::nullopt)

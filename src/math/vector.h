@@ -93,8 +93,20 @@ public:
 
     static bool moduleLessComparator(const Vector &v0, const Vector &v1);
 
-    void serialize(WriteBuffer &buf) const;
-    static std::optional<Vector> deserialize(ReadBuffer &buf);
+    void serialize(WriteBuffer &buf) const
+    {
+        buf.write(m_x);
+        buf.write(m_y);
+    }
+
+    static std::optional<Vector> deserialize(ReadBuffer &buf)
+    {
+        Vector v;
+        e172_chainingAssign(v.m_x, buf.read<double>());
+        e172_chainingAssign(v.m_y, buf.read<double>());
+        return v;
+    }
+
     static std::optional<Vector> deserializeConsume(ReadBuffer &&buf) { return deserialize(buf); }
 
 private:
