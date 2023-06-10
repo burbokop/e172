@@ -175,7 +175,7 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/conversion.h
     ${CMAKE_CURRENT_LIST_DIR}/src/consolecolor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/consolecolor.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/entityaddedobserver.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/entitylifetimeobserver.h
     ${CMAKE_CURRENT_LIST_DIR}/src/todo.h
     ${CMAKE_CURRENT_LIST_DIR}/src/meta.h
 

@@ -4,7 +4,7 @@
 #include <list>
 #include <queue>
 #include <src/abstracteventprovider.h>
-#include <src/entityaddedobserver.h>
+#include <src/entitylifetimeobserver.h>
 
 namespace e172 {
 
@@ -12,7 +12,7 @@ class ReadPackage;
 class GameApplication;
 class Networker;
 
-class GameServer : public AbstractEventProvider, public EntityAddedObserver
+class GameServer : public AbstractEventProvider, public EntityLifeTimeObserver
 {
     friend class Networker;
     struct Private
@@ -33,6 +33,7 @@ public:
     // EntityAddedObserver interface
 protected:
     void entityAdded(const e172::ptr<Entity> &) override;
+    void entityRemoved(const Entity::Id &) override;
 
 private:
     void refreshSockets();
@@ -45,6 +46,7 @@ private:
     std::list<std::shared_ptr<Socket>> m_sockets;
     std::queue<Event> m_eventQueue;
     std::queue<ptr<Entity>> m_entityAddEventQueue;
+    std::queue<Entity::Id> m_entityRemoveEventQueue;
 };
 
 } // namespace e172

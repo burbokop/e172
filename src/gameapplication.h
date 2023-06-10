@@ -23,7 +23,7 @@ class AbstractAudioProvider;
 class AbstractGraphicsProvider;
 class AssetProvider;
 class Context;
-class EntityAddedObserver;
+class EntityLifeTimeObserver;
 class GameApplication;
 
 class GameApplicationExtension {
@@ -106,9 +106,9 @@ public:
 
     void addEntity(const ptr<Entity> &entity);
 
-    void observeEntityAdded(const std::weak_ptr<EntityAddedObserver> &obs)
+    void observeEntityLifeTime(const std::weak_ptr<EntityLifeTimeObserver> &obs)
     {
-        m_entityAddedObservers.push_back(obs);
+        m_entityLifeTimeObservers.push_back(obs);
     }
 
     template<typename T>
@@ -170,6 +170,10 @@ public:
     ~GameApplication();
 
 private:
+    void emitEntityAdded(const ptr<Entity> &e);
+    void emitEntityRemoved(Entity::Id id);
+
+private:
     struct Task
     {
         bool repeat = false;
@@ -178,7 +182,7 @@ private:
     };
 
     std::list<Task> m_scheduledTasks;
-    std::list<std::weak_ptr<EntityAddedObserver>> m_entityAddedObservers;
+    std::list<std::weak_ptr<EntityLifeTimeObserver>> m_entityLifeTimeObservers;
 
     Mode m_mode = Mode::All;
 }; // namespace e172

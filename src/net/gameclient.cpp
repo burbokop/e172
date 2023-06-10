@@ -5,6 +5,7 @@
 #include "../gameapplication.h"
 #include "common.h"
 #include "networker.h"
+#include "src/context.h"
 #include "src/debug.h"
 #include "src/utility/package.h"
 
@@ -43,6 +44,11 @@ void e172::GameClient::sync()
                            Debug::warning("AddEntity package processing failed");
                        }
                        break;
+                   case GamePackageType::RemoveEntity:
+                       if (!processRemoveEntityPackage(std::move(package))) {
+                           Debug::warning("RemoveEntity package processing failed");
+                       }
+                       break;
                    case GamePackageType::SyncEntity:
                        if (!processSyncEntityPackage(std::move(package))) {
                            Debug::warning("SyncEntity package processing failed");
@@ -55,9 +61,7 @@ void e172::GameClient::sync()
         }
     }
 }
-#include <iostream>
 
-#include <src/debug.h>
 bool e172::GameClient::processAddEntityPackage(ReadPackage &&package)
 {
     assert(m_networker);
@@ -67,7 +71,6 @@ bool e172::GameClient::processAddEntityPackage(ReadPackage &&package)
     const auto id = package.read<PackedEntityId>();
     if (!id)
         return false;
-    std::cout << "processAddEntityPackage: " << *type << ", " << *id << std::endl;
 
     if (const auto &e = m_networker->m_entityFactory.create(*type)) {
         e->m_entityId = *id;
@@ -76,6 +79,16 @@ bool e172::GameClient::processAddEntityPackage(ReadPackage &&package)
         Debug::warning("GameClient::processAddEntityPackage: unknown entity type:", *type);
         return false;
     }
+    return true;
+}
+
+bool e172::GameClient::processRemoveEntityPackage(ReadPackage &&package)
+{
+    assert(m_app.context());
+    const auto id = package.read<PackedEntityId>();
+    if (!id)
+        return false;
+    m_app.context()->emitMessage(e172::Context::DESTROY_ENTITY, *id);
     return true;
 }
 

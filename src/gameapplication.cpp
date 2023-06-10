@@ -2,7 +2,7 @@
 #include "debug.h"
 #include "gameapplication.h"
 
-#include "entityaddedobserver.h"
+#include "entitylifetimeobserver.h"
 #include <iostream>
 #include <src/assettools/assetprovider.h>
 #include <src/audio/abstractaudioprovider.h>
@@ -75,10 +75,12 @@ void GameApplication::destroyAllEntities(Context *, const Variant &) {
 }
 
 void GameApplication::destroyEntity(Context*, const Variant &value) {
+    const auto id = value.toNumber<Entity::Id>();
     for(auto it = m_entities.begin(); it != m_entities.end(); ++it) {
-        if ((*it)->entityId() == value.toNumber<Entity::Id>()) {
+        if ((*it)->entityId() == id) {
             safeDestroy(*it);
             m_entities.erase(it);
+            emitEntityRemoved(id);
             return;
         }
     }
@@ -139,6 +141,32 @@ void GameApplication::proceed(const ptr<Entity> &entity,
             for(auto euf : entity->__euf) {
                 euf.first(entity.data(), context, eventHandler);
             }
+        }
+    }
+}
+
+void GameApplication::emitEntityAdded(const ptr<Entity> &e)
+{
+    auto it = m_entityLifeTimeObservers.begin();
+    while (it != m_entityLifeTimeObservers.end()) {
+        if (const auto obs = it->lock()) {
+            obs->entityAdded(e);
+            ++it;
+        } else {
+            it = m_entityLifeTimeObservers.erase(it);
+        }
+    }
+}
+
+void GameApplication::emitEntityRemoved(Entity::Id id)
+{
+    auto it = m_entityLifeTimeObservers.begin();
+    while (it != m_entityLifeTimeObservers.end()) {
+        if (const auto obs = it->lock()) {
+            obs->entityRemoved(id);
+            ++it;
+        } else {
+            it = m_entityLifeTimeObservers.erase(it);
         }
     }
 }
@@ -214,15 +242,7 @@ void GameApplication::addEntity(const ptr<Entity> &entity)
 {
     if (entity) {
         m_entities.push_back(entity);
-        auto it = m_entityAddedObservers.begin();
-        while (it != m_entityAddedObservers.end()) {
-            if (const auto obs = it->lock()) {
-                obs->entityAdded(entity);
-                ++it;
-            } else {
-                it = m_entityAddedObservers.erase(it);
-            }
-        }
+        emitEntityAdded(entity);
     }
 }
 
@@ -298,28 +318,24 @@ int GameApplication::exec() {
             m_renderDelay = measureTimer.elapsed();
         }
 
-        if (!!(m_mode & Mode::Proceed)) {
-            //AUTO ITERATOR RESET MUST BE BEFORE DESTRUCTION HANDLING
-            //if(++m_autoIterator == m_entities.end()) {
-            //    m_autoIterator = m_entities.begin();
-            //}
-            m_entities.nextCycle();
+        //AUTO ITERATOR RESET MUST BE BEFORE DESTRUCTION HANDLING
+        //if(++m_autoIterator == m_entities.end()) {
+        //    m_autoIterator = m_entities.begin();
+        //}
+        m_entities.nextCycle();
 
-            if (m_context) {
-                m_context->popMessage(Context::DESTROY_ENTITY,
-                                      this,
-                                      &GameApplication::destroyEntity);
-                m_context->popMessage(Context::DESTROY_ALL_ENTITIES,
-                                      this,
-                                      &GameApplication::destroyAllEntities);
-                m_context->popMessage(Context::DESTROY_ENTITIES_WITH_TAG,
-                                      this,
-                                      &GameApplication::destroyEntitiesWithTag);
+        if (m_context) {
+            m_context->popMessage(Context::DESTROY_ENTITY, this, &GameApplication::destroyEntity);
+            m_context->popMessage(Context::DESTROY_ALL_ENTITIES,
+                                  this,
+                                  &GameApplication::destroyAllEntities);
+            m_context->popMessage(Context::DESTROY_ENTITIES_WITH_TAG,
+                                  this,
+                                  &GameApplication::destroyEntitiesWithTag);
 
-                m_context->m_messageQueue.invokeInternalFunctions();
-                m_context->m_messageQueue.flushMessages();
-                m_context->m_deltaTime = m_deltaTimeCalculator.deltaTime();
-            }
+            m_context->m_messageQueue.invokeInternalFunctions();
+            m_context->m_messageQueue.flushMessages();
+            m_context->m_deltaTime = m_deltaTimeCalculator.deltaTime();
         }
 
         {

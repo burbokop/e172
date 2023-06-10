@@ -11,8 +11,9 @@ using PackedPlayerId = std::uint16_t;
 
 enum class GamePackageType : PackageType {
     AddEntity = 0,
-    SyncEntity = 1,
-    Event = 2,
+    RemoveEntity = 1,
+    SyncEntity = 2,
+    Event = 3,
     UserType = 0x1000
 };
 

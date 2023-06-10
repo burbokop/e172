@@ -3,7 +3,6 @@
 #include "common.h"
 #include "networker.h"
 #include "src/utility/package.h"
-
 #include <src/debug.h>
 
 e172::GameServer::GameServer(GameApplication &app,
@@ -36,6 +35,16 @@ void e172::GameServer::sync()
         }
 
         m_entityAddEventQueue.pop();
+    }
+
+    while (!m_entityRemoveEventQueue.empty()) {
+        const auto id = m_entityRemoveEventQueue.front();
+        for (const auto &s : m_sockets) {
+            WritePackage::push(*s,
+                               PackageType(GamePackageType::RemoveEntity),
+                               [id](WritePackage p) { p.write(PackedEntityId(id)); });
+        }
+        m_entityRemoveEventQueue.pop();
     }
 
     for (const auto &e : m_app.entities()) {
@@ -85,6 +94,11 @@ std::optional<e172::Event> e172::GameServer::pullEvent()
 void e172::GameServer::entityAdded(const e172::ptr<Entity> &entity)
 {
     m_entityAddEventQueue.push(entity);
+}
+
+void e172::GameServer::entityRemoved(const Entity::Id &id)
+{
+    m_entityRemoveEventQueue.push(id);
 }
 
 void e172::GameServer::refreshSockets()

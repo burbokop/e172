@@ -31,6 +31,7 @@ public:
 
 private:
     bool processAddEntityPackage(ReadPackage &&package);
+    bool processRemoveEntityPackage(ReadPackage &&package);
     bool processSyncEntityPackage(ReadPackage &&package);
 
 private:

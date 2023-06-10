@@ -29,6 +29,7 @@ public:
         }
         return 0;
     }
+
     template<typename C>
     size_t connect(C *object, void(C::*callback)(const T&)) {
         return onChanged([object, callback](const auto& v){ (object->*callback)(v); });

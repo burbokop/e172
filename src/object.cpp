@@ -8,7 +8,11 @@ bool e172::Object::liveInHeap() const {
 
 bool e172::Object::liveInSharedPtr() const
 {
-    return const_cast<Object *>(this)->shared_from_this() != std::shared_ptr<Object>();
+    try {
+        return const_cast<Object *>(this)->shared_from_this() != std::shared_ptr<Object>();
+    } catch (std::bad_weak_ptr) {
+        return false;
+    }
 }
 
 int *heap_example = new int();
