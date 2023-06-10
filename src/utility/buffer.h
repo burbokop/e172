@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/todo.h"
+#include "src/traits.h"
 #include <assert.h>
 #include <bit>
 #include <cstdint>
@@ -110,6 +111,17 @@ public:
         }
     }
 
+    template<typename T>
+    std::size_t writeWithLoss(const std::optional<T> &v)
+        requires std::is_integral<T>::value || std::is_enum<T>::value
+    {
+        if (v) {
+            return write<T>(*v + 1);
+        } else {
+            return write<T>(0);
+        }
+    }
+
     std::size_t writeDyn(const Bytes &v)
     {
         const auto s = size();
@@ -192,9 +204,32 @@ public:
         }
     }
 
+    /**
+     * Example:
+     * .readWithLoss<std::optional<int>>()
+     */
     template<typename T>
-        std::optional<T> readDyn() requires std::is_same<T, Bytes>::value
-        || std::is_same<T, std::string>::value
+    std::optional<T> readWithLoss()
+        requires std::is_integral<typename T::value_type>::value
+                 || std::is_enum<typename T::value_type>::value
+    {
+        if (const auto v = read<typename T::value_type>()) {
+            if (*v == 0) {
+                if constexpr (IsOptional<T>::value) {
+                    return T(std::nullopt);
+                } else {
+                    todo;
+                }
+            } else {
+                return T(*v - 1);
+            }
+        }
+        return std::nullopt;
+    }
+
+    template<typename T>
+    std::optional<T> readDyn()
+        requires std::is_same<T, Bytes>::value || std::is_same<T, std::string>::value
     {
         if (const auto size = read<std::uint32_t>()) {
             if (const auto dynData = read(*size)) {

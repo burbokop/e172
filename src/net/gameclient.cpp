@@ -20,25 +20,29 @@ void e172::GameClient::sync()
         auto eventProvider = m_app.eventProvider();
         assert(eventProvider);
 
-        while (auto event = eventProvider->pullEvent()) {
-            if (event->type() == Event::Quit) {
-                m_app.quitLater();
-                return;
-            }
+        if (m_clientId) {
+            while (auto event = eventProvider->pullEvent()) {
+                if (event->type() == Event::Quit) {
+                    m_app.quitLater();
+                    return;
+                }
 
-            WriteBuffer buf;
-            buf.write(*event);
-            WritePackage::push(*m_socket,
-                               PackageType(GamePackageType::Event),
-                               [&buf](WritePackage p) {
-                                   p.write<PackedPlayerId>(0 /*TODO*/);
-                                   p.write(std::move(buf));
-                               });
+                WritePackage::push(*m_socket,
+                                   PackageType(GamePackageType::Event),
+                                   [this, &event](WritePackage p) {
+                                       p.write(event->claimClientId(*m_clientId));
+                                   });
+            }
+            m_socket->flush();
         }
-        m_socket->flush();
 
         while (auto package = ReadPackage::pull(*m_socket, [this](ReadPackage package) {
                    switch (GamePackageType(package.type())) {
+                   case GamePackageType::Init:
+                       if (!processInitPackage(std::move(package))) {
+                           Debug::warning("Init package processing failed");
+                       }
+                       break;
                    case GamePackageType::AddEntity:
                        if (!processAddEntityPackage(std::move(package))) {
                            Debug::warning("AddEntity package processing failed");
@@ -60,6 +64,16 @@ void e172::GameClient::sync()
                })) {
         }
     }
+}
+
+bool e172::GameClient::processInitPackage(ReadPackage &&package)
+{
+    const auto &clientId = package.read<PackedClientId>();
+    if (!clientId)
+        return false;
+
+    m_clientId = clientId;
+    return true;
 }
 
 bool e172::GameClient::processAddEntityPackage(ReadPackage &&package)

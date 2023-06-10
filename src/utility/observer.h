@@ -1,5 +1,4 @@
-#ifndef OBSERVER_H
-#define OBSERVER_H
+#pragma once
 
 #include <functional>
 #include <map>
@@ -7,21 +6,22 @@
 
 namespace e172 {
 
-template <typename T>
-class Observer {
-    struct Data {
+template<typename T>
+class Observer
+{
+    struct Data
+    {
         T value;
         size_t nextConnectionId = 0;
         std::map<size_t, std::function<void(const T&)>> callbacks;
     };
     std::shared_ptr<Data> m_data;
 public:
-    Observer() {}
-    Observer(const T& value) {
-        operator=(value);
-    }
+    [[deprecated("use Signal")]] Observer() {}
+    [[deprecated("use Signal")]] Observer(const T &value) { operator=(value); }
 
-    size_t connect(const std::function<void(const T&)> &callback) {
+    size_t connect(const std::function<void(const T &)> &callback)
+    {
         if(m_data) {
             m_data->callbacks[++m_data->nextConnectionId] = callback;
             callback(m_data->value);
@@ -31,11 +31,13 @@ public:
     }
 
     template<typename C>
-    size_t connect(C *object, void(C::*callback)(const T&)) {
+    size_t connect(C *object, void (C::*callback)(const T &))
+    {
         return onChanged([object, callback](const auto& v){ (object->*callback)(v); });
     }
 
-    bool disconnect(size_t connectionId) {
+    bool disconnect(size_t connectionId)
+    {
         if(m_data) {
             const auto it = m_data->callbacks.find(connectionId);
             if(it == m_data->callbacks.end())
@@ -47,7 +49,8 @@ public:
         return false;
     }
 
-    void operator=(const T& value) {
+    void operator=(const T &value)
+    {
         if(!m_data) {
             m_data = std::make_shared<Data>();
         }
@@ -62,7 +65,8 @@ public:
         }
     }
 
-    operator T() const {
+    operator T() const
+    {
         if(m_data)
             return m_data->value;
 
@@ -71,9 +75,6 @@ public:
     T value() const { return operator T(); };
 
     bool isValid() const { return m_data; }
-
-
-
 };
 
 template<typename K, typename V>
@@ -85,7 +86,4 @@ inline std::map<K, e172::Observer<V>> toObserverMap(const std::map<K, V> &src) {
     return result;
 }
 
-
-}
-
-#endif // OBSERVER_H
+} // namespace e172

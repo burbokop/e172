@@ -2,21 +2,25 @@
 
 namespace e172 {
 
-EventHandler::EventHandler(std::shared_ptr<AbstractEventProvider> provider)
-    : m_provider(std::move(provider))
+ClientEventHandler::ClientEventHandler()
 {
-    assert(m_provider);
-    for (size_t i = 0; i < bufferSize; i++) {
+    for (size_t i = 0; i < s_bufferSize; i++) {
         m_singlePressedKeys[i] = false;
         m_holdedKeys[i] = false;
     }
 }
 
-void EventHandler::handleEvent(const Event &event)
+EventHandler::EventHandler(std::shared_ptr<AbstractEventProvider> provider)
+    : m_provider(std::move(provider))
+{
+    assert(m_provider);
+}
+
+void ClientEventHandler::handleEvent(const Event &event)
 {
     if (event.type() == Event::KeyDown) {
         const auto scancode = event.scancode().value();
-        if (scancode < bufferSize) {
+        if (scancode < s_bufferSize) {
             m_holdedKeys[scancode] = true;
             m_singlePressedKeys[scancode] = true;
 
@@ -30,7 +34,7 @@ void EventHandler::handleEvent(const Event &event)
         }
     } else if (event.type() == Event::KeyUp) {
         const auto scancode = event.scancode().value();
-        if (scancode < bufferSize) {
+        if (scancode < s_bufferSize) {
             m_holdedKeys[scancode] = false;
         }
     } else if (event.type() == Event::MouseMotion) {
@@ -40,60 +44,63 @@ void EventHandler::handleEvent(const Event &event)
     }
 }
 
-//char AbstractEventHandler::toUpperKeySym(char c, bool upper)
-//{
-//    if (c == ',') {
-//        return '<';
-//    } else if (c == '.') {
-//        return '>';
-//    } else {
-//        return toupper(c);
-//    }
-//}
-
 bool EventHandler::exitFlag() const
 {
-    if (m_keyboardEnabled) {
-        return m_exitFlag;
-    } else {
-        return false;
+    for (auto &client : m_clients) {
+        if (client.second.exitFlag()) {
+            return true;
+        }
     }
+    return false;
 }
 
 bool EventHandler::keyHolded(e172::Scancode key) const
 {
-    if (m_keyboardEnabled && key < bufferSize)
-        return m_holdedKeys[key];
-
+    for (auto &client : m_clients) {
+        if (client.second.keyHolded(key)) {
+            return true;
+        }
+    }
     return false;
 }
 
 bool EventHandler::keySinglePressed(e172::Scancode key) const
 {
-    if (m_keyboardEnabled && key < bufferSize)
-        return m_singlePressedKeys[key];
-
+    for (auto &client : m_clients) {
+        if (client.second.keySinglePressed(key)) {
+            return true;
+        }
+    }
     return false;
 }
 
 void EventHandler::update()
 {
-    for (size_t i = 0; i < bufferSize; i++) {
-        m_singlePressedKeys[i] = false;
+    for (auto &client : m_clients) {
+        for (size_t i = 0; i < ClientEventHandler::s_bufferSize; i++) {
+            client.second.m_singlePressedKeys[i] = false;
+        }
     }
     if (m_provider) {
         while (const auto &event = m_provider->pullEvent()) {
-            handleEvent(*event);
+            m_clients[event->clientId()].handleEvent(*event);
         }
     }
 }
 
 e172::Vector EventHandler::mousePosition() const
 {
-    return m_mousePosition;
+    if (m_clients.empty())
+        return Vector();
+
+    Vector result;
+    for (auto &client : m_clients) {
+        result += client.second.mousePosition();
+    }
+    return result / m_clients.size();
 }
 
-std::string EventHandler::pullText()
+std::string ClientEventHandler::pullText()
 {
     if (m_keyboardEnabled) {
         auto result = m_textBuffer;
@@ -104,17 +111,31 @@ std::string EventHandler::pullText()
     }
 }
 
+std::string EventHandler::pullText()
+{
+    for (auto &client : m_clients) {
+        const auto text = client.second.pullText();
+        if (!text.empty()) {
+            return text;
+        }
+    }
+}
+
 void EventHandler::enableKeyboard()
 {
-    m_keyboardEnabled = true;
+    for (auto &client : m_clients) {
+        client.second.m_keyboardEnabled = true;
+    }
 }
 
 void EventHandler::disableKeyboard()
 {
-    m_keyboardEnabled = false;
+    for (auto &client : m_clients) {
+        client.second.m_keyboardEnabled = false;
+    }
 }
 
-char EventHandler::keySym(Scancode scancode, bool upper)
+char ClientEventHandler::keySym(Scancode scancode, bool upper)
 {
     switch (scancode) {
     case ScancodeUnknown:

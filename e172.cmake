@@ -135,6 +135,7 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/package.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/io.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/ringbuf.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/signal.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/eventhandler.h
     ${CMAKE_CURRENT_LIST_DIR}/src/eventhandler.cpp
@@ -178,6 +179,7 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/entitylifetimeobserver.h
     ${CMAKE_CURRENT_LIST_DIR}/src/todo.h
     ${CMAKE_CURRENT_LIST_DIR}/src/meta.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/traits.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.h
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.cpp

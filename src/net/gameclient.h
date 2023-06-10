@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.h"
 #include "socket.h"
 #include <memory>
 
@@ -30,6 +31,7 @@ public:
     void sync();
 
 private:
+    bool processInitPackage(ReadPackage &&package);
     bool processAddEntityPackage(ReadPackage &&package);
     bool processRemoveEntityPackage(ReadPackage &&package);
     bool processSyncEntityPackage(ReadPackage &&package);
@@ -38,6 +40,7 @@ private:
     GameApplication &m_app;
     Networker *m_networker = nullptr;
     std::shared_ptr<Socket> m_socket;
+    std::optional<PackedClientId> m_clientId;
 };
 
 } // namespace e172

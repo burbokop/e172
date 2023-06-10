@@ -1,5 +1,4 @@
-#ifndef TYPE_H
-#define TYPE_H
+#pragma once
 
 #if __has_include(<boost/core/demangle.hpp>)
 #include <boost/core/demangle.hpp>
@@ -40,5 +39,3 @@ public:
 
 }
 #endif
-
-#endif // TYPE_H

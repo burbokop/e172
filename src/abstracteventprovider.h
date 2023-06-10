@@ -1,9 +1,8 @@
 #pragma once
 
-#include <src/math/vector.h>
-
 #include <optional>
-
+#include <src/math/vector.h>
+#include <src/net/common.h>
 #include <src/utility/buffer.h>
 
 namespace e172 {
@@ -396,14 +395,24 @@ public:
         return Data::hasPos(m_type) ? std::optional<Vector>(m_data.pos) : std::nullopt;
     };
 
+    std::optional<PackedClientId> clientId() const { return m_clientId; }
+
     void serialize(WriteBuffer &buf) const;
     static std::optional<Event> deserialize(ReadBuffer &buf);
     static std::optional<Event> deserializeConsume(ReadBuffer &&buf) { return deserialize(buf); }
 
-    static Event keyDown(Scancode scancode) { return Event(KeyDown, Data(scancode)); }
-    static Event keyUp(Scancode scancode) { return Event(KeyUp, Data(scancode)); }
-    static Event mouseMotion(const Vector &pos) { return Event(MouseMotion, Data(pos)); }
-    static Event quit() { return Event(Quit, ScancodeUnknown); }
+    static Event keyDown(Scancode scancode) { return Event(std::nullopt, KeyDown, Data(scancode)); }
+
+    static Event keyUp(Scancode scancode) { return Event(std::nullopt, KeyUp, Data(scancode)); }
+
+    static Event mouseMotion(const Vector &pos)
+    {
+        return Event(std::nullopt, MouseMotion, Data(pos));
+    }
+
+    static Event quit() { return Event(std::nullopt, Quit, ScancodeUnknown); }
+
+    Event claimClientId(PackedClientId clientId) const { return Event(clientId, m_type, m_data); }
 
     inline friend std::ostream &operator<<(std::ostream &stream, const Event &event)
     {
@@ -421,6 +430,11 @@ public:
     }
 
 private:
+    Event withClientId(const std::optional<PackedClientId> &clientId) const
+    {
+        return Event(clientId, m_type, m_data);
+    }
+
     union Data {
         Data(Scancode s)
             : scancode(s)
@@ -437,12 +451,14 @@ private:
         Vector pos;
     };
 
-    Event(Type type, Data data)
-        : m_type(type)
+    explicit Event(const std::optional<PackedClientId> &clientId, Type type, Data data)
+        : m_clientId(clientId)
+        , m_type(type)
         , m_data(data)
     {}
 
 private:
+    std::optional<PackedClientId> m_clientId;
     Type m_type;
     Data m_data;
 };

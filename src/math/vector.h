@@ -83,6 +83,9 @@ public:
     inline double x() const { return this->m_x; }
     inline double y() const { return this->m_y; }
 
+    double &x() { return this->m_x; }
+    double &y() { return this->m_y; }
+
     inline Complex toComplex() const { return { m_x, m_y }; }
 
     size_t fractalLevel(size_t limit = 256, const ComplexFunction& f = [](const Complex &x){ return x * x; }) const;

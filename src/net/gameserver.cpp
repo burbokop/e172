@@ -12,7 +12,9 @@ e172::GameServer::GameServer(GameApplication &app,
     : m_app(app)
     , m_networker(networker)
     , m_server(server)
-{}
+{
+    assert(server);
+}
 
 void e172::GameServer::sync()
 {
@@ -21,19 +23,7 @@ void e172::GameServer::sync()
 
     while (!m_entityAddEventQueue.empty()) {
         const auto &entity = m_entityAddEventQueue.front();
-        assert(entity);
-        const auto type = entity->meta().typeName();
-        const auto id = entity->entityId();
-
-        for (const auto &s : m_sockets) {
-            WritePackage::push(*s,
-                               PackageType(GamePackageType::AddEntity),
-                               [type, id](WritePackage p) {
-                                   p.writeDyn(type);
-                                   p.write(PackedEntityId(id));
-                               });
-        }
-
+        broadcastEntityAddedPackage(entity);
         m_entityAddEventQueue.pop();
     }
 
@@ -60,9 +50,12 @@ void e172::GameServer::sync()
                                        p.write(PackedEntityId(id));
                                        p.write(std::move(buf));
                                    });
-                s->flush();
             }
         }
+    }
+
+    for (const auto &s : m_sockets) {
+        s->flush();
     }
 
     for (const auto &s : m_sockets) {
@@ -113,17 +106,50 @@ void e172::GameServer::refreshSockets()
     }
 
     while (const auto conn = m_server->pullConnection()) {
+        const auto clientId = m_nextClientId++;
+        WritePackage::push(*conn, PackageType(GamePackageType::Init), [clientId](WritePackage p) {
+            p.write<PackedClientId>(clientId);
+        });
+        for (const auto &e : m_app.entities()) {
+            sendEntityAddedPackage(*conn, e);
+        }
         m_sockets.push_back(conn);
+        m_clientConnected(clientId, Private{});
     }
 }
 
 bool e172::GameServer::processEventPackage(ReadPackage &&package)
 {
-    const auto playerId = package.read<PackedPlayerId>();
     if (const auto event = Event::deserializeConsume(
             ReadPackage::readAll<ReadBuffer>(std::move(package)))) {
         m_eventQueue.push(*event);
         return true;
     }
     return false;
+}
+
+void e172::GameServer::broadcastEntityAddedPackage(const ptr<Entity> &entity)
+{
+    assert(entity);
+    const auto type = entity->meta().typeName();
+    const auto id = entity->entityId();
+
+    for (const auto &s : m_sockets) {
+        WritePackage::push(*s, PackageType(GamePackageType::AddEntity), [type, id](WritePackage p) {
+            p.writeDyn(type);
+            p.write(PackedEntityId(id));
+        });
+    }
+}
+
+void e172::GameServer::sendEntityAddedPackage(Socket &s, const ptr<Entity> &entity)
+{
+    assert(entity);
+    const auto type = entity->meta().typeName();
+    const auto id = entity->entityId();
+
+    WritePackage::push(s, PackageType(GamePackageType::AddEntity), [type, id](WritePackage p) {
+        p.writeDyn(type);
+        p.write(PackedEntityId(id));
+    });
 }

@@ -7,13 +7,14 @@
 namespace e172 {
 
 using PackedEntityId = std::uint64_t;
-using PackedPlayerId = std::uint16_t;
+using PackedClientId = std::uint16_t;
 
 enum class GamePackageType : PackageType {
-    AddEntity = 0,
-    RemoveEntity = 1,
-    SyncEntity = 2,
-    Event = 3,
+    Init = 0,
+    AddEntity = 1,
+    RemoveEntity = 2,
+    SyncEntity = 3,
+    Event = 4,
     UserType = 0x1000
 };
 

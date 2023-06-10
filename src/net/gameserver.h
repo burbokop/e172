@@ -1,10 +1,12 @@
 #pragma once
 
+#include "common.h"
 #include "server.h"
 #include <list>
 #include <queue>
 #include <src/abstracteventprovider.h>
 #include <src/entitylifetimeobserver.h>
+#include <src/utility/signal.h>
 
 namespace e172 {
 
@@ -26,6 +28,8 @@ public:
 
     void sync();
 
+    auto &clientConnected() { return m_clientConnected; }
+
     // AbstractEventHandler interface
 public:
     std::optional<Event> pullEvent() override;
@@ -39,6 +43,9 @@ private:
     void refreshSockets();
     bool processEventPackage(ReadPackage &&package);
 
+    void broadcastEntityAddedPackage(const ptr<Entity> &entity);
+    void sendEntityAddedPackage(Socket &s, const ptr<Entity> &entity);
+
 private:
     GameApplication &m_app;
     Networker *m_networker = nullptr;
@@ -47,6 +54,8 @@ private:
     std::queue<Event> m_eventQueue;
     std::queue<ptr<Entity>> m_entityAddEventQueue;
     std::queue<Entity::Id> m_entityRemoveEventQueue;
+    PackedClientId m_nextClientId = 0;
+    Signal<void(PackedClientId), Private> m_clientConnected;
 };
 
 } // namespace e172
