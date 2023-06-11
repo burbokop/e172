@@ -107,8 +107,13 @@ void e172::LinuxSocketImpl::flush() {}
 
 std::size_t e172::LinuxSocketImpl::bufferizeChunk()
 {
+    const auto sizeToRead = std::min(m_buf.push_ability(), s_chunkSize);
+    if (sizeToRead == 0) {
+        return 0;
+    }
+
     std::uint8_t chunk[s_chunkSize];
-    const auto size = ::read(m_fd, chunk, s_chunkSize);
+    const auto size = ::read(m_fd, chunk, sizeToRead);
     if (size < 0) {
         switch (errno) {
         case EAGAIN:

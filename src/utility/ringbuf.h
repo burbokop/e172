@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <optional>
 
+namespace e172 {
+
 template<typename T, std::size_t CAPACITY>
 struct RingBuf
 {
@@ -59,14 +61,12 @@ public:
 
     std::size_t len() const { return CAPACITY - push_ability() - 1; }
 
-    std::size_t push_ability() const
-    {
-        return (static_cast<std::intptr_t>(m_begin) - static_cast<std::intptr_t>(m_end) - 1)
-               % CAPACITY;
-    }
+    std::size_t push_ability() const { return (CAPACITY + m_begin - m_end - 1) % CAPACITY; }
 
 private:
     T m_buf[CAPACITY];
     std::size_t m_begin = 0;
     std::size_t m_end = 0;
 };
+
+} // namespace e172
