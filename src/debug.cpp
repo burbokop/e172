@@ -10,18 +10,30 @@
 
 namespace e172 {
 
+class FatalException : public std::exception
+{
+public:
+    FatalException(const std::string &message)
+        : m_message(message){};
 
+    // exception interface
+public:
+    const char *what() const noexcept override { return m_message.c_str(); }
 
-std::function<void(const std::string &, Debug::MessageType)> Debug::m_proceedMessage = [](const std::string &data, Debug::MessageType type){
-    if(type == Debug::PrintMessage) {
-        std::cout << data << std::endl;
-    } else if(type == Debug::WarningMessage) {
-        std::cerr << "\033[33m" << data << "\033[0m" << std::endl;
-    } else if(type == Debug::FatalMessage) {
-        std::cerr << data << std::endl;
-        exit(1);
-    }
+private:
+    std::string m_message;
 };
+
+std::function<void(const std::string &, Debug::MessageType)> Debug::m_proceedMessage =
+    [](const std::string &data, Debug::MessageType type) {
+        if (type == Debug::PrintMessage) {
+            std::cout << data << std::endl;
+        } else if (type == Debug::WarningMessage) {
+            std::cerr << "\033[33m" << data << "\033[0m" << std::endl;
+        } else if (type == Debug::FatalMessage) {
+            throw FatalException(data);
+        }
+    };
 
 int Debug::functionName(void *addr, std::string *fname, std::string *sname) {
 #ifdef __unix__

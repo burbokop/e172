@@ -252,7 +252,7 @@ void GameApplication::removeApplicationExtension(size_t hash) {
         m_applicationExtensions.erase(it);
 }
 
-GameApplication::GameApplication(int argc, char *argv[]) {
+GameApplication::GameApplication(int argc, const char *argv[]) {
     m_arguments = Additional::coverArgs(argc, argv);
     m_flagParser  = m_arguments;
     m_assetProvider = std::make_shared<AssetProvider>();

@@ -119,6 +119,7 @@ std::string EventHandler::pullText()
             return text;
         }
     }
+    return std::string();
 }
 
 void EventHandler::enableKeyboard()

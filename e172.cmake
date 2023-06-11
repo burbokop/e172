@@ -193,53 +193,11 @@ target_link_libraries(e172
     )
 endif (UNIX)
 
-
-
-add_executable(e172_tests
-    ${CMAKE_CURRENT_LIST_DIR}/tests/main.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/additionalspec.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/additionalspec.h
-    ${CMAKE_CURRENT_LIST_DIR}/tests/variantspec.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/variantspec.h
-    ${CMAKE_CURRENT_LIST_DIR}/tests/priorityprocedurespec.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/priorityprocedurespec.h
-    ${CMAKE_CURRENT_LIST_DIR}/tests/bufferspec.h
-    ${CMAKE_CURRENT_LIST_DIR}/tests/bufferspec.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/packagespec.h
-    ${CMAKE_CURRENT_LIST_DIR}/tests/packagespec.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/tests/ringbufspec.h
-    ${CMAKE_CURRENT_LIST_DIR}/tests/ringbufspec.cpp
-    )
-
-target_link_libraries(e172_tests
-    e172
-    )
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/utils.cmake)
 
 enable_testing()
-include(CTest)
-
-function(e172_register_tests TARGET)
-    get_target_property(TARGET_SOURCES ${TARGET} SOURCES)
-
-    foreach(SOURCE_FILE ${TARGET_SOURCES})
-        message("SOURCE_FILE: ${SOURCE_FILE}")
-
-        file(READ ${SOURCE_FILE} FILE_CONTENT)
-        STRING(REGEX REPLACE ";" "\\\\;" FILE_CONTENT "${FILE_CONTENT}")
-        STRING(REGEX REPLACE "\n" ";" FILE_CONTENT "${FILE_CONTENT}")
-
-        foreach(LINE ${FILE_CONTENT})
-            string(REGEX MATCH "e172_test\\((.*),[ ]*(.*)\\)" _ ${LINE})
-            if(CMAKE_MATCH_1 AND CMAKE_MATCH_2)
-                message("ARGS_STR: ${CMAKE_MATCH_1}:${CMAKE_MATCH_2}")
-                set(TEST_NAME "${CMAKE_MATCH_1}:${CMAKE_MATCH_2}")
-                add_test(NAME ${TEST_NAME} COMMAND ${TARGET} one ${TEST_NAME})
-            endif()
-        endforeach()
-    endforeach()
-endfunction(download_file)
-
-e172_register_tests(e172_tests)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/benches)
 
 install(TARGETS e172 DESTINATION lib)
 

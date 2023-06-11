@@ -4,7 +4,9 @@
 
 e172::FlagParser::FlagParser() {}
 
-e172::FlagParser::FlagParser(int argc, char *argv[]) : FlagParser(Additional::coverArgs(argc, argv)) {}
+e172::FlagParser::FlagParser(int argc, const char *argv[])
+    : FlagParser(Additional::coverArgs(argc, argv))
+{}
 
 e172::FlagParser::FlagParser(const std::vector<std::string> &args) {
     m_arguments = args;

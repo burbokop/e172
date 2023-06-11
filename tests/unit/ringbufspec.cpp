@@ -1,6 +1,7 @@
 #include "ringbufspec.h"
 
 #include <iomanip>
+#include <queue>
 #include <src/utility/ringbuf.h>
 
 namespace std {
@@ -157,6 +158,100 @@ void RingBufSpec::peekNotAllTest()
     std::vector<std::uint8_t> tmp(4, 0);
     e172_shouldEqual(buf.peek(tmp.data(), tmp.size()), 2);
     e172_shouldEqual(tmp, e172_initializerList(std::vector<std::uint8_t>, 1, 2, 0, 0));
+}
+
+namespace {
+template<std::size_t C>
+void streamTestWithCapacity()
+{
+    constexpr std::size_t count = 1024 * 256;
+
+    std::queue<std::uint8_t> dataToSend;
+    for (std::size_t i = 0; i < count; ++i) {
+        const std::uint32_t d = i;
+        const std::uint8_t *ptr = reinterpret_cast<const std::uint8_t *>(&d);
+        for (std::size_t j = 0; j < sizeof(std::uint32_t); ++j) {
+            dataToSend.push(ptr[j]);
+        }
+    }
+    std::vector<std::uint32_t> receivedData;
+
+    RingBuf<std::uint8_t, C> buf;
+
+    std::uint32_t nextData = 0;
+    while (receivedData.size() < count) {
+        if (!dataToSend.empty()) {
+            if (buf.push(dataToSend.front())) {
+                dataToSend.pop();
+            }
+        }
+
+        {
+            std::vector<std::uint8_t> b;
+            b.resize(sizeof(std::uint32_t));
+            if (buf.peek(b.data(), b.size()) == sizeof(std::uint32_t)) {
+                e172_shouldEqual(*reinterpret_cast<uint32_t *>(b.data()), nextData);
+            }
+        }
+
+        if (buf.len() >= sizeof(std::uint32_t)) {
+            std::vector<std::uint8_t> b;
+            b.resize(sizeof(std::uint32_t));
+            for (std::size_t i = 0; i < sizeof(std::uint32_t); ++i) {
+                b[i] = buf.pop().value();
+            }
+            const auto data = *reinterpret_cast<uint32_t *>(b.data());
+            e172_shouldEqual(data, nextData);
+            receivedData.push_back(data);
+            ++nextData;
+        }
+    }
+
+    e172_shouldEqual(receivedData.size(), count);
+    for (std::size_t i = 0; i < receivedData.size(); ++i) {
+        e172_shouldEqual(receivedData[i], i);
+    }
+}
+} // namespace
+
+void RingBufSpec::streamTestWithCapacity5()
+{
+    streamTestWithCapacity<5>();
+}
+
+void RingBufSpec::streamTestWithCapacity6()
+{
+    streamTestWithCapacity<6>();
+}
+
+void RingBufSpec::streamTestWithCapacity7()
+{
+    streamTestWithCapacity<7>();
+}
+
+void RingBufSpec::streamTestWithCapacity8()
+{
+    streamTestWithCapacity<8>();
+}
+
+void RingBufSpec::streamTestWithCapacity9()
+{
+    streamTestWithCapacity<9>();
+}
+
+void RingBufSpec::streamTestWithCapacity15()
+{
+    streamTestWithCapacity<15>();
+}
+
+void RingBufSpec::streamTestWithCapacity16()
+{
+    streamTestWithCapacity<16>();
+}
+
+void RingBufSpec::streamTestWithCapacity111()
+{
+    streamTestWithCapacity<111>();
 }
 
 } // namespace e172::tests

@@ -67,7 +67,7 @@ void e172::GameServer::sync()
                        }
                        break;
                    default:
-                       throw UnknownPackageTypeException(package.type());
+                       Debug::warning("Unknown package type:", package.type());
                    }
                })) {
         }

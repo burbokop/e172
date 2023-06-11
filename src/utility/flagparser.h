@@ -21,7 +21,7 @@ class FlagParser {
     bool containsArg(const std::string& arg) const;
 public:
     FlagParser();
-    FlagParser(int argc, char *argv[]);
+    FlagParser(int argc, const char *argv[]);
     FlagParser(const std::vector<std::string> &args);
     void registerValueFlag(const std::string& shortName, const std::string& fullName = std::string(), const std::string& description = std::string());
     void registerBoolFlag(const std::string& shortName, const std::string& fullName = std::string(), const std::string& description = std::string());

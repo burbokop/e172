@@ -17,11 +17,6 @@ class VariantSpec
 
     static void fromJsonTest0() e172_test(VariantSpec, fromJsonTest0);
     static void fromJsonTest1() e172_test(VariantSpec, fromJsonTest1);
-
-    static void banchmark() e172_test(VariantSpec, banchmark);
-
-    static std::pair<int64_t, int64_t> speedTest(size_t count);
-    static double speedTest();
 };
 
 } // namespace e172::tests

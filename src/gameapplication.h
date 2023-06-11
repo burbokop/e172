@@ -86,7 +86,7 @@ public:
     inline friend Mode operator&(Mode l, Mode r) { return Mode(int(l) & int(r)); }
     inline friend Mode operator|(Mode l, Mode r) { return Mode(int(l) & int(r)); }
 
-    GameApplication(int argc, char *argv[]);
+    GameApplication(int argc, const char *argv[]);
     void quitLater();
     int exec();
     std::vector<std::string> arguments() const;
