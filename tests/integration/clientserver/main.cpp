@@ -15,7 +15,7 @@ int withApplication(const std::function<void(GameApplication &app, e172::Network
     GameApplication app(0, nullptr);
     app.setRenderInterval(1000 / 30);
 
-    std::unique_ptr<e172::Networker> net = std::make_unique<e172::LinuxNetworkerImpl>();
+    std::unique_ptr<e172::Networker> net = std::make_unique<e172::LinuxNetworker>();
 
     net->registerEntityType<Shooter>(0);
     net->registerEntityType<Bullet>();

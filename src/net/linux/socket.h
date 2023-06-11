@@ -5,12 +5,12 @@
 
 namespace e172 {
 
-class LinuxSocketImpl : public Socket
+class LinuxSocket : public Socket
 {
 public:
-    LinuxSocketImpl(int fd);
+    LinuxSocket(int fd);
 
-    ~LinuxSocketImpl();
+    ~LinuxSocket();
 
     static void setFdNonBlockingFlag(int fd, bool nbm);
 

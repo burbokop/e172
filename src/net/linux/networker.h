@@ -4,10 +4,10 @@
 
 namespace e172 {
 
-class LinuxNetworkerImpl : public Networker
+class LinuxNetworker : public Networker
 {
 public:
-    LinuxNetworkerImpl() = default;
+    LinuxNetworker() = default;
 
     // Networker interface
 public:

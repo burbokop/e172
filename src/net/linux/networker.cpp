@@ -8,7 +8,7 @@
 
 namespace e172 {
 
-Either<Networker::Error, std::shared_ptr<Server>> LinuxNetworkerImpl::listen(uint16_t port)
+Either<Networker::Error, std::shared_ptr<Server>> LinuxNetworker::listen(uint16_t port)
 {
     const auto fd = ::socket(AF_INET, SOCK_STREAM, 0);
     if (fd == -1) {
@@ -33,10 +33,10 @@ Either<Networker::Error, std::shared_ptr<Server>> LinuxNetworkerImpl::listen(uin
     if ((::listen(fd, 5)) != 0) {
         return Left(ListenFailed);
     }
-    return Right<std::shared_ptr<Server>>(std::make_shared<LinuxServerImpl>(fd));
+    return Right<std::shared_ptr<Server>>(std::make_shared<LinuxServer>(fd));
 }
 
-Either<Networker::Error, std::shared_ptr<Socket>> e172::LinuxNetworkerImpl::connect(
+Either<Networker::Error, std::shared_ptr<Socket>> e172::LinuxNetworker::connect(
     uint16_t port, const std::string &address)
 {
     const auto fd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -58,7 +58,7 @@ Either<Networker::Error, std::shared_ptr<Socket>> e172::LinuxNetworkerImpl::conn
             return Left(UnwnownConnectionError);
         }
     }
-    return Right<std::shared_ptr<Socket>>(std::make_shared<LinuxSocketImpl>(fd));
+    return Right<std::shared_ptr<Socket>>(std::make_shared<LinuxSocket>(fd));
 }
 
 } // namespace e172

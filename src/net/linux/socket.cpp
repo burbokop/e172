@@ -32,19 +32,19 @@ private:
     int m_errnum;
 };
 
-e172::LinuxSocketImpl::LinuxSocketImpl(int fd)
+e172::LinuxSocket::LinuxSocket(int fd)
     : m_fd(fd)
 {
     assert(fd >= 0);
-    LinuxSocketImpl::setFdNonBlockingFlag(m_fd, true);
+    LinuxSocket::setFdNonBlockingFlag(m_fd, true);
 }
 
-e172::LinuxSocketImpl::~LinuxSocketImpl()
+e172::LinuxSocket::~LinuxSocket()
 {
     ::close(m_fd);
 }
 
-void e172::LinuxSocketImpl::setFdNonBlockingFlag(int fd, bool nbm)
+void e172::LinuxSocket::setFdNonBlockingFlag(int fd, bool nbm)
 {
     auto flags = fcntl(fd, F_GETFL, 0);
     if (nbm) {
@@ -55,7 +55,7 @@ void e172::LinuxSocketImpl::setFdNonBlockingFlag(int fd, bool nbm)
     fcntl(fd, F_SETFL, flags);
 }
 
-std::size_t e172::LinuxSocketImpl::bufferize()
+std::size_t e172::LinuxSocket::bufferize()
 {
     std::size_t bufferized = 0;
     while (true) {
@@ -69,12 +69,12 @@ std::size_t e172::LinuxSocketImpl::bufferize()
     return bufferized;
 }
 
-std::size_t e172::LinuxSocketImpl::bytesAvailable() const
+std::size_t e172::LinuxSocket::bytesAvailable() const
 {
     return m_buf.len();
 }
 
-std::size_t e172::LinuxSocketImpl::read(uint8_t *dst, std::size_t size)
+std::size_t e172::LinuxSocket::read(uint8_t *dst, std::size_t size)
 {
     const auto c = std::min(m_buf.len(), size);
     for (std::size_t i = 0; i < c; ++i) {
@@ -83,12 +83,12 @@ std::size_t e172::LinuxSocketImpl::read(uint8_t *dst, std::size_t size)
     return c;
 }
 
-std::size_t e172::LinuxSocketImpl::peek(Byte *dst, std::size_t size) const
+std::size_t e172::LinuxSocket::peek(Byte *dst, std::size_t size) const
 {
     return m_buf.peek(dst, size);
 }
 
-std::size_t e172::LinuxSocketImpl::write(const uint8_t *src, std::size_t size)
+std::size_t e172::LinuxSocket::write(const uint8_t *src, std::size_t size)
 {
     const auto s = ::write(m_fd, src, size);
     if (s < 0) {
@@ -103,9 +103,9 @@ std::size_t e172::LinuxSocketImpl::write(const uint8_t *src, std::size_t size)
     return s;
 }
 
-void e172::LinuxSocketImpl::flush() {}
+void e172::LinuxSocket::flush() {}
 
-std::size_t e172::LinuxSocketImpl::bufferizeChunk()
+std::size_t e172::LinuxSocket::bufferizeChunk()
 {
     const auto sizeToRead = std::min(m_buf.push_ability(), s_chunkSize);
     if (sizeToRead == 0) {

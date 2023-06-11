@@ -4,12 +4,12 @@
 
 namespace e172 {
 
-class LinuxServerImpl : public Server
+class LinuxServer : public Server
 {
 public:
-    LinuxServerImpl(int fd);
+    LinuxServer(int fd);
 
-    ~LinuxServerImpl();
+    ~LinuxServer();
 
     // Server interface
 public:
