@@ -29,6 +29,7 @@ public:
     void sync();
 
     auto &clientConnected() { return m_clientConnected; }
+    auto &clientDisconnected() { return m_clientDisconnected; }
 
     // AbstractEventHandler interface
 public:
@@ -47,15 +48,23 @@ private:
     void sendEntityAddedPackage(Socket &s, const ptr<Entity> &entity);
 
 private:
+    struct Client
+    {
+        PackedEntityId id;
+        std::shared_ptr<Socket> socket;
+    };
+
+private:
     GameApplication &m_app;
     Networker *m_networker = nullptr;
     std::shared_ptr<Server> m_server;
-    std::list<std::shared_ptr<Socket>> m_sockets;
+    std::list<Client> m_clients;
     std::queue<Event> m_eventQueue;
     std::queue<ptr<Entity>> m_entityAddEventQueue;
     std::queue<Entity::Id> m_entityRemoveEventQueue;
     PackedClientId m_nextClientId = 0;
     Signal<void(PackedClientId), Private> m_clientConnected;
+    Signal<void(PackedClientId), Private> m_clientDisconnected;
 };
 
 } // namespace e172

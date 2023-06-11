@@ -29,9 +29,9 @@ void e172::GameServer::sync()
 
     while (!m_entityRemoveEventQueue.empty()) {
         const auto id = m_entityRemoveEventQueue.front();
-        for (const auto &s : m_sockets) {
-            if (s->isConnected()) {
-                WritePackage::push(*s,
+        for (const auto &client : m_clients) {
+            if (client.socket->isConnected()) {
+                WritePackage::push(*client.socket,
                                    PackageType(GamePackageType::RemoveEntity),
                                    [id](WritePackage p) { p.write(PackedEntityId(id)); });
             }
@@ -45,9 +45,9 @@ void e172::GameServer::sync()
             WriteBuffer buf;
             e->writeNet(buf);
 
-            for (const auto &s : m_sockets) {
-                if (s->isConnected()) {
-                    WritePackage::push(*s,
+            for (const auto &client : m_clients) {
+                if (client.socket->isConnected()) {
+                    WritePackage::push(*client.socket,
                                        PackageType(GamePackageType::SyncEntity),
                                        [id, &buf](WritePackage p) {
                                            p.write(PackedEntityId(id));
@@ -58,12 +58,12 @@ void e172::GameServer::sync()
         }
     }
 
-    for (const auto &s : m_sockets) {
-        s->flush();
+    for (const auto &client : m_clients) {
+        client.socket->flush();
     }
 
-    for (const auto &s : m_sockets) {
-        while (auto package = ReadPackage::pull(*s, [this](ReadPackage package) {
+    for (const auto &client : m_clients) {
+        while (auto package = ReadPackage::pull(*client.socket, [this](ReadPackage package) {
                    switch (GamePackageType(package.type())) {
                    case GamePackageType::Event:
                        if (!processEventPackage(std::move(package))) {
@@ -100,12 +100,14 @@ void e172::GameServer::entityRemoved(const Entity::Id &id)
 
 void e172::GameServer::refreshSockets()
 {
-    auto it = m_sockets.begin();
-    while (it != m_sockets.end()) {
-        if ((*it)->isConnected()) {
+    auto it = m_clients.begin();
+    while (it != m_clients.end()) {
+        if (it->socket->isConnected()) {
             ++it;
         } else {
-            it = m_sockets.erase(it);
+            const auto id = it->id;
+            it = m_clients.erase(it);
+            m_clientDisconnected(id, Private{});
         }
     }
 
@@ -119,7 +121,7 @@ void e172::GameServer::refreshSockets()
         for (const auto &e : m_app.entities()) {
             sendEntityAddedPackage(*conn, e);
         }
-        m_sockets.push_back(conn);
+        m_clients.push_back(Client{.id = clientId, .socket = conn});
         m_clientConnected(clientId, Private{});
     }
 }
@@ -140,9 +142,9 @@ void e172::GameServer::broadcastEntityAddedPackage(const ptr<Entity> &entity)
     const auto type = entity->meta().typeName();
     const auto id = entity->entityId();
 
-    for (const auto &s : m_sockets) {
-        if (s->isConnected()) {
-            WritePackage::push(*s,
+    for (const auto &client : m_clients) {
+        if (client.socket->isConnected()) {
+            WritePackage::push(*client.socket,
                                PackageType(GamePackageType::AddEntity),
                                [type, id](WritePackage p) {
                                    p.writeDyn(type);
