@@ -85,13 +85,15 @@ add_library(e172 SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/net/gameclient.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/net/netsync.h
     ${CMAKE_CURRENT_LIST_DIR}/src/net/common.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/socketimpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/socketimpl.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/networkerimpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/networkerimpl.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/serverimpl.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/net/impl/linux/serverimpl.cpp
-
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/linux/socket.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/linux/socket.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/linux/networker.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/linux/networker.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/linux/server.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/linux/server.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/mem/socket.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/mem/server.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/net/mem/networker.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/vectorproxy.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/vectorproxy.h

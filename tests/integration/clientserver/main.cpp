@@ -1,6 +1,6 @@
 #include "bullet.h"
 #include "shooter.h"
-#include "src/net/impl/linux/networkerimpl.h"
+#include "src/net/linux/networker.h"
 #include <signal.h>
 #include <src/gameapplication.h>
 #include <src/testing.h>
@@ -9,29 +9,6 @@
 namespace e172::integration {
 
 constexpr std::uint16_t port = 2363;
-
-class MocEventProvider : public AbstractEventProvider
-{
-public:
-    MocEventProvider() = default;
-    void pushEvent(const Event &event) { m_queue.push(event); }
-
-    // AbstractEventProvider interface
-public:
-    std::optional<Event> pullEvent() override
-    {
-        if (m_queue.empty()) {
-            return std::nullopt;
-        } else {
-            const auto e = m_queue.front();
-            m_queue.pop();
-            return e;
-        }
-    }
-
-private:
-    std::queue<Event> m_queue;
-};
 
 int withApplication(const std::function<void(GameApplication &app, e172::Networker &)> &f)
 {
@@ -72,7 +49,7 @@ void ClientServerSpec::test0()
     const auto result = withApplication([&shots](GameApplication &app, Networker &net) {
         auto client = net.connect(app, port).unwrap();
         app.setMode(e172::GameApplication::Mode::Render);
-        auto eventProvider = std::make_shared<MocEventProvider>();
+        auto eventProvider = std::make_shared<MemEventProvider>();
         app.setEventProvider(eventProvider);
         app.scheduleRepeated(1000 / 30, [client] { client->sync(); });
 

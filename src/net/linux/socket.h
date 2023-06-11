@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../socket.h"
+#include "../socket.h"
 #include "src/utility/ringbuf.h"
 
 namespace e172 {

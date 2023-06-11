@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../server.h"
+#include "../server.h"
 
 namespace e172 {
 

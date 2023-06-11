@@ -1,14 +1,7 @@
-#include "serverimpl.h"
-#include "socketimpl.h"
+#include "server.h"
 
-#include <arpa/inet.h>
+#include "socket.h"
 #include <netdb.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
-#include <sys/socket.h>
-#include <unistd.h>
 
 std::shared_ptr<e172::Socket> e172::LinuxServerImpl::pullConnection()
 {

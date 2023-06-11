@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <queue>
 #include <src/math/vector.h>
 #include <src/net/common.h>
 #include <src/utility/buffer.h>
@@ -471,6 +472,33 @@ public:
     virtual std::optional<Event> pullEvent() = 0;
 
     virtual ~AbstractEventProvider() = default;
+};
+
+/**
+ * @brief The MemEventProvider class provides events from application memory
+ * Can be used as stub in tests or proxy to be connected to another event system
+ */
+class MemEventProvider : public AbstractEventProvider
+{
+public:
+    MemEventProvider() = default;
+    void pushEvent(const Event &event) { m_queue.push(event); }
+
+    // AbstractEventProvider interface
+public:
+    std::optional<Event> pullEvent() override
+    {
+        if (m_queue.empty()) {
+            return std::nullopt;
+        } else {
+            const auto e = m_queue.front();
+            m_queue.pop();
+            return e;
+        }
+    }
+
+private:
+    std::queue<Event> m_queue;
 };
 
 } // namespace e172
