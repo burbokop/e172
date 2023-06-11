@@ -11,8 +11,8 @@
 
 namespace e172 {
 
-typedef std::complex<double> Complex;
-typedef std::function<Complex(const Complex&)> ComplexFunction;
+using Complex = std::complex<double>;
+using ComplexFunction = std::function<Complex(const Complex &)>;
 
 class Vector {
 public:
