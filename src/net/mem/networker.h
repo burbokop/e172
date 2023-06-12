@@ -6,6 +6,10 @@
 
 namespace e172 {
 
+/**
+ * @brief The MemNetworker class implements internal application memory communication server/socket layer
+ * Can be used for tests or to simulate some real communication
+ */
 class MemNetworker : public Networker
 {
 public:

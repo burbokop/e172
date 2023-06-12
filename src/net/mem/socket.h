@@ -7,6 +7,10 @@
 
 namespace e172 {
 
+/**
+ * @brief The MemSocket class implements communucation through internal application memory
+ * Can be used for tests or to simulate some real communication
+ */
 class MemSocket : public Socket
 {
 public:

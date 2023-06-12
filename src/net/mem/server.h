@@ -5,6 +5,10 @@
 
 namespace e172 {
 
+/**
+ * @brief The MemServer class implements communucation through internal application memory
+ * Can be used for tests or to simulate some real communication
+ */
 class MemServer : public Server
 {
 public:

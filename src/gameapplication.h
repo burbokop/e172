@@ -53,6 +53,7 @@ class GameApplication
 
     DeltaTimeCalculator m_deltaTimeCalculator;
     ElapsedTimer m_renderTimer;
+    ElapsedTimer m_proceedTimer;
     ElapsedTimer::time_t m_proceedDelay = 0;
     ElapsedTimer::time_t m_renderDelay = 0;
 
@@ -102,7 +103,8 @@ public:
     bool containsFlag(const std::string &shortName) const;
     Variant flag(const std::string &shortName) const;
 
-    void setRenderInterval(ElapsedTimer::time_t interval);
+    void setRenderInterval(ElapsedTimer::time_t interval) { m_renderTimer = interval; }
+    void setProccedInterval(ElapsedTimer::time_t interval) { m_proceedTimer = interval; }
 
     void addEntity(const ptr<Entity> &entity);
 

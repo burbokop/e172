@@ -18,6 +18,7 @@ bool Entity::removeTag(const String &tag)
 
 void Entity::writePhysicsToNet(PhysicalObject &po, WriteBuffer &buf)
 {
+    //std::cout << "writePhysicsToNet: " << po.m_positionKinematics.value() << std::endl;
     buf.write(po.m_rotationKinematics);
     buf.write(po.m_positionKinematics);
     buf.write(po.m_mass);

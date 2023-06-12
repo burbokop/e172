@@ -9,6 +9,10 @@
 
 namespace e172 {
 
+/**
+ * @brief The Socket class - abstract network socket
+ * To create use e172::Networker or e172::Server specific implementation 
+ */
 class Socket : public Read, public Write
 {
 public:

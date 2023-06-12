@@ -76,6 +76,15 @@ public:
     void enableKeyboard();
     void disableKeyboard();
 
+    ClientEventHandler *nulloptClient()
+    {
+        const auto it = m_clients.find(std::nullopt);
+        if (it != m_clients.end()) {
+            return &it->second;
+        }
+        return nullptr;
+    }
+
     ClientEventHandler *client(PackedClientId clientId)
     {
         const auto it = m_clients.find(clientId);

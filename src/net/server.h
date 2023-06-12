@@ -5,6 +5,10 @@
 
 namespace e172 {
 
+/**
+ * @brief The Server class - abstract network server
+ * To create use e172::Networker specific implementation
+ */
 class Server
 {
 public:

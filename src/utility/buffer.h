@@ -64,7 +64,14 @@ concept Deserialize = requires(ReadBuffer & buf, ReadBuffer &&tmpbuf)
 }
 || DeserializePrimitive<T>;
 
-constexpr void toBigEndian(Byte *p, std::size_t s)
+/**
+ * @brief flipEndian - inverts bytes `p` with size `s` if current platform endian is little
+ * If you write it means "to big endian"
+ * If you read it means "from big endian"
+ * @param p
+ * @param s
+ */
+constexpr void flipEndian(Byte *p, std::size_t s)
 {
     if constexpr (std::endian::native == std::endian::little) {
         for (std::size_t i = 0; i < s / 2; ++i) {
@@ -75,6 +82,9 @@ constexpr void toBigEndian(Byte *p, std::size_t s)
     }
 }
 
+/**
+ * @brief The WriteBuffer class provides serialization of any type into platform independent bytes
+ */
 class WriteBuffer
 {
 public:
@@ -100,7 +110,7 @@ public:
         if constexpr (SerializePrimitive<T>) {
             auto vCopy = v;
             auto ptr = reinterpret_cast<Byte *>(&vCopy);
-            toBigEndian(ptr, sizeof(T));
+            flipEndian(ptr, sizeof(T));
             const auto cnt = write(ptr, sizeof(T));
             assert(cnt == sizeof(T));
             return cnt;
@@ -157,6 +167,9 @@ private:
     Bytes m_data;
 };
 
+/**
+ * @brief The ReadBuffer class provides deserialization platform independent bytes into any type
+ */
 class ReadBuffer
 {
 public:
@@ -276,7 +289,7 @@ private:
     std::optional<T> readPrimitive()
     {
         if (bytesAvailable() >= sizeof(T)) {
-            toBigEndian(m_data.data() + m_pos, sizeof(T));
+            flipEndian(m_data.data() + m_pos, sizeof(T));
             const auto ptr = reinterpret_cast<const T *>(m_data.data() + m_pos);
             m_pos += sizeof(T);
             return *ptr;

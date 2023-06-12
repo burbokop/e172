@@ -61,6 +61,14 @@ void e172::GameServer::sync()
     }
 
     for (const auto &client : m_clients) {
+        //m_incompleatedStatistics.bytesWritenPerSecond
+        //    += WritePackage::push(*client.socket,
+        //                          PackageType(GamePackageType::SyncEntity),
+        //                          [](WritePackage p) {
+        //                              Bytes b(3000, 0);
+        //                              p.write(std::move(b));
+        //                          });
+
         client.socket->flush();
     }
 

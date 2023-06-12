@@ -10,6 +10,9 @@
 
 namespace e172 {
 
+/**
+ * @brief The Networker class abstraction under factory of servers and sockets of specific implementation
+ */
 class Networker
 {
     friend GameClient;

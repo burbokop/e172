@@ -234,10 +234,6 @@ Variant GameApplication::flag(const std::string &shortName) const {
     return m_flagParser.flag(shortName);
 }
 
-void GameApplication::setRenderInterval(ElapsedTimer::time_t interval) {
-    m_renderTimer = ElapsedTimer(interval);
-}
-
 void GameApplication::addEntity(const ptr<Entity> &entity)
 {
     if (entity) {
@@ -275,7 +271,7 @@ int GameApplication::exec() {
             m.second->proceed(this);
     }
     while (true) {
-        if (!!(m_mode & Mode::Proceed)) {
+        if (!!(m_mode & Mode::Proceed) && m_proceedTimer.check()) {
             m_deltaTimeCalculator.update();
 
             if (m_eventHandler) {

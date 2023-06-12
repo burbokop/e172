@@ -6,6 +6,9 @@
 
 namespace e172 {
 
+/**
+ * @brief The Read class - abstract read device (file, socket, pipe, ...)
+ */
 class Read
 {
 public:
@@ -53,6 +56,9 @@ public:
     }
 };
 
+/**
+ * @brief The Write class - abstract write device (file, socket, pipe, ...)
+ */
 class Write
 {
 public:

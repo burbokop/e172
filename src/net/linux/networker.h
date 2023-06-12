@@ -4,6 +4,9 @@
 
 namespace e172 {
 
+/**
+ * @brief The LinuxServer class implements linux/unix tcp socket/server layer and works as factory of servers and sockets
+ */
 class LinuxNetworker : public Networker
 {
 public:

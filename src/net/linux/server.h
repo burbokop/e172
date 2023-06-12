@@ -4,6 +4,9 @@
 
 namespace e172 {
 
+/**
+ * @brief The LinuxServer class implements linux/unix tcp server
+ */
 class LinuxServer : public Server
 {
 public:

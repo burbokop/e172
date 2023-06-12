@@ -20,8 +20,6 @@ const double e172::Math::SQRT_ROUND_LEVEL = 1000;
 const double e172::Math::SQRT_INV_ROUND_LEVEL = 1 / SQRT_ROUND_LEVEL;
 
 
-
-
 bool e172::Math::cmpf(float a, float b, float epsilon) {
     return (fabsf(a - b) < epsilon);
 }
@@ -31,8 +29,6 @@ bool e172::Math::cmpf(double a, double b, double epsilon) {
 }
 
 double e172::Math::sin(double angle) {
-    //std::cout << "SQRT: " << sqrtCache.size() << " ACOS: " << arccosCache.size() << " SIN: " << sinCache.size() << " COS: " << cosCache.size() << "\n";
-
     if(sinCache.find(angle) == sinCache.end()) {
         const double result = std::sin(angle);
         sinCache[angle] = result;
@@ -44,8 +40,6 @@ double e172::Math::sin(double angle) {
 
 
 double e172::Math::cos(double angle) {
-    //std::cout << "SQRT: " << sqrtCache.size() << " ACOS: " << arccosCache.size() << " SIN: " << sinCache.size() << " COS: " << cosCache.size() << "\n";
-
     if(cosCache.find(angle) == cosCache.end()) {
         const double result = std::cos(angle);
         cosCache[angle] = result;
@@ -56,10 +50,7 @@ double e172::Math::cos(double angle) {
 }
 
 double e172::Math::acos(double value) {
-    //std::cout << "SQRT: " << sqrtCache.size() << " ACOS: " << arccosCache.size() << " SIN: " << sinCache.size() << " COS: " << cosCache.size() << "\n";
-
     value = std::round(value * ACOS_ROUND_LEVEL) * ACOS_INV_ROUND_LEVEL;
-
     if(arccosCache.find(value) == arccosCache.end()) {
         const double result = std::acos(value);
         arccosCache[value] = result;
@@ -70,10 +61,7 @@ double e172::Math::acos(double value) {
 }
 
 double e172::Math::sqrt(double value) {
-    //std::cout << "SQRT: " << sqrtCache.size() << " ACOS: " << arccosCache.size() << " SIN: " << sinCache.size() << " COS: " << cosCache.size() << "\n";
-
     value = std::round(value * SQRT_ROUND_LEVEL) * SQRT_INV_ROUND_LEVEL;
-
     if(sqrtCache.find(value) == sqrtCache.end()) {
         const double result = std::sqrt(value);
         sqrtCache[value] = result;

@@ -5,6 +5,9 @@
 
 namespace e172 {
 
+/**
+ * @brief The LinuxSocket class implements linux/unix tcp socket
+ */
 class LinuxSocket : public Socket
 {
 public:

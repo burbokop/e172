@@ -103,7 +103,12 @@ std::size_t e172::LinuxSocket::write(const uint8_t *src, std::size_t size)
     return s;
 }
 
-void e172::LinuxSocket::flush() {}
+void e172::LinuxSocket::flush()
+{
+    //if (::fsync(m_fd) < 0) {
+    //    throw LinuxSocketWriteException(errno);
+    //}
+}
 
 std::size_t e172::LinuxSocket::bufferizeChunk()
 {

@@ -38,31 +38,52 @@ class VariantRTTIObject {
     std::function<bool(VariantBaseHandle*, VariantBaseHandle*)> m_comparator;
     std::function<bool(VariantBaseHandle*, VariantBaseHandle*)> m_lessOperator;
 public:
-    inline void destruct(VariantBaseHandle* h) { if(m_destructor) m_destructor(h); }
-    inline VariantBaseHandle* copy(VariantBaseHandle* h) {
+    void destruct(VariantBaseHandle *h)
+    {
+        if (m_destructor)
+            m_destructor(h);
+    }
+
+    VariantBaseHandle *copy(VariantBaseHandle *h)
+    {
         if(m_copyConstructor)
             return m_copyConstructor(h);
         return nullptr;
     }
-    inline std::string streamValue(VariantBaseHandle* h) { if(m_streamValue) return m_streamValue(h); return ""; }
-    inline std::string toString(VariantBaseHandle* h) { if(m_stringConvertor) return m_stringConvertor(h); return ""; }
-    inline bool compare(VariantBaseHandle* h0, VariantBaseHandle* h1) {
+
+    std::string streamValue(VariantBaseHandle *h)
+    {
+        if (m_streamValue)
+            return m_streamValue(h);
+        return "";
+    }
+
+    std::string toString(VariantBaseHandle *h)
+    {
+        if (m_stringConvertor)
+            return m_stringConvertor(h);
+        return "";
+    }
+
+    bool compare(VariantBaseHandle *h0, VariantBaseHandle *h1)
+    {
         if(m_comparator)
             return m_comparator(h0, h1);
         return false;
     }
-    inline bool less(VariantBaseHandle* h0, VariantBaseHandle* h1) {
+
+    bool less(VariantBaseHandle *h0, VariantBaseHandle *h1)
+    {
         if(m_lessOperator)
             return m_lessOperator(h0, h1);
         return false;
     }
-    inline auto typeName() const { return m_typeName; }
-    inline auto typeHash() const { return m_typeHash; }
+
+    auto typeName() const { return m_typeName; }
+    auto typeHash() const { return m_typeHash; }
 
     template<typename T>
     VariantRTTIObject(T&&) {
-        //typedef typename std::conditional<sfinae::CanPrintWithCout<T>::value, std::ostream, std::wostream>::type stream_type;
-
         m_destructor = [](VariantBaseHandle* obj) {
             delete dynamic_cast<VariantHandle<T>*>(obj);
         };
@@ -71,7 +92,6 @@ public:
             return new VariantHandle<T>(*casted_obj);
         };
 
-        // additional operators
         if constexpr(sfinae::StreamOperator<std::ostream, T>::value) {
             m_streamValue = [](VariantBaseHandle* obj) {
                 VariantHandle<T>* casted_obj = dynamic_cast<VariantHandle<T>*>(obj);
@@ -121,11 +141,9 @@ public:
     static VariantRTTIObject *object() { return m_object; }
 };
 
-
-
-typedef std::vector<Variant> VariantVector;
-typedef std::list<Variant> VariantList;
-typedef std::map<std::string, Variant> VariantMap;
+using VariantVector = std::vector<Variant>;
+using VariantList = std::list<Variant>;
+using VariantMap = std::map<std::string, Variant>;
 
 std::ostream &operator<<(std::ostream &stream, const VariantVector &vector);
 std::ostream &operator<<(std::ostream &stream, const VariantList &list);
