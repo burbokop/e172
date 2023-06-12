@@ -1,8 +1,7 @@
 #include "shooter.h"
+
 #include "bullet.h"
-
 #include <src/graphics/abstractrenderer.h>
-
 #include <src/context.h>
 #include <src/eventhandler.h>
 

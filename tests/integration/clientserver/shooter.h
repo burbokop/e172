@@ -1,11 +1,9 @@
 #pragma once
 
-#include "src/net/common.h"
-#include <e172/src/entity.h>
-
-#include <src/net/netsync.h>
-
+#include <src/entity.h>
 #include <src/math/physicalobject.h>
+#include <src/net/common.h>
+#include <src/net/netsync.h>
 
 namespace e172::integration {
 

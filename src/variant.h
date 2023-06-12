@@ -458,7 +458,7 @@ public:
     template<typename T>
     auto toMathVector() const
     {
-        return value_default<Vector<T>>();
+        return valueOr<Vector<T>>({});
     };
 
     std::string toString() const;

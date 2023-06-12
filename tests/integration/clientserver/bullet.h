@@ -1,6 +1,6 @@
 #pragma once
 
-#include <e172/src/entity.h>
+#include <src/entity.h>
 #include <src/math/physicalobject.h>
 #include <src/time/elapsedtimer.h>
 

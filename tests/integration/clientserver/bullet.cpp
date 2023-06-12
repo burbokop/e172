@@ -1,7 +1,6 @@
 #include "bullet.h"
 
 #include <src/context.h>
-
 #include <src/graphics/abstractrenderer.h>
 
 namespace e172::integration {
