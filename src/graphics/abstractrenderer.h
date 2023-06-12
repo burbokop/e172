@@ -1,7 +1,4 @@
-#ifndef ABSTRACTRENDERER_H
-#define ABSTRACTRENDERER_H
-
-#include <inttypes.h>
+#pragma once
 
 #include "image.h"
 #include "shapeformat.h"
@@ -12,8 +9,8 @@
 
 namespace e172 {
 
-typedef uint32_t Color;
-typedef uint8_t ColorComponent;
+using Color = uint32_t;
+using ColorComponent = uint8_t;
 
 /**
  * @brief argb
@@ -24,7 +21,8 @@ typedef uint8_t ColorComponent;
  * @return color
  * @note all arguments from 0 to 255
  */
-inline Color argb(ColorComponent alpha, ColorComponent r, ColorComponent g, ColorComponent b) {
+constexpr Color argb(ColorComponent alpha, ColorComponent r, ColorComponent g, ColorComponent b)
+{
     return (static_cast<Color>(alpha) << 24)
             | (static_cast<Color>(r) << 16)
             | (static_cast<Color>(g) << 8)
@@ -39,20 +37,32 @@ inline Color argb(ColorComponent alpha, ColorComponent r, ColorComponent g, Colo
  * @return
  * @note all arguments from 0 to 255
  */
-inline Color rgb(ColorComponent r, ColorComponent g, ColorComponent b) {
+constexpr Color rgb(ColorComponent r, ColorComponent g, ColorComponent b)
+{
     return argb(0xff, r, g, b);
 }
 
-inline ColorComponent alpha(Color color) { return color >> 24; }
+constexpr ColorComponent alpha(Color color)
+{
+    return color >> 24;
+}
 
-inline ColorComponent red(Color color) { return color >> 16; }
+constexpr ColorComponent red(Color color)
+{
+    return color >> 16;
+}
 
-inline ColorComponent green(Color color) { return color >> 8; }
+constexpr ColorComponent green(Color color)
+{
+    return color >> 8;
+}
 
-inline ColorComponent blue(Color color) { return color >> 0; }
+constexpr ColorComponent blue(Color color)
+{
+    return color >> 0;
+}
 
-Color randomColor();
-Color randomColor(unsigned int seed);
+Color randomColor(Random &random);
 
 Color blendPixels(Color top, Color bottom);
 
@@ -62,7 +72,7 @@ class AbstractRenderer {
     bool m_isValid = false;
     bool m_locked = true;
     AbstractGraphicsProvider *m_provider = nullptr;
-    Vector m_position;
+    Vector<double> m_position;
     bool m_cameraLocked = false;
     bool m_autoClear = true;
 
@@ -76,77 +86,153 @@ public:
     class Camera : public SharedContainer {
         friend AbstractRenderer;
         AbstractRenderer *m_renderer = nullptr;
-        typedef std::function<void(const Vector &)> setter_t;
-        typedef std::function<Vector()> getter_t;
+        typedef std::function<void(const Vector<double> &)> setter_t;
+        typedef std::function<Vector<double>()> getter_t;
 
         setter_t m_setter;
         getter_t m_getter;
     public:
         AbstractRenderer *renderer() const;
-        void setPosition(const Vector &position);
-        Vector position() const;
+        void setPosition(const Vector<double> &position);
+        Vector<double> position() const;
     };
 protected:
     template<typename T>
     static T imageData(const Image &image) { return image.casted_handle<T>()->c; }
     static Image::ptr imageProvider(const Image &image);
     AbstractGraphicsProvider *provider() const;
-public:
-    virtual ~AbstractRenderer();
 
+public:
+    void drawPixelShifted(const Vector<double> &point, uint32_t color)
+    {
+        drawPixel(point + offset(), color);
+    }
+
+    void drawLineShifted(const Vector<double> &point0, const Vector<double> &point1, uint32_t color)
+    {
+        drawLine(point0 + offset(), point1 + offset(), color);
+    }
+
+    void drawRectShifted(const Vector<double> &point0, const Vector<double> &point1, uint32_t color)
+    {
+        drawRect(point0 + offset(), point1 + offset(), color);
+    }
+
+    void drawSquareShifted(const Vector<double> &point, int radius, uint32_t color)
+    {
+        drawSquare(point + offset(), radius, color);
+    }
+
+    void drawCircleShifted(const Vector<double> &point, int radius, uint32_t color)
+    {
+        drawCircle(point + offset(), radius, color);
+    }
+
+    void drawDiagonalGridShifted(const Vector<double> &point0,
+                                 const Vector<double> &point1,
+                                 int interval,
+                                 uint32_t color)
+    {
+        drawDiagonalGrid(point0 + offset(), point1 + offset(), interval, color);
+    }
+
+    void drawImageShifted(const Image &image,
+                          const Vector<double> &position,
+                          double angle,
+                          double zoom)
+    {
+        drawImage(image, position + offset(), angle, zoom);
+    }
+
+    Vector<double> drawStringShifted(const std::string &string,
+                                     const Vector<double> &position,
+                                     uint32_t color,
+                                     const TextFormat &format = TextFormat())
+    {
+        return drawString(string, position + offset(), color, format);
+    }
+
+    void drawLine(const Line2d &line, uint32_t color);
+    void drawLineShifted(const Line2d &line, uint32_t color);
+
+    void drawVector(const Vector<double> &position, const Vector<double> &vector, e172::Color color);
+    void drawVectorShifted(const Vector<double> &position,
+                           const Vector<double> &vector,
+                           e172::Color color);
+
+    Vector<double> drawText(const std::string &text,
+                            const Vector<double> &position,
+                            int width,
+                            uint32_t color,
+                            const TextFormat &format = TextFormat());
+
+    Vector<double> offset() const;
+    Camera detachCamera();
+    Vector<double> cameraPosition() const;
+    bool isActive() const;
+    bool isValid() const;
+    bool autoClear() const;
+    void setAutoClear(bool autoClear);
+
+    // Virtual methods
+public:
     virtual size_t presentEffectCount() const = 0;
     virtual std::string presentEffectName(size_t index) const = 0;
     virtual void drawEffect(size_t index, const e172::VariantVector &args = e172::VariantVector()) = 0;
 
     virtual void setDepth(int64_t depth) = 0;
     virtual void fill(uint32_t color) = 0;
-    virtual void drawPixel(const Vector &point, uint32_t color) = 0;
-    virtual void drawLine(const Vector &point0, const Vector &point1, uint32_t color) = 0;
-    virtual void drawRect(const Vector &point0, const Vector &point1, uint32_t color, const ShapeFormat& format = ShapeFormat(false)) = 0;
-    virtual void drawSquare(const Vector &point, int radius, uint32_t color) = 0;
-    virtual void drawCircle(const Vector &point, int radius, uint32_t color) = 0;
-    virtual void drawDiagonalGrid(const Vector &point0, const Vector &point1, int interval, uint32_t color) = 0;
-    virtual void drawImage(const Image &image, const Vector &position, double angle, double zoom) = 0;
-    virtual Vector drawString(const std::string &string, const Vector &position, uint32_t color, const TextFormat &format = TextFormat()) = 0;
+    virtual void drawPixel(const Vector<double> &point, uint32_t color) = 0;
+    virtual void drawLine(const Vector<double> &point0, const Vector<double> &point1, uint32_t color)
+        = 0;
 
-    virtual void modify_bitmap(const std::function<void(Color* bitmap)>& modifier) = 0;
+    virtual void drawRect(const Vector<double> &point0,
+                          const Vector<double> &point1,
+                          uint32_t color,
+                          const ShapeFormat &format = ShapeFormat(false))
+        = 0;
 
-    inline void drawPixelShifted(const Vector &point, uint32_t color) { drawPixel(point + offset(), color); }
-    inline void drawLineShifted(const Vector &point0, const Vector &point1, uint32_t color) { drawLine(point0 + offset(), point1 + offset(), color); }
-    inline void drawRectShifted(const Vector &point0, const Vector &point1, uint32_t color) { drawRect(point0 + offset(), point1 + offset(), color); }
-    inline void drawSquareShifted(const Vector &point, int radius, uint32_t color) { drawSquare(point + offset(), radius, color); }
-    inline void drawCircleShifted(const Vector &point, int radius, uint32_t color) { drawCircle(point + offset(), radius, color); }
-    inline void drawDiagonalGridShifted(const Vector &point0, const Vector &point1, int interval, uint32_t color) { drawDiagonalGrid(point0 + offset(), point1 + offset(), interval, color); }
-    inline void drawImageShifted(const Image &image, const Vector &position, double angle, double zoom) { drawImage(image, position + offset(), angle, zoom); }
-    inline Vector drawStringShifted(const std::string &string, const Vector &position, uint32_t color, const TextFormat &format = TextFormat()) { return drawString(string, position + offset(), color, format); }
+    virtual void drawSquare(const Vector<double> &point, int radius, uint32_t color) = 0;
+    virtual void drawCircle(const Vector<double> &point, int radius, uint32_t color) = 0;
+    virtual void drawDiagonalGrid(const Vector<double> &point0,
+                                  const Vector<double> &point1,
+                                  int interval,
+                                  uint32_t color)
+        = 0;
 
-    void drawLine(const Line2d &line, uint32_t color);
-    void drawLineShifted(const Line2d &line, uint32_t color);
+    virtual void drawImage(const Image &image,
+                           const Vector<double> &position,
+                           double angle,
+                           double zoom)
+        = 0;
 
-    void drawVector(const e172::Vector& position, const e172::Vector& vector, e172::Color color);
-    void drawVectorShifted(const e172::Vector& position, const e172::Vector& vector, e172::Color color);
+    virtual Vector<double> drawString(const std::string &string,
+                                      const Vector<double> &position,
+                                      uint32_t color,
+                                      const TextFormat &format = TextFormat())
+        = 0;
 
-    Vector drawText(const std::string &text, const Vector &position, int width, uint32_t color, const TextFormat &format = TextFormat());
+    virtual void modifyBitmap(const std::function<void(Color *bitmap)> &modifier) = 0;
 
-    virtual void applyLensEffect(const Vector &point0, const Vector &point1, double coefficient) = 0;
-    virtual void applySmooth(const Vector &point0, const Vector &point1, double coefficient) = 0;
+    virtual void applyLensEffect(const Vector<double> &point0,
+                                 const Vector<double> &point1,
+                                 double coefficient)
+        = 0;
+
+    virtual void applySmooth(const Vector<double> &point0,
+                             const Vector<double> &point1,
+                             double coefficient)
+        = 0;
+
     virtual void enableEffect(uint64_t effect) = 0;
     virtual void disableEffect(uint64_t effect) = 0;
 
     virtual void setFullscreen(bool value) = 0;
-    virtual void setResolution(Vector value) = 0;
-    virtual Vector resolution() const = 0;
-    virtual Vector screenSize() const = 0;
+    virtual void setResolution(Vector<double> value) = 0;
+    virtual Vector<double> resolution() const = 0;
+    virtual Vector<double> screenSize() const = 0;
 
-    Vector offset() const;
-    Camera detachCamera();
-    Vector cameraPosition() const;
-    bool isActive() const;
-    bool isValid() const;
-    bool autoClear() const;
-    void setAutoClear(bool autoClear);
+    virtual ~AbstractRenderer();
 };
 
-}
-
-#endif // ABSTRACTRENDERER_H
+} // namespace e172

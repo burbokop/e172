@@ -19,24 +19,27 @@ public:
     {
         friend PhysicalObject;
     public:
-        e172::Vector position() const;
-        e172::Vector center() const;
-        e172::Vector rotatedOffset() const;
-        Vector offset() const;
+        Vector<double> position() const;
+        Vector<double> center() const;
+        Vector<double> rotatedOffset() const;
+        Vector<double> offset() const { return m_offset; }
         friend std::ostream &operator<<(std::ostream& stream, const ConnectionNode& node);
-        double rotation() const;
+        double rotation() const { return m_rotation; }
         double globalRotation() const;
         double globalInvertedRotation() const;
 
     private:
         PhysicalObject *m_object = nullptr;
-        Vector m_offset;
+        Vector<double> m_offset;
         double m_rotation;
     };
 
-    ConnectionNode connectionNode(const Vector &offset, double rotation);
+    ConnectionNode connectionNode(const Vector<double> &offset, double rotation);
 
-    void resetPhysicsProperties(e172::Vector position, double rotation, e172::Vector velocity = e172::Vector(), double rotationVelocity = 0);
+    void resetPhysicsProperties(const Vector<double> &position,
+                                double rotation,
+                                Vector<double> velocity = Vector<double>(),
+                                double rotationVelocity = 0);
 
     auto rotation() const { return m_rotationKinematics.value(); };
     auto position() const { return m_positionKinematics.value(); };
@@ -56,25 +59,35 @@ public:
 
     void addTargetRotationForse(double destinationAngle, double rotationForceModule, double maxRotationVelocity);
 
-    void addForce(const Vector& value);
+    void addForce(const Vector<double> &value);
     void addForwardForce(double module);
     void addLeftForce(double module);
     void addRightForce(double module);
 
     void addLimitedRotationForce(double value, double maxAngleVelocity);
 
-    void addLimitedForce(const Vector& value, double maxVelocity);
+    void addLimitedForce(const Vector<double> &value, double maxVelocity);
     void addLimitedForwardForce(double module, double maxVelocity);
     void addLimitedLeftForce(double module, double maxVelocity);
     void addLimitedRightForce(double module, double maxVelocity);
 
     void addPursuitForce(const PhysicalObject *object, double deltaTime);
-    void addGravityForce(const Vector &gravityCenter, double coeficient = 1);
-    void addFollowForce(const Vector &targetPoint, double maxDistance, double coeficient = 1);
-    void addRestoringForce(const Vector &destiantionPosition, double coeficient = 1);
+    void addGravityForce(const Vector<double> &gravityCenter, double coeficient = 1);
+    void addFollowForce(const Vector<double> &targetPoint,
+                        double maxDistance,
+                        double coeficient = 1);
 
-    void addDistanceRelatedForce(const Vector &destiantionPosition, double(*f)(double, double), double cryticalDistance, double coeficient = 1);
-    void addDistanceRelatedRotationForce(double destiantionAngle, double(*f)(double, double), double cryticalDistance, double coeficient = 1);
+    void addRestoringForce(const Vector<double> &destiantionPosition, double coeficient = 1);
+
+    void addDistanceRelatedForce(const Vector<double> &destiantionPosition,
+                                 double (*f)(double, double),
+                                 double cryticalDistance,
+                                 double coeficient = 1);
+
+    void addDistanceRelatedRotationForce(double destiantionAngle,
+                                         double (*f)(double, double),
+                                         double cryticalDistance,
+                                         double coeficient = 1);
 
     static void connectNodes(ConnectionNode node0, ConnectionNode node1, double coeficient = 1, double rotationCoeficient = 1);
     static void dockNodes(ConnectionNode node0, ConnectionNode node1, double coeficient = 1, double rotationCoeficient = 1);
@@ -98,7 +111,7 @@ public:
 
 private:
     Kinematics<double> m_rotationKinematics;
-    Kinematics<Vector> m_positionKinematics;
+    Kinematics<Vector<double>> m_positionKinematics;
     double m_mass = 1;
     double m_friction = 1;
     Matrix m_rotationMatrix = Matrix::identity();

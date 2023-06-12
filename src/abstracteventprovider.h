@@ -383,6 +383,7 @@ class Event
 {
 public:
     enum Type : std::uint8_t { KeyDown, KeyUp, MouseMotion, Quit };
+    using Pos = Vector<std::uint16_t>;
 
     Type type() const { return m_type; };
 
@@ -391,9 +392,9 @@ public:
         return Data::hasScancode(m_type) ? std::optional<Scancode>(m_data.scancode) : std::nullopt;
     };
 
-    std::optional<Vector> pos() const
+    std::optional<Pos> pos() const
     {
-        return Data::hasPos(m_type) ? std::optional<Vector>(m_data.pos) : std::nullopt;
+        return Data::hasPos(m_type) ? std::optional<Pos>(m_data.pos) : std::nullopt;
     };
 
     std::optional<PackedClientId> clientId() const { return m_clientId; }
@@ -406,10 +407,7 @@ public:
 
     static Event keyUp(Scancode scancode) { return Event(std::nullopt, KeyUp, Data(scancode)); }
 
-    static Event mouseMotion(const Vector &pos)
-    {
-        return Event(std::nullopt, MouseMotion, Data(pos));
-    }
+    static Event mouseMotion(const Pos &pos) { return Event(std::nullopt, MouseMotion, Data(pos)); }
 
     static Event quit() { return Event(std::nullopt, Quit, ScancodeUnknown); }
 
@@ -441,7 +439,7 @@ private:
             : scancode(s)
         {}
 
-        Data(Vector s)
+        Data(Pos s)
             : pos(s)
         {}
 
@@ -449,7 +447,7 @@ private:
         static bool hasPos(Event::Type t) { return t == MouseMotion; }
 
         Scancode scancode;
-        Vector pos;
+        Pos pos;
     };
 
     explicit Event(const std::optional<PackedClientId> &clientId, Type type, Data data)

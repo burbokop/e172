@@ -6,22 +6,48 @@
 
 namespace e172 {
 
+/**
+ * @brief The AbstractNetSync class is a abstraction under value containing in e172::Entity derived type as field and suppoused to be synchonized with network
+ */
 class AbstractNetSync
 {
     friend Entity;
 
 public:
+    /**
+     * @brief AbstractNetSync
+     * @param e - parent entity
+     */
     AbstractNetSync(Entity &e) { e.installNetSync(this); };
-    ~AbstractNetSync() = default;
+    virtual ~AbstractNetSync() = default;
 
+    /**
+     * @brief dirty
+     * @return true if value need to be synchronized
+     */
     virtual bool dirty() const = 0;
 
 protected:
+    /**
+     * @brief serialize - write value to buffer
+     */
     virtual void serialize(WriteBuffer &) const = 0;
+
+    /**
+     * @brief deserialize - read from buffer
+     * @return true if succesfully deserialized
+     */
     virtual bool deserialize(ReadBuffer &) = 0;
+
+    /**
+     * @brief wash - mark synchronized
+     */
     virtual void wash() = 0;
 };
 
+/**
+ * @brief The NetSync class - wraps T to be auto synchronized with network
+ */
 template<typename T>
 requires Serialize<T> && Deserialize<T>
     class NetSync : public AbstractNetSync

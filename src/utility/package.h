@@ -69,11 +69,12 @@ public:
 
     PackageType type() const { return m_type; };
 
-    static bool pull(Read &r, const std::function<void(ReadPackage)> &readFn)
+    static std::size_t pull(Read &r, const std::function<void(ReadPackage)> &readFn)
     {
         r.bufferize();
         if (const auto len = r.peek<PackageLen>()) {
-            if (r.bytesAvailable() >= sizeof(PackageLen) + sizeof(PackageType) + *len) {
+            const auto packageSize = sizeof(PackageLen) + sizeof(PackageType) + *len;
+            if (r.bytesAvailable() >= packageSize) {
                 const auto ok = r.read<PackageLen>();
                 assert(ok);
                 const auto type = r.read<PackageType>();
@@ -81,10 +82,10 @@ public:
                 auto result = r.read<ReadBuffer>(*len);
                 assert(result.bytesAvailable() == *len);
                 readFn(ReadPackage(type.right().value(), std::move(result)));
-                return true;
+                return packageSize;
             }
         }
-        return false;
+        return 0;
     }
 
     template<typename T>

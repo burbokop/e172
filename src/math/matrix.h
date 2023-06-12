@@ -12,7 +12,7 @@ public:
     static Matrix scale(double v) { return Matrix(v, 0, 0, v); }
     static Matrix fromRadians(double value);
 
-    Vector operator*(const Vector &vector) const
+    Vector<double> operator*(const Vector<double> &vector) const
     {
         return {m_a11 * vector.x() + m_a12 * vector.y(), m_a21 * vector.x() + m_a22 * vector.y()};
     }

@@ -1,5 +1,4 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#pragma once
 
 #include <type_traits>
 #include <memory>
@@ -54,5 +53,5 @@ private:
     bool m_liveInHeap = false;
     std::shared_ptr<bool> m_lifeInfoData = std::make_shared<bool>(true);
 };
+
 } // namespace e172
-#endif // OBJECT_H

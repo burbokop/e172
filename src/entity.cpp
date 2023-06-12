@@ -51,6 +51,7 @@ void Entity::writeNet(WriteBuffer &buf)
 {
     for (auto s : m_netSyncs) {
         s->serialize(buf);
+        s->wash();
     }
 
     if (const auto po = dynamic_cast<e172::PhysicalObject *>(this)) {

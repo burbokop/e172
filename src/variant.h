@@ -1,5 +1,4 @@
-#ifndef VARIANT_H
-#define VARIANT_H
+#pragma once
 
 #define E172_DISABLE_VARIANT_ABSTRACT_CONSTRUCTOR
 #define E172_USE_VARIANT_RTTI_OBJECT
@@ -22,10 +21,6 @@
     inline TYPE to ## NAME(bool *ok = nullptr) const { return toNumber<TYPE>(ok); }
 
 namespace e172 {
-
-
-
-
 
 struct VariantBaseHandle { virtual ~VariantBaseHandle() {}; };
 template<typename T>
@@ -227,11 +222,12 @@ public:
     }
 
     template<typename T>
-    T value_default() const {
+    T valueOr(const T &defaultValue) const
+    {
         if(containsType<T>()) {
             return dynamic_cast<VariantHandle<T>*>(m_data)->value;
         }
-        return T();
+        return defaultValue;
     }
 
     template<typename T, typename R>
@@ -364,7 +360,12 @@ public:
     Variant(const VariantMap &value) { assign(value); }
     Variant(const VariantList &value) { assign(value); }
     Variant(const VariantVector &value) { assign(value); }
-    Variant(const Vector &value) { assign(value); }
+
+    template<typename T>
+    Variant(const Vector<T> &value)
+    {
+        assign(value);
+    }
 
     Variant(double value) { assign(value); }
 
@@ -416,22 +417,31 @@ public:
 
     E172_VARIANT_NUM_CONVERTER(Size_t, size_t)
 
-    inline auto toMap() const { return value_default<VariantMap>(); };
-    inline auto toList() const {
+    auto toMap() const { return valueOr<VariantMap>({}); };
+
+    auto toList() const
+    {
         if(containsType<VariantVector>()) {
-            const auto l = value_default<VariantVector>();
+            const auto l = valueOr<VariantVector>({});
             return VariantList(l.begin(), l.end());
         }
-        return value_default<VariantList>();
+        return valueOr<VariantList>({});
     };
-    inline auto toVector() const {
+
+    auto toVector() const
+    {
         if(containsType<VariantList>()) {
-            const auto l = value_default<VariantList>();
+            const auto l = valueOr<VariantList>({});
             return VariantVector(l.begin(), l.end());
         }
-        return value_default<VariantVector>();
+        return valueOr<VariantVector>({});
     };
-    inline auto toMathVector() const { return value_default<Vector>();};
+
+    template<typename T>
+    auto toMathVector() const
+    {
+        return value_default<Vector<T>>();
+    };
 
     std::string toString() const;
     static Variant fromString(const std::string &string);
@@ -507,13 +517,4 @@ T Variant::toNumber(bool *ok) const {
     return 0;
 }
 
-
-
-
-
-
-
-
-}
-
-#endif // VARIANT_H
+} // namespace e172

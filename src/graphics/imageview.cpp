@@ -49,12 +49,12 @@ void ImageView::setRotation(double rotation)
 }
 
 
-Vector ImageView::position() const
+Vector<double> ImageView::position() const
 {
     return m_position;
 }
 
-void ImageView::setPosition(const Vector &position)
+void ImageView::setPosition(const Vector<double> &position)
 {
     m_position = position;
 }

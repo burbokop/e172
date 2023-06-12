@@ -16,7 +16,7 @@ Shooter::Shooter(e172::FactoryMeta &&meta, e172::PackedClientId id)
 void Shooter::proceed(e172::Context *context, e172::EventHandler *eventHandler)
 {
     if (auto c = eventHandler->client(m_id)) {
-        e172::Vector v;
+        e172::Vector<double> v;
         if (c->keyHolded(e172::ScancodeW)) {
             --v.y();
         } else if (c->keyHolded(e172::ScancodeS)) {
@@ -30,7 +30,8 @@ void Shooter::proceed(e172::Context *context, e172::EventHandler *eventHandler)
         addForce(v * 100);
 
         if (c->keySinglePressed(e172::ScancodeSpace)) {
-            const auto velocity = (c->mousePosition() - position()).normalized() * 100;
+            const auto velocity = (c->mousePosition().into<double>() - position()).normalized()
+                                  * 100;
             const auto bullet = e172::FactoryMeta::make<Bullet>();
             bullet->setFriction(0.15);
             bullet->resetPhysicsProperties(position(), 0, velocity);

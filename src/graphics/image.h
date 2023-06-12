@@ -1,25 +1,26 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#pragma once
 
-
-#include <functional>
-#include <inttypes.h>
 #include "../math/vector.h"
 #include "../sharedcontainer.h"
+#include <functional>
+#include <inttypes.h>
 
 namespace e172 {
+
 class Image : public SharedContainer {
     friend class AbstractGraphicsProvider;
     friend class AbstractRenderer;
 private:
-    int m_width;
-    int m_height;
+    std::size_t m_width;
+    std::size_t m_height;
 
-    typedef std::function<data_ptr(data_ptr, int, int, int&, int&)> Fragment;
+    typedef std::function<data_ptr(data_ptr, std::size_t, std::size_t, std::size_t &, std::size_t &)>
+        Fragment;
     typedef std::function<data_ptr(data_ptr, uint64_t)> Transformer;
     typedef std::function<ptr(data_ptr)> BitmapGetter;
     typedef std::function<bool(data_ptr, const std::string&)> Saver;
-    typedef std::function<data_ptr(data_ptr, data_ptr, int, int, int&, int&)> Bliter;
+    typedef std::function<data_ptr(data_ptr, data_ptr, int, int, std::size_t &, std::size_t &)>
+        Bliter;
 
     Transformer m_transformer;
     Fragment m_fragment;
@@ -28,36 +29,31 @@ private:
     Bliter m_bliter;
 
     static Image newImage(data_ptr data,
-            ptr provider,
-            int width,
-            int height,
-            Destructor destructor,
-            BitmapGetter bitmapGetter,
-            Saver saver,
-            Bliter bliter = Bliter(),
-            Fragment fragment = Fragment(),
-            Transformer transformer = Transformer()            
-            );
+                          ptr provider,
+                          std::size_t width,
+                          std::size_t height,
+                          Destructor destructor,
+                          BitmapGetter bitmapGetter,
+                          Saver saver,
+                          Bliter bliter = Bliter(),
+                          Fragment fragment = Fragment(),
+                          Transformer transformer = Transformer());
 
     void __detach();
 public:
     Image();
     Image transformed(uint64_t transformation) const;
-    Image fragment(int x, int y, int w, int h) const;
+    Image fragment(std::size_t x, std::size_t y, std::size_t w, std::size_t h) const;
     bool save(const std::string &path) const;
     Image blit(const Image& term, int x, int y) const;
     inline Image operator+(const Image& term) const { return blit(term, 0, 0); };
 
     ptr bitmap();
 
-    int width() const;
-    int height() const;
+    std::size_t width() const { return m_width; }
+    std::size_t height() const { return m_height; }
 
-    Vector size() const;
+    Vector<std::size_t> size() const { return {m_width, m_height}; }
 };
 
-
 }
-
-
-#endif // IMAGE_H

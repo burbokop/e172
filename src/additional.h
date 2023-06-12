@@ -7,7 +7,6 @@
 #include <list>
 #include <functional>
 #include <src/utility/option.h>
-#include "typedefs.h"
 
 namespace e172 {
 

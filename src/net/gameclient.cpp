@@ -27,42 +27,54 @@ void e172::GameClient::sync()
                     return;
                 }
 
-                WritePackage::push(*m_socket,
-                                   PackageType(GamePackageType::Event),
-                                   [this, &event](WritePackage p) {
-                                       p.write(event->claimClientId(*m_clientId));
-                                   });
+                m_incompleatedStatistics.bytesWritenPerSecond
+                    += WritePackage::push(*m_socket,
+                                          PackageType(GamePackageType::Event),
+                                          [this, &event](WritePackage p) {
+                                              p.write(event->claimClientId(*m_clientId));
+                                          });
             }
             m_socket->flush();
         }
 
-        while (auto package = ReadPackage::pull(*m_socket, [this](ReadPackage package) {
-                   switch (GamePackageType(package.type())) {
-                   case GamePackageType::Init:
-                       if (!processInitPackage(std::move(package))) {
-                           Debug::warning("Init package processing failed");
-                       }
-                       break;
-                   case GamePackageType::AddEntity:
-                       if (!processAddEntityPackage(std::move(package))) {
-                           Debug::warning("AddEntity package processing failed");
-                       }
-                       break;
-                   case GamePackageType::RemoveEntity:
-                       if (!processRemoveEntityPackage(std::move(package))) {
-                           Debug::warning("RemoveEntity package processing failed");
-                       }
-                       break;
-                   case GamePackageType::SyncEntity:
-                       if (!processSyncEntityPackage(std::move(package))) {
-                           Debug::warning("SyncEntity package processing failed");
-                       }
-                       break;
-                   default:
-                       Debug::warning("Unknown package type:", package.type());
-                   }
-               })) {
+        while (true) {
+            const auto size = ReadPackage::pull(*m_socket, [this](ReadPackage package) {
+                switch (GamePackageType(package.type())) {
+                case GamePackageType::Init:
+                    if (!processInitPackage(std::move(package))) {
+                        Debug::warning("Init package processing failed");
+                    }
+                    break;
+                case GamePackageType::AddEntity:
+                    if (!processAddEntityPackage(std::move(package))) {
+                        Debug::warning("AddEntity package processing failed");
+                    }
+                    break;
+                case GamePackageType::RemoveEntity:
+                    if (!processRemoveEntityPackage(std::move(package))) {
+                        Debug::warning("RemoveEntity package processing failed");
+                    }
+                    break;
+                case GamePackageType::SyncEntity:
+                    if (!processSyncEntityPackage(std::move(package))) {
+                        Debug::warning("SyncEntity package processing failed");
+                    }
+                    break;
+                default:
+                    Debug::warning("Unknown package type:", package.type());
+                }
+            });
+
+            if (size == 0) {
+                break;
+            } else {
+                m_incompleatedStatistics.bytesReadPerSecond += size;
+            }
         }
+    }
+    if (m_statisticsTimer.check()) {
+        m_statistics = m_incompleatedStatistics;
+        m_incompleatedStatistics = Statistics{.bytesWritenPerSecond = 0, .bytesReadPerSecond = 0};
     }
 }
 

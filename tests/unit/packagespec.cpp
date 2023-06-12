@@ -93,7 +93,7 @@ void PackageSpec::readPackageTest()
 {
     TestRead r(e172_initializerList(Bytes, 0, 0, 0, 7, 0, 1, 2, 0, 4, 0, 0, 0, 8));
 
-    const auto ok = ReadPackage::pull(r, [](ReadPackage p) {
+    const auto bytesRead = ReadPackage::pull(r, [](ReadPackage p) {
         e172_shouldEqual(p.type(), 1);
         e172_shouldEqual(p.bytesAvailable(), 7);
         e172_shouldEqual(p.read<std::uint8_t>().value(), 2);
@@ -103,7 +103,7 @@ void PackageSpec::readPackageTest()
         e172_shouldEqual(p.read<std::uint32_t>().value(), 8);
         e172_shouldEqual(p.bytesAvailable(), 0);
     });
-    e172_shouldEqual(ok, true);
+    e172_shouldEqual(bytesRead, 13);
 }
 
 void PackageSpec::readPackageTestFail()
@@ -111,9 +111,11 @@ void PackageSpec::readPackageTestFail()
     TestRead r(e172_initializerList(Bytes, 0, 0, 0, 7, 0, 1, 2, 0, 4, 0, 0, 0));
 
     bool closureCalled = false;
-    const auto ok = ReadPackage::pull(r, [&closureCalled](ReadPackage p) { closureCalled = true; });
+    const auto bytesRead = ReadPackage::pull(r, [&closureCalled](ReadPackage p) {
+        closureCalled = true;
+    });
 
-    e172_shouldEqual(ok, false);
+    e172_shouldEqual(bytesRead, 0);
     e172_shouldEqual(closureCalled, false);
 }
 
@@ -129,7 +131,7 @@ void PackageSpec::readWritePackageTest()
 
     TestRead r(w.data());
 
-    const auto ok = ReadPackage::pull(r, [](ReadPackage p) {
+    const auto bytesRead = ReadPackage::pull(r, [](ReadPackage p) {
         e172_shouldEqual(p.type(), 1);
         e172_shouldEqual(p.bytesAvailable(), 7);
         e172_shouldEqual(p.read<std::uint8_t>().value(), 2);
@@ -139,7 +141,7 @@ void PackageSpec::readWritePackageTest()
         e172_shouldEqual(p.read<std::uint32_t>().value(), 8);
         e172_shouldEqual(p.bytesAvailable(), 0);
     });
-    e172_shouldEqual(ok, true);
+    e172_shouldEqual(bytesRead, 13);
 }
 
 } // namespace e172::tests

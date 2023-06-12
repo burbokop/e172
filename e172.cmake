@@ -128,7 +128,6 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/shapeformat.cpp
 
     ${CMAKE_CURRENT_LIST_DIR}/src/math/math.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/math/vector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/kinematics.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/differentiator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/averagecalculator.cpp

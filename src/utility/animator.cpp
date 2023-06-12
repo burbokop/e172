@@ -47,7 +47,7 @@ void Animator::play(unsigned mode) {
 }
 
 
-void Animator::setPosition(const e172::Vector &position) {
+void Animator::setPosition(const Vector<double> &position) {
     m_position = position;
 }
 
@@ -59,7 +59,8 @@ void Animator::setZoom(double zoom) {
     m_zoom = zoom;
 }
 
-e172::Vector Animator::render(e172::AbstractRenderer *renderer) {
+e172::Vector<double> Animator::render(e172::AbstractRenderer *renderer)
+{
     if(m_isValid) {
         const auto currentFrame = m_frames[static_cast<unsigned long>(m_currentFrameIndex)];
         if (renderer != nullptr && m_mode != NotRender) {
@@ -72,9 +73,9 @@ e172::Vector Animator::render(e172::AbstractRenderer *renderer) {
             }
         }
         if(m_defaultMode != Inactive) m_mode = m_defaultMode;
-        return e172::Vector(currentFrame.width(), currentFrame.height());
+        return e172::Vector<double>(currentFrame.width(), currentFrame.height());
     }
-    return e172::Vector();
+    return e172::Vector<double>();
 }
 
 bool operator ==(const Animator &anim0, const Animator &anim1) {

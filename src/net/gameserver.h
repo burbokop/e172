@@ -6,6 +6,7 @@
 #include <queue>
 #include <src/abstracteventprovider.h>
 #include <src/entitylifetimeobserver.h>
+#include <src/time/elapsedtimer.h>
 #include <src/utility/signal.h>
 
 namespace e172 {
@@ -14,6 +15,11 @@ class ReadPackage;
 class GameApplication;
 class Networker;
 
+/**
+ * @brief The GameServer class used to make client/server application.
+ * Manages connections list. broadcusting entity states. receives events from all clients and provides them through e172::AbstractEventProvider interface
+ * Example can be found in `e172::integration::ClientServerSpec`
+ */
 class GameServer : public AbstractEventProvider, public EntityLifeTimeObserver
 {
     friend class Networker;
@@ -21,15 +27,34 @@ class GameServer : public AbstractEventProvider, public EntityLifeTimeObserver
     {};
 
 public:
+    /**
+     * @brief GameServer - private ctor. Use e172::Networker to create it
+     */
     GameServer(GameApplication &app,
                Networker *networker,
                const std::shared_ptr<Server> &server,
                Private);
 
+    /**
+     * @brief sync - synchronize with server
+     * Send all pending packages, receive and process all incoming packages.
+     * Should be called releatedly with equal intervals until disconnect
+     */
     void sync();
 
+    /**
+     * @brief clientConnected - signal emited when client connected
+     * @return signal object to make connection to it
+     */
     auto &clientConnected() { return m_clientConnected; }
+
+    /**
+     * @brief clientDisconnected - signal emited when client disconnected
+     * @return signal object to make connection to it
+     */
     auto &clientDisconnected() { return m_clientDisconnected; }
+
+    Statistics statistics() const { return m_statistics; }
 
     // AbstractEventHandler interface
 public:
@@ -65,6 +90,10 @@ private:
     PackedClientId m_nextClientId = 0;
     Signal<void(PackedClientId), Private> m_clientConnected;
     Signal<void(PackedClientId), Private> m_clientDisconnected;
+
+    Statistics m_statistics;
+    Statistics m_incompleatedStatistics;
+    ElapsedTimer m_statisticsTimer = 1000;
 };
 
 } // namespace e172

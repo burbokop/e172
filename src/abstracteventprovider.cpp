@@ -45,7 +45,7 @@ std::optional<Event> Event::deserialize(ReadBuffer &buf)
             return std::nullopt;
         }
     case MouseMotion:
-        if (const auto &s = buf.read<Vector>()) {
+        if (const auto &s = buf.read<Pos>()) {
             return Event::mouseMotion(*s).withClientId(*clientId);
         } else {
             return std::nullopt;

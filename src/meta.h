@@ -5,6 +5,9 @@
 
 namespace e172 {
 
+/**
+ * @brief The Meta class contains meta information about some other type
+ */
 class Meta
 {
 public:
@@ -17,7 +20,16 @@ public:
         return Meta(s_data<T>);
     }
 
+    /**
+     * @brief typeName
+     * @return demangled type name with namespaces
+     */
     const std::string &typeName() const { return m_data->typeName; };
+
+    /**
+     * @brief typeHash
+     * @return type hash
+     */
     size_t typeHash() const { return m_data->typeHash; };
 
     bool operator==(const Meta &rhs) const { return m_data == rhs.m_data; }
@@ -49,28 +61,58 @@ private:
     const Data *m_data = nullptr;
 };
 
+/**
+ * @brief The FactoryMeta class used to construct object injenting correct meta
+ * Example:
+ * ```
+ * class MyClass {
+ * public:
+ *     MyClass(FactoryMeta&& m) : m_meta(m.meta()) {}
+ * private:
+ *     Meta m_meta;
+ * };
+ * ...
+ * const auto mc = FactoryMeta::make<MyClass>();
+ * assert(mc.meta().typeName() == "MyClass");
+ * ```
+ */
 class FactoryMeta
 {
 public:
     FactoryMeta(const FactoryMeta &) = delete;
     FactoryMeta(FactoryMeta &&) = default;
 
+    /**
+     * @brief make - create object in heap
+     * @param args
+     * @return 
+     */
     template<typename T, typename... Args>
     static T *make(Args... args)
     {
         return new T(FactoryMeta(Meta::fromType<T>()), args...);
     }
 
+    /**
+     * @brief makeShared - create object under shared pointer
+     * @param args
+     * @return 
+     */
     template<typename T, typename... Args>
     static std::shared_ptr<T> makeShared(Args... args)
     {
         return std::make_shared<T>(FactoryMeta(Meta::fromType<T>()), args...);
     }
 
+    /**
+     * @brief makeUniq - create object under unique pointer
+     * @param args - args to pass to constructor
+     * @return
+     */
     template<typename T, typename... Args>
     static std::unique_ptr<T> makeUniq(Args... args)
     {
-        return new T(FactoryMeta(Meta::fromType<T>()), args...);
+        return std::make_unique<T>(FactoryMeta(Meta::fromType<T>()), args...);
     }
 
     const Meta &meta() const { return m_meta; };

@@ -5,22 +5,31 @@
 namespace e172 {
 
 void e172::PhysicalObject::setMass(double mass) {
+    if (e172::Math::cmpf(m_mass, mass))
+        return;
+
     m_mass = mass;
     m_needSyncNet = true;
 }
 
 void e172::PhysicalObject::setFriction(double friction) {
+    if (e172::Math::cmpf(m_friction, friction))
+        return;
+
     m_friction = friction;
     m_needSyncNet = true;
 }
 
 void e172::PhysicalObject::blockFrictionPerTick() {
+    if (m_blockFrictionPerTick)
+        return;
+
     m_blockFrictionPerTick = true;
     m_needSyncNet = true;
 }
 
-e172::PhysicalObject::ConnectionNode e172::PhysicalObject::connectionNode(const e172::Vector &offset,
-                                                                          double rotation)
+e172::PhysicalObject::ConnectionNode e172::PhysicalObject::connectionNode(
+    const Vector<double> &offset, double rotation)
 {
     ConnectionNode node;
     node.m_object = this;
@@ -29,7 +38,7 @@ e172::PhysicalObject::ConnectionNode e172::PhysicalObject::connectionNode(const 
     return node;
 }
 
-void e172::PhysicalObject::resetPhysicsProperties(e172::Vector position, double rotation, e172::Vector velocity, double rotationVelocity) {
+void e172::PhysicalObject::resetPhysicsProperties(const e172::Vector<double> &position, double rotation, e172::Vector<double> velocity, double rotationVelocity) {
     m_positionKinematics.setValue(position);
     m_positionKinematics.setVelocity(velocity);
     m_rotationKinematics.setValue(rotation);
@@ -42,7 +51,7 @@ e172::PhysicalObject::PhysicalObject() {
 }
 
 void e172::PhysicalObject::addRotationForce(double value) {
-    if(!Math::cmpf(m_mass, 0)) {
+    if (!Math::cmpf(m_mass, 0) && !Math::cmpf(value, 0)) {
         m_rotationKinematics.addAcceleration(value / m_mass);
         m_needSyncNet = true;
     }
@@ -82,46 +91,46 @@ void e172::PhysicalObject::addTargetRotationForse(double destinationAngle, doubl
     addLimitedRotationForce((static_cast<double>(Math::radiansDirection(destinationAngle, rotation())) * -2 + 1) * rotationForceModule, maxRotationVelocity);
 }
 
-void e172::PhysicalObject::addForce(const Vector& value) {
-    if(!Math::cmpf(m_mass, 0)) {
+void e172::PhysicalObject::addForce(const e172::Vector<double> &value) {
+    if (!Math::cmpf(m_mass, 0) && value != Vector<double>()) {
         m_positionKinematics.addAcceleration(value / m_mass);
         m_needSyncNet = true;
     }
 }
 
 void e172::PhysicalObject::addForwardForce(double module) {
-    addForce(m_rotationMatrix * e172::Vector { module, 0 });
+    addForce(m_rotationMatrix * Vector<double>{module, 0});
 }
 
 void e172::PhysicalObject::addLeftForce(double module) {
-    addForce(Vector::createByAngle(module, rotation() - Math::Pi / 2));
+    addForce(Vector<double>::createByAngle(module, rotation() - Math::Pi / 2));
 }
 
 void e172::PhysicalObject::addRightForce(double module) {
-    addForce(Vector::createByAngle(module, rotation() + Math::Pi / 2));
+    addForce(Vector<double>::createByAngle(module, rotation() + Math::Pi / 2));
 }
 
-void e172::PhysicalObject::addLimitedForce(const e172::Vector &value, double maxVelocity) {
-    if(!Math::cmpf(m_mass, 0)) {
+void e172::PhysicalObject::addLimitedForce(const e172::Vector<double> &value, double maxVelocity) {
+    if (!Math::cmpf(m_mass, 0) && value != Vector<double>()) {
         m_positionKinematics.addLimitedAcceleration(value / m_mass, maxVelocity);
         m_needSyncNet = true;
     }
 }
 
 void e172::PhysicalObject::addLimitedForwardForce(double module, double maxVelocity) {
-    addLimitedForce(Vector::createByAngle(module, rotation()), maxVelocity);
+    addLimitedForce(Vector<double>::createByAngle(module, rotation()), maxVelocity);
 }
 
 void e172::PhysicalObject::addLimitedLeftForce(double module, double maxVelocity) {
-    addLimitedForce(Vector::createByAngle(module, rotation() - Math::Pi / 2), maxVelocity);
+    addLimitedForce(Vector<double>::createByAngle(module, rotation() - Math::Pi / 2), maxVelocity);
 }
 
 void e172::PhysicalObject::addLimitedRightForce(double module, double maxVelocity) {
-    addLimitedForce(Vector::createByAngle(module, rotation() + Math::Pi / 2), maxVelocity);
+    addLimitedForce(Vector<double>::createByAngle(module, rotation() + Math::Pi / 2), maxVelocity);
 }
 
 void e172::PhysicalObject::addLimitedRotationForce(double value, double maxAngleVelocity) {
-    if(m_mass != Math::null) {
+    if (m_mass != Math::null && !Math::cmpf(value, 0)) {
         m_rotationKinematics.addLimitedAcceleration(value / m_mass, maxAngleVelocity);
         m_needSyncNet = true;
     }
@@ -133,13 +142,13 @@ void e172::PhysicalObject::addPursuitForce(const e172::PhysicalObject *object, d
     }
 }
 
-void e172::PhysicalObject::addGravityForce(const e172::Vector &gravityCenter, double coeficient) {
+void e172::PhysicalObject::addGravityForce(const e172::Vector<double> &gravityCenter, double coeficient) {
     const auto direction = gravityCenter - position();
     const auto r2 = direction * direction;
     addForce(direction * coeficient / r2);
 }
 
-void e172::PhysicalObject::addFollowForce(const e172::Vector &targetPoint, double maxDistance, double coeficient) {
+void e172::PhysicalObject::addFollowForce(const e172::Vector<double> &targetPoint, double maxDistance, double coeficient) {
     if(maxDistance != Math::null) {
         const auto direction = targetPoint - position();
         const auto a = (1 - direction.module() / maxDistance);
@@ -150,11 +159,11 @@ void e172::PhysicalObject::addFollowForce(const e172::Vector &targetPoint, doubl
     }
 }
 
-void e172::PhysicalObject::addRestoringForce(const e172::Vector &destiantionPosition, double coeficient) {
+void e172::PhysicalObject::addRestoringForce(const e172::Vector<double> &destiantionPosition, double coeficient) {
     addForce((destiantionPosition - position()) * coeficient);
 }
 
-void e172::PhysicalObject::addDistanceRelatedForce(const e172::Vector &destiantionPosition, double (*f)(double, double), double cryticalDistance, double coeficient) {
+void e172::PhysicalObject::addDistanceRelatedForce(const e172::Vector<double> &destiantionPosition, double (*f)(double, double), double cryticalDistance, double coeficient) {
     const auto direction = destiantionPosition - position();
     const auto module = direction.module();
     if(module != Math::null && cryticalDistance >= 0) {
@@ -237,29 +246,25 @@ void e172::PhysicalObject::proceedPhysics(double deltaTime) {
     m_positionKinematics.accept(deltaTime);
 }
 
-e172::Vector e172::PhysicalObject::ConnectionNode::position() const {
+Vector<double> e172::PhysicalObject::ConnectionNode::position() const {
     if(m_object)
         return m_object->position() + (m_object->m_rotationMatrix * m_offset);
 
-    return e172::Vector();
+    return {};
 }
 
-e172::Vector e172::PhysicalObject::ConnectionNode::center() const {
+Vector<double> e172::PhysicalObject::ConnectionNode::center() const {
     if(m_object)
         return m_object->position();
 
-    return e172::Vector();
+    return {};
 }
 
-e172::Vector e172::PhysicalObject::ConnectionNode::rotatedOffset() const {
+Vector<double> e172::PhysicalObject::ConnectionNode::rotatedOffset() const {
     if(m_object)
         return m_object->m_rotationMatrix * m_offset;
 
-    return e172::Vector();
-}
-
-e172::Vector e172::PhysicalObject::ConnectionNode::offset() const {
-    return m_offset;
+    return {};
 }
 
 double e172::PhysicalObject::ConnectionNode::globalRotation() const {
@@ -271,10 +276,6 @@ double e172::PhysicalObject::ConnectionNode::globalRotation() const {
 
 double e172::PhysicalObject::ConnectionNode::globalInvertedRotation() const {
     return Math::constrainRadians(globalRotation() + Math::Pi);
-}
-
-double e172::PhysicalObject::ConnectionNode::rotation() const {
-    return m_rotation;
 }
 
 std::ostream &operator<<(std::ostream &stream, const e172::PhysicalObject::ConnectionNode &node) {

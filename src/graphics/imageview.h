@@ -1,17 +1,14 @@
-#ifndef IMAGEVIEW_H
-#define IMAGEVIEW_H
+#pragma once
 
 #include "../entity.h"
-
 #include "image.h"
-
 #include <src/math/vector.h>
 
 namespace e172 {
 
 class ImageView : public Entity {
     Image m_image;
-    Vector m_position;
+    Vector<double> m_position;
     double m_rotation = 0;
     double m_scale = 1;
 public:
@@ -23,12 +20,11 @@ public:
     virtual void render(AbstractRenderer *renderer) override;
     Image image() const;
     void setImage(const Image &image);
-    Vector position() const;
-    void setPosition(const Vector &position);
+    Vector<double> position() const;
+    void setPosition(const Vector<double> &position);
     double rotation() const;
     void setRotation(double rotation);
     double scale() const;
     void setScale(double scale);
 };
 }
-#endif // IMAGEVIEW_H

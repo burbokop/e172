@@ -39,7 +39,7 @@ public:
     }
 
     std::string pullText();
-    Vector mousePosition() const { return m_mousePosition; }
+    Event::Pos mousePosition() const { return m_mousePosition; }
     void enableKeyboard() { m_keyboardEnabled = true; }
     void disableKeyboard() { m_keyboardEnabled = false; }
 
@@ -54,7 +54,7 @@ private:
 
     bool m_holdedKeys[s_bufferSize];
     bool m_singlePressedKeys[s_bufferSize];
-    e172::Vector m_mousePosition;
+    Event::Pos m_mousePosition;
     bool m_exitFlag = false;
     std::string m_textBuffer;
     bool m_keyboardEnabled = true;
@@ -72,7 +72,7 @@ public:
     bool keySinglePressed(Scancode key) const;
     std::string pullText();
     void update();
-    Vector mousePosition() const;
+    Event::Pos mousePosition() const;
     void enableKeyboard();
     void disableKeyboard();
 

@@ -39,19 +39,19 @@ void AbstractRenderer::drawLineShifted(const Line2d &line, uint32_t color) {
     drawLine(line.tanslated(offset()), color);
 }
 
-void AbstractRenderer::drawVector(const Vector &position, const Vector &vector, Color color) {
+void AbstractRenderer::drawVector(const Vector<double> &position, const Vector<double> &vector, Color color) {
     drawLine(position, position + vector, color);
     drawSquare(position, 2, color);
 }
 
-void AbstractRenderer::drawVectorShifted(const Vector &position, const Vector &vector, Color color) {
+void AbstractRenderer::drawVectorShifted(const Vector<double> &position, const Vector<double> &vector, Color color) {
     drawLineShifted(position, position + vector, color);
     drawSquareShifted(position, 2, color);
 }
 
-Vector AbstractRenderer::drawText(const std::string &text, const Vector &position, int width, uint32_t color, const TextFormat &format) {
+Vector<double> AbstractRenderer::drawText(const std::string &text, const Vector<double> &position, int width, uint32_t color, const TextFormat &format) {
     if(format.fontWidth() == 0)
-        return Vector();
+        return Vector<double>();
 
     auto lines = Additional::split(text, '\n');
     double offsetY = 0;
@@ -59,17 +59,22 @@ Vector AbstractRenderer::drawText(const std::string &text, const Vector &positio
     auto it = lines.begin();
     while (it != lines.end()) {
         if(it->size() > symWidth) {
-            offsetY += drawString(it->substr(0, symWidth), position + e172::Vector(0, offsetY), color, format).y();
+            offsetY += drawString(it->substr(0, symWidth),
+                                  position + Vector<double>(0, offsetY),
+                                  color,
+                                  format)
+                           .y();
             it = lines.insert(it + 1, it->substr(symWidth, it->size() - symWidth));
         } else {
-            offsetY += drawString(*it, position + e172::Vector(0, offsetY), color, format).y();
+            offsetY += drawString(*it, position + Vector<double>(0, offsetY), color, format).y();
             ++it;
         }
     }
-    return e172::Vector(width, offsetY);
+    return Vector<double>(width, offsetY);
 }
 
-Vector AbstractRenderer::offset() const {
+Vector<double> AbstractRenderer::offset() const
+{
     return resolution() / 2 - cameraPosition();
 }
 
@@ -79,7 +84,7 @@ AbstractRenderer::Camera AbstractRenderer::detachCamera() {
                 m_cameraLocked = false;
                 delete Camera::handle_cast<void*>(d);
     });
-        c.m_setter = [this](const Vector &vector){ m_position = vector; };
+        c.m_setter = [this](const Vector<double> &vector) { m_position = vector; };
         c.m_getter = [this](){ return m_position; };
         c.m_renderer = this;
         m_cameraLocked = true;
@@ -88,7 +93,7 @@ AbstractRenderer::Camera AbstractRenderer::detachCamera() {
     return Camera();
 }
 
-Vector AbstractRenderer::cameraPosition() const {
+Vector<double> AbstractRenderer::cameraPosition() const {
     return m_position;
 }
 
@@ -100,23 +105,20 @@ AbstractRenderer * AbstractRenderer::Camera::renderer() const {
     return m_renderer;
 }
 
-void AbstractRenderer::Camera::setPosition(const Vector &position) {
+void AbstractRenderer::Camera::setPosition(const Vector<double> &position) {
     if(m_setter)
         m_setter(position);
 }
 
-Vector AbstractRenderer::Camera::position() const {
+Vector<double> AbstractRenderer::Camera::position() const {
     if(m_getter)
         return m_getter();
-    return Vector();
+    return Vector<double>();
 }
 
-Color randomColor(unsigned int seed) {
-    return rand_r(&seed) % static_cast<uint32_t>(std::pow(2, 24));
-}
-
-Color randomColor() {
-    return rand() % static_cast<uint32_t>(std::pow(2, 24));
+Color randomColor(Random &random)
+{
+    return random.next<Color>() % static_cast<Color>(std::pow(2, 24));
 }
 
 Color blendPixels(Color top, Color bottom) {

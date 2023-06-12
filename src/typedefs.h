@@ -1,5 +1,4 @@
-#ifndef TYPEDEFS_H
-#define TYPEDEFS_H
+#pragma once
 
 #include <inttypes.h>
 #include <vector>
@@ -10,20 +9,17 @@
 
 namespace e172 {
 
-typedef uint8_t Byte;
-typedef std::vector<Byte> ByteArray;
-typedef std::string String;
-typedef std::list<String> StringList;
-typedef std::vector<String> StringVector;
-typedef std::set<String> StringSet;
+using String = std::string;
+using StringList = std::list<String>;
+using StringVector = std::vector<String>;
+using StringSet = std::set<String>;
 
 class Variant;
-typedef std::vector<Variant> VariantVector;
-typedef std::list<Variant> VariantList;
-typedef std::map<std::string, Variant> VariantMap;
+using VariantVector = std::vector<Variant>;
+using VariantList = std::list<Variant>;
+using VariantMap = std::map<std::string, Variant>;
 
-typedef std::complex<double> Complex;
+template<typename T>
+using Complex = std::complex<T>;
 
-}
-
-#endif // TYPEDEFS_H
+} // namespace e172

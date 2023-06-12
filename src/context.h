@@ -100,9 +100,14 @@ public:
         }));
     }
 
-    void registerMessageHandler(const MessageId &messageId, const std::function<void(const Vector&)> &callback);
+    void registerMessageHandler(const MessageId &messageId,
+                                const std::function<void(const Vector<double> &)> &callback);
+
     template<typename C>
-    void registerMessageHandler(const MessageId &messageId, C *object, void(C::*callback)(const Vector&)) {
+    void registerMessageHandler(const MessageId &messageId,
+                                C *object,
+                                void (C::*callback)(const Vector<double> &))
+    {
         registerMessageHandler([messageId, object, callback](auto v){
             (object->*callback)(messageId, v);
         });

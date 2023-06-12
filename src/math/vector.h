@@ -1,100 +1,251 @@
-#ifndef VECTOR_H
-#define VECTOR_H
-
-#define RELATIVISTIC_ADDITION_CONSTANT 0.7
+#pragma once
 
 #include <complex>
 #include <functional>
 #include <sstream>
 
+#include "math.h"
 #include <src/utility/buffer.h>
+#include <src/utility/random.h>
 
 namespace e172 {
 
-using Complex = std::complex<double>;
-using ComplexFunction = std::function<Complex(const Complex &)>;
+constexpr double relativisticAdditionConstant = 0.7;
 
-class Vector {
+template<typename T>
+    requires std::is_arithmetic_v<T>
+class Vector
+{
 public:
-    enum Quarter { QUARTER_RIGHT_DOWN = 0, QUARTER_LEFT_DOWN, QUARTER_LEFT_UP, QUARTER_RIGHT_UP };
+    enum Quarter { QuarterRightDown = 0, QuarterLeftDown, QuarterLeftUp, QuarterRightUp };
 
     constexpr Vector() = default;
-    constexpr Vector(double x, double y)
+
+    constexpr Vector(T x, T y)
         : m_x(x)
         , m_y(y)
     {}
 
-    Vector(const Complex &complex);
-    static Vector createByAngle(double module, double angle); //checkpoint
-    static Vector createRandom(double max);
+    constexpr Vector(const Complex<T> &complex)
+        : Vector(complex.real(), complex.imag())
+    {}
 
-    Vector operator+(const Vector &term) const;
-    void operator+=(const Vector &term);
-    Vector operator-(const Vector &subtrahend) const;
-    void operator-=(const Vector &subtrahend);
+    static Vector createByAngle(T module, T angle)
+    {
+        return Vector(module * Math::cos(angle), module * Math::sin(angle));
+    }
 
-    Vector operator*(double multiplier) const;
-    friend Vector operator*(double scalar, const Vector& vector);
-    void operator*=(double multiplier);
-    Vector operator/(double divider) const;
-    void operator/=(double divider);
+    static Vector createRandom(Random &random, T max)
+    {
+        return Vector::createByAngle(random.nextInRange(0, max), random.next<T>());
+    }
 
+    constexpr Vector operator+(const Vector &term) const
+    {
+        return {m_x + term.m_x, m_y + term.m_y};
+    }
 
-    bool operator==(Vector vector) const;
-    bool operator!=(Vector vector) const;
+    constexpr Vector operator+=(const Vector &term) { return {m_x += term.m_x, m_y += term.m_y}; }
 
-    double operator*(const Vector& multiplier) const;
+    constexpr Vector operator-(const Vector &subtrahend) const
+    {
+        return {m_x - subtrahend.m_x, m_y - subtrahend.m_y};
+    }
 
-    bool sameDirection(const Vector& other) const;
+    constexpr Vector operator-=(const Vector &subtrahend)
+    {
+        return {m_x -= subtrahend.m_x, m_y -= subtrahend.m_y};
+    }
 
-    void incrementX(double term = 1) { m_x += term; }
-    void incrementY(double term = 1) { m_y += term; }
-    void decrementX(double term = 1) { m_x -= term; }
-    void decrementY(double term = 1) { m_y -= term; }
+    constexpr Vector operator*(T multiplier) const { return {m_x * multiplier, m_y * multiplier}; }
 
-    double module() const; //checkpoint
-    double cheapModule() const;
-    Vector normalized() const;
+    constexpr friend Vector operator*(T scalar, const Vector &vector)
+    {
+        return {vector.m_x * scalar, vector.m_y * scalar};
+    }
 
-    Vector projection(const Vector &b) const;
-    Vector leftNormal() const;
-    Vector rightNormal() const;
+    constexpr Vector operator*=(T multiplier) { return {m_x *= multiplier, m_y *= multiplier}; }
 
-    double angle() const; //checkpoint
+    constexpr Vector operator/(T divider) const { return {m_x / divider, m_y / divider}; }
 
-    Vector relativisticAddition(Vector term, double c) const;
-    double tg() const;
-    unsigned quarter(unsigned offset = 0) const;
-    double map(Vector *destination, double value) const;
-    inline double max() const { return std::max(m_x, m_y); }
-    inline double min() const { return std::min(m_x, m_y); }
+    constexpr Vector operator/=(T divider) { return {m_x /= divider, m_y /= divider}; }
 
-    Vector operator+(double term) const;
-    Vector operator-(double subtrahend) const;
+    T operator*(const Vector &multiplier) const
+    {
+        return m_x * multiplier.m_x + m_y * multiplier.m_y;
+    }
 
-    Vector operator-() const;
+    constexpr bool sameDirection(const Vector &other) const { return *this * other > 0; }
 
-    inline float float32X() const { return static_cast<float>(this->m_x); }
-    inline float float32Y() const { return static_cast<float>(this->m_y); }
-    inline auto intX() const { return static_cast<int>(this->m_x); }
-    inline auto intY() const { return static_cast<int>(this->m_y); }
-    inline auto size_tX() const { return static_cast<size_t>(this->m_x); }
-    inline auto size_tY() const { return static_cast<size_t>(this->m_y); }
-    inline double x() const { return this->m_x; }
-    inline double y() const { return this->m_y; }
+    T incrementX(T term = 1) { return m_x += term; }
+    T incrementY(T term = 1) { return m_y += term; }
+    T decrementX(T term = 1) { return m_x -= term; }
+    T decrementY(T term = 1) { return m_y -= term; }
 
-    double &x() { return this->m_x; }
-    double &y() { return this->m_y; }
+    T module() const { return std::sqrt(m_x * m_x + m_y * m_y); }
+    T cheapModule() const { return std::abs(m_x) + std::abs(m_y); }
 
-    inline Complex toComplex() const { return { m_x, m_y }; }
+    Vector normalized() const
+    {
+        const auto mod = module();
+        if (!e172::Math::cmpf(mod, 0)) {
+            return Vector(m_x / mod, m_y / mod);
+        } else {
+            return Vector();
+        }
+    }
 
-    size_t fractalLevel(size_t limit = 256, const ComplexFunction& f = [](const Complex &x){ return x * x; }) const;
+    Vector projection(const Vector &b) const
+    {
+        const auto bm2 = b * b;
+        if (bm2 != e172::Math::null) {
+            const auto k = (*this * b) / bm2;
+            return {k * b.x(), k * b.y()};
+        }
+        return {};
+    }
 
-    friend std::ostream &operator<<(std::ostream &os, const e172::Vector &dt);
+    Vector leftNormal() const { return {m_y, -m_x}; }
+    Vector rightNormal() const { return {-m_y, m_x}; }
 
-    friend bool operator<(const e172::Vector& vec0, const e172::Vector& vec1);
+    auto angle() const
+    {
+        const auto cos = normalized() * Vector(1, 0);
+        if (m_y >= 0)
+            return e172::Math::acos(cos);
+        else
+            return -e172::Math::acos(cos);
+    }
 
-    static bool moduleLessComparator(const Vector &v0, const Vector &v1);
+    Vector relativisticAddition(Vector term, double c) const
+    {
+        double termModule = term.module();
+        if (!e172::Math::cmpf(termModule, 0)) {
+            c *= relativisticAdditionConstant;
+            const Vector classicSum = *this + term;
+
+            double thisModule = this->module();
+            double classicSumModule = classicSum.module();
+
+            double k = e172::Math::sqrt((1 + thisModule * termModule / (c * c)));
+            double u = classicSumModule / k;
+
+            return Vector(u * classicSum.m_x / classicSumModule,
+                          u * classicSum.m_y / classicSumModule);
+        }
+        return *this;
+    }
+
+    T tg() const
+    {
+        if (!e172::Math::cmpf(m_y, 0))
+            return -(m_x / m_y);
+        return 0;
+    }
+
+    Quarter quarter(Quarter offset = 0) const
+    {
+        if (this->m_y >= 0) {
+            if (this->m_x >= 0) {
+                return (0 + offset) % 4;
+            } else {
+                return (1 + offset) % 4;
+            }
+        } else {
+            if (this->m_x >= 0) {
+                return (3 + offset) % 4;
+            } else {
+                return (2 + offset) % 4;
+            }
+        }
+    }
+
+    T map(Vector *destination, T value) const
+    {
+        T result = 0;
+        T kd = destination->m_y - destination->m_x;
+        T kt = m_y - m_x;
+
+        if (e172::Math::cmpf(kt, 0))
+            result = value * kd;
+        else
+            result = value * kd / kt;
+
+        result += destination->m_x;
+
+        return result;
+    }
+
+    T max() const { return std::max(m_x, m_y); }
+    T min() const { return std::min(m_x, m_y); }
+
+    Vector operator+(T term) const
+    {
+        const auto mod = module();
+        if (mod != 0.0) {
+            const auto mul = 1 + term / mod;
+            return Vector(m_x * mul, m_y * mul);
+        }
+        return Vector();
+    }
+
+    Vector operator-(T subtrahend) const
+    {
+        const auto mod = module();
+        if (mod != 0.0) {
+            const auto mul = 1 - subtrahend / mod;
+            return Vector(m_x * mul, m_y * mul);
+        }
+        return Vector();
+    }
+
+    Vector operator-() const { return {-m_x, -m_y}; }
+
+    float float32X() const { return static_cast<float>(this->m_x); }
+    float float32Y() const { return static_cast<float>(this->m_y); }
+    auto intX() const { return static_cast<int>(this->m_x); }
+    auto intY() const { return static_cast<int>(this->m_y); }
+    auto size_tX() const { return static_cast<size_t>(this->m_x); }
+    auto size_tY() const { return static_cast<size_t>(this->m_y); }
+
+    T x() const { return this->m_x; }
+    T y() const { return this->m_y; }
+
+    T &x() { return this->m_x; }
+    T &y() { return this->m_y; }
+
+    Complex<T> toComplex() const { return {m_x, m_y}; }
+
+    size_t fractalLevel(size_t limit = 256,
+                        const ComplexFunction<T> &f = Math::sqr<Complex<T>>) const
+    {
+        return Math::fractalLevel(toComplex(), limit, f);
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const Vector &dt)
+    {
+        return os << "Vector(" << dt.x() << ", " << dt.y() << ")";
+    }
+
+    friend bool operator<(const Vector &vec0, const Vector &vec1)
+    {
+        return vec0.cheapModule() < vec1.cheapModule();
+    }
+
+    bool operator==(Vector vector) const
+    {
+        return e172::Math::cmpf(this->m_x, vector.m_x) && e172::Math::cmpf(this->m_y, vector.m_y);
+    }
+
+    bool operator!=(Vector vector) const
+    {
+        return !e172::Math::cmpf(this->m_x, vector.m_x) || !e172::Math::cmpf(this->m_y, vector.m_y);
+    }
+
+    static bool moduleLessComparator(const Vector &v0, const Vector &v1)
+    {
+        return v0.module() < v1.module();
+    }
 
     void serialize(WriteBuffer &buf) const
     {
@@ -105,17 +256,22 @@ public:
     static std::optional<Vector> deserialize(ReadBuffer &buf)
     {
         Vector v;
-        e172_chainingAssign(v.m_x, buf.read<double>());
-        e172_chainingAssign(v.m_y, buf.read<double>());
+        e172_chainingAssign(v.m_x, buf.read<T>());
+        e172_chainingAssign(v.m_y, buf.read<T>());
         return v;
     }
 
     static std::optional<Vector> deserializeConsume(ReadBuffer &&buf) { return deserialize(buf); }
 
-private:
-    double m_x = 0;
-    double m_y = 0;
-};
-} // namespace e172
+    template<typename R>
+    Vector<R> into() const
+    {
+        return {static_cast<R>(m_x), static_cast<R>(m_y)};
+    }
 
-#endif // VECTOR_H
+private:
+    T m_x = 0;
+    T m_y = 0;
+};
+
+} // namespace e172

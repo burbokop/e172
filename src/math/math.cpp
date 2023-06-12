@@ -192,23 +192,6 @@ double e172::Math::topLimitedFunction(double x) {
     return 0;
 }
 
-size_t e172::Math::fractalLevel(const Complex &c, size_t limit, const ComplexFunction &f) {
-    e172::Complex x = { 0, 0 };
-    while (std::abs(x) < 2) {
-        x = f(x) + c;
-        if(limit-- <= 0) {
-            return 0;
-        }
-    }
-    return limit;
-}
-
-double e172::Math::fractalLevel(size_t x, size_t y, size_t w, size_t h, size_t limit, const ComplexFunction &f) {
-    const auto real = (double(x) / double(w) - 0.5) * 4;
-    const auto imag = (double(y) / double(h) - 0.5) * 4;
-    return fractalLevel({ real, imag },  limit, f) / double(limit);
-}
-
 void e172::Math::concurentInitMatrix(size_t w, size_t h, const std::function<void (const std::pair<size_t, size_t> &)> &function) {
     std::vector<std::pair<size_t, size_t>> job(w * h);
     for(size_t y = 0; y < h; ++y) {

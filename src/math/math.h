@@ -14,9 +14,11 @@ namespace std {
 
 namespace e172 {
 
-typedef std::complex<double> Complex;
+template<typename T>
+using Complex = std::complex<T>;
 
-typedef std::function<Complex(const Complex&)> ComplexFunction;
+template<typename T>
+using ComplexFunction = std::function<Complex<T>(const Complex<T> &)>;
 
 template<typename T>
 using MatrixFiller = std::function<void(size_t, size_t, T*)>;
@@ -54,10 +56,16 @@ public:
     static double sqrt(double value);
 
     template<typename T>
-    static inline T sqr(const T &x) { return x * x; }
+    static T sqr(const T &x)
+    {
+        return x * x;
+    }
 
     template<typename T>
-    static inline T sigm(const T &x) { return T(1) / (T(1) + std::exp(-x)); }
+    static T sigm(const T &x)
+    {
+        return T(1) / (T(1) + std::exp(-x));
+    }
 
     template<typename T>
     static inline T sgn(const T &x) {
@@ -103,12 +111,42 @@ public:
 
     static double topLimitedFunction(double x);
 
-    static size_t fractalLevel(const e172::Complex &c, size_t limit = 256, const ComplexFunction& f = Math::sqr<Complex>);
-    static double fractalLevel(size_t x, size_t y, size_t w, size_t h, size_t limit = 256, const ComplexFunction& f = Math::sqr<Complex>);
+    template<typename T>
+    static size_t fractalLevel(const Complex<T> &c,
+                               size_t limit = 256,
+                               const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
+    {
+        e172::Complex<T> x = {0, 0};
+        while (std::abs(x) < 2) {
+            x = f(x) + c;
+            if (limit-- <= 0) {
+                return 0;
+            }
+        }
+        return limit;
+    }
 
+    template<typename T>
+    static T fractalLevel(size_t x,
+                          size_t y,
+                          size_t w,
+                          size_t h,
+                          size_t limit = 256,
+                          const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
+    {
+        const auto real = (double(x) / double(w) - 0.5) * 4;
+        const auto imag = (double(y) / double(h) - 0.5) * 4;
+        return fractalLevel({real, imag}, limit, f) / double(limit);
+    }
 
-    template <typename T>
-    inline static void writeFractal(size_t w, size_t h, size_t maxLevel, T mask, T *ptr, const ComplexFunction& f = Math::sqr<Complex>) {
+    template<typename T>
+    static void writeFractal(size_t w,
+                             size_t h,
+                             size_t maxLevel,
+                             T mask,
+                             T *ptr,
+                             const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
+    {
         if(maxLevel <= 0 || w <= 0 || h <= 0)
             return;
         for(size_t y = 0; y < h; ++y) {
@@ -120,8 +158,14 @@ public:
 
     static void concurentInitMatrix(size_t w, size_t h, const std::function<void(const std::pair<size_t, size_t>&)>&function);
 
-    template <typename T>
-    inline static void concurentWriteFractal(size_t w, size_t h, size_t maxLevel, T mask, T *ptr, const ComplexFunction& f = Math::sqr<Complex>) {
+    template<typename T>
+    inline static void concurentWriteFractal(size_t w,
+                                             size_t h,
+                                             size_t maxLevel,
+                                             T mask,
+                                             T *ptr,
+                                             const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
+    {
         if(maxLevel <= 0 || w <= 0 || h <= 0)
             return;
 
@@ -130,9 +174,12 @@ public:
         });
     }
 
-
     template<typename T>
-    static MatrixFiller<T> fractal(size_t limit, T mask, const ComplexFunction& f = Math::sqr<Complex>, bool concurent = true) {
+    static MatrixFiller<T> fractal(size_t limit,
+                                   T mask,
+                                   const ComplexFunction<T> &f = Math::sqr<Complex<T>>,
+                                   bool concurent = true)
+    {
         if(concurent) {
             return [limit, mask, f](size_t w, size_t h, T *ptr) {
                 e172::Math::concurentWriteFractal<T>(w, h, limit, mask, ptr, f);

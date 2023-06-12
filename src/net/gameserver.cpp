@@ -31,9 +31,10 @@ void e172::GameServer::sync()
         const auto id = m_entityRemoveEventQueue.front();
         for (const auto &client : m_clients) {
             if (client.socket->isConnected()) {
-                WritePackage::push(*client.socket,
-                                   PackageType(GamePackageType::RemoveEntity),
-                                   [id](WritePackage p) { p.write(PackedEntityId(id)); });
+                m_incompleatedStatistics.bytesWritenPerSecond
+                    += WritePackage::push(*client.socket,
+                                          PackageType(GamePackageType::RemoveEntity),
+                                          [id](WritePackage p) { p.write(PackedEntityId(id)); });
             }
         }
         m_entityRemoveEventQueue.pop();
@@ -47,12 +48,13 @@ void e172::GameServer::sync()
 
             for (const auto &client : m_clients) {
                 if (client.socket->isConnected()) {
-                    WritePackage::push(*client.socket,
-                                       PackageType(GamePackageType::SyncEntity),
-                                       [id, &buf](WritePackage p) {
-                                           p.write(PackedEntityId(id));
-                                           p.write(std::move(buf));
-                                       });
+                    m_incompleatedStatistics.bytesWritenPerSecond
+                        += WritePackage::push(*client.socket,
+                                              PackageType(GamePackageType::SyncEntity),
+                                              [id, &buf](WritePackage p) {
+                                                  p.write(PackedEntityId(id));
+                                                  p.write(std::move(buf));
+                                              });
                 }
             }
         }
@@ -63,18 +65,30 @@ void e172::GameServer::sync()
     }
 
     for (const auto &client : m_clients) {
-        while (auto package = ReadPackage::pull(*client.socket, [this](ReadPackage package) {
-                   switch (GamePackageType(package.type())) {
-                   case GamePackageType::Event:
-                       if (!processEventPackage(std::move(package))) {
-                           Debug::warning("Event package processing failed");
-                       }
-                       break;
-                   default:
-                       Debug::warning("Unknown package type:", package.type());
-                   }
-               })) {
+        while (true) {
+            const auto size = ReadPackage::pull(*client.socket, [this](ReadPackage package) {
+                switch (GamePackageType(package.type())) {
+                case GamePackageType::Event:
+                    if (!processEventPackage(std::move(package))) {
+                        Debug::warning("Event package processing failed");
+                    }
+                    break;
+                default:
+                    Debug::warning("Unknown package type:", package.type());
+                }
+            });
+
+            if (size == 0) {
+                break;
+            } else {
+                m_incompleatedStatistics.bytesReadPerSecond += size;
+            }
         }
+    }
+
+    if (m_statisticsTimer.check()) {
+        m_statistics = m_incompleatedStatistics;
+        m_incompleatedStatistics = Statistics{.bytesWritenPerSecond = 0, .bytesReadPerSecond = 0};
     }
 }
 
@@ -114,9 +128,12 @@ void e172::GameServer::refreshSockets()
     while (const auto conn = m_server->pullConnection()) {
         const auto clientId = m_nextClientId++;
         if (conn->isConnected()) {
-            WritePackage::push(*conn,
-                               PackageType(GamePackageType::Init),
-                               [clientId](WritePackage p) { p.write<PackedClientId>(clientId); });
+            m_incompleatedStatistics.bytesWritenPerSecond
+                += WritePackage::push(*conn,
+                                      PackageType(GamePackageType::Init),
+                                      [clientId](WritePackage p) {
+                                          p.write<PackedClientId>(clientId);
+                                      });
         }
         for (const auto &e : m_app.entities()) {
             sendEntityAddedPackage(*conn, e);
@@ -144,12 +161,13 @@ void e172::GameServer::broadcastEntityAddedPackage(const ptr<Entity> &entity)
 
     for (const auto &client : m_clients) {
         if (client.socket->isConnected()) {
-            WritePackage::push(*client.socket,
-                               PackageType(GamePackageType::AddEntity),
-                               [type, id](WritePackage p) {
-                                   p.writeDyn(type);
-                                   p.write(PackedEntityId(id));
-                               });
+            m_incompleatedStatistics.bytesWritenPerSecond
+                += WritePackage::push(*client.socket,
+                                      PackageType(GamePackageType::AddEntity),
+                                      [type, id](WritePackage p) {
+                                          p.writeDyn(type);
+                                          p.write(PackedEntityId(id));
+                                      });
         }
     }
 }
@@ -160,9 +178,12 @@ void e172::GameServer::sendEntityAddedPackage(Socket &s, const ptr<Entity> &enti
     const auto type = entity->meta().typeName();
     const auto id = entity->entityId();
     if (s.isConnected()) {
-        WritePackage::push(s, PackageType(GamePackageType::AddEntity), [type, id](WritePackage p) {
-            p.writeDyn(type);
-            p.write(PackedEntityId(id));
-        });
+        m_incompleatedStatistics.bytesWritenPerSecond
+            += WritePackage::push(s,
+                                  PackageType(GamePackageType::AddEntity),
+                                  [type, id](WritePackage p) {
+                                      p.writeDyn(type);
+                                      p.write(PackedEntityId(id));
+                                  });
     }
 }

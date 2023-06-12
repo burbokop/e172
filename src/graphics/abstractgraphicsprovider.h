@@ -15,10 +15,12 @@ protected:
     Image imageFromData(Image::data_ptr data, int w, int h) const;
     void installParentToRenderer(AbstractRenderer *renderer);
 public:
-    typedef std::function<void(uint32_t*)> ImageInitFunction;
-    typedef std::function<void(size_t, size_t, uint32_t*)> ImageInitFunctionExt;
+    using ImageInitFunction = std::function<void(uint32_t *)>;
+    using ImageInitFunctionExt = std::function<void(size_t, size_t, uint32_t *)>;
 
-    AbstractGraphicsProvider(const std::vector<std::string>& args);
+    AbstractGraphicsProvider(const std::vector<std::string> &args)
+        : m_args(args)
+    {}
 
     virtual AbstractRenderer *renderer() const = 0;
     virtual bool isValid() const = 0;
@@ -29,15 +31,25 @@ public:
     virtual void loadFont(const std::string &name, const std::string &path) = 0;
     virtual bool fontLoaded(const std::string &name) const = 0;
 
-    virtual ~AbstractGraphicsProvider();
+    virtual ~AbstractGraphicsProvider() = default;
     std::vector<std::string> args() const;
 
 protected:
     virtual void destructImage(Image::data_ptr ptr) const = 0;
     virtual Image::ptr imageBitMap(Image::data_ptr ptr) const = 0;
     virtual bool saveImage(Image::data_ptr, const std::string&) const = 0;
-    virtual Image::data_ptr imageFragment(Image::data_ptr ptr, int x, int y, int &w, int &h) const = 0;
-    virtual Image::data_ptr blitImages(Image::data_ptr ptr0, Image::data_ptr ptr1, int x, int y, int &w, int &h) const = 0;
+    virtual Image::data_ptr imageFragment(
+        Image::data_ptr ptr, int x, int y, std::size_t &w, std::size_t &h) const
+        = 0;
+
+    virtual Image::data_ptr blitImages(Image::data_ptr ptr0,
+                                       Image::data_ptr ptr1,
+                                       int x,
+                                       int y,
+                                       std::size_t &w,
+                                       std::size_t &h) const
+        = 0;
+
     virtual Image::data_ptr transformImage(Image::data_ptr, uint64_t) const = 0;
 };
 

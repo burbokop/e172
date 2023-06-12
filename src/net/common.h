@@ -18,4 +18,16 @@ enum class GamePackageType : PackageType {
     UserType = 0x1000
 };
 
+struct Statistics
+{
+    std::size_t bytesWritenPerSecond;
+    std::size_t bytesReadPerSecond;
+};
+
+inline std::ostream &operator<<(std::ostream &stream, const Statistics &s)
+{
+    return stream << "{ bytesWritenPerSecond: " << s.bytesWritenPerSecond
+                  << ", bytesReadPerSecond: " << s.bytesReadPerSecond << " }";
+}
+
 } // namespace e172

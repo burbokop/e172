@@ -88,16 +88,16 @@ void EventHandler::update()
     }
 }
 
-e172::Vector EventHandler::mousePosition() const
+Event::Pos EventHandler::mousePosition() const
 {
     if (m_clients.empty())
-        return Vector();
+        return Event::Pos();
 
-    Vector result;
+    Vector<std::size_t> result;
     for (auto &client : m_clients) {
-        result += client.second.mousePosition();
+        result += client.second.mousePosition().into<std::size_t>();
     }
-    return result / m_clients.size();
+    return (result / m_clients.size()).into<std::uint16_t>();
 }
 
 std::string ClientEventHandler::pullText()
