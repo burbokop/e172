@@ -6,7 +6,11 @@ endif()
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1)
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
-add_library(e172 SHARED)
+if(E172_STATIC_BUILD)
+    add_library(e172 STATIC)
+else()
+    add_library(e172 SHARED)
+endif()
 
 target_sources(e172
 PUBLIC

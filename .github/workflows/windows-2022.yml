@@ -17,13 +17,22 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DE172_STATIC_BUILD=ON
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+    - name: Test1
+      shell: bash
+      working-directory: ${{github.workspace}}/build
+      run: |
+        pwd
+        find . -name "e172_unit_tests.exe"
+        ls -al
+        ls -al ./tests
+        ls -al ./tests/unit
+        ./tests/unit/Release/e172_unit_tests.exe
+
     - name: Test
       working-directory: ${{github.workspace}}/build
-      env:
-        PATH: ${{env.PATH}}:${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}}

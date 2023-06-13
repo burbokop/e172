@@ -6,39 +6,14 @@
 #include <optional>
 #include <src/additional.h>
 
-namespace e172 {
-namespace testing {
 
-namespace {
+namespace e172::testing {
 
-struct test {
-    std::string name;
-    std::function<void()> testFunc;
-};
-
-struct spec {
-    std::list<test> tests;
-
-    std::optional<const test> findTest(const std::string &str) const
-    {
-        for (const auto &t : tests) {
-            if (t.name == str) {
-                return t;
-            }
-        }
-        return std::nullopt;
-    }
-};
-
-std::map<std::string, spec> specs;
-
-} // namespace
-
-int registerTest(const std::string &name,
+int Registry::registerTest(const std::string &name,
                  const std::string &spec,
-                 const std::function<void()> &testFunc)
+                 const std::function<void ()> &func)
 {
-    specs[spec].tests.push_back({ name, testFunc });
+    s_specs[spec].tests.push_back({ name, func });
     return 0;
 }
 
@@ -47,7 +22,7 @@ int exec(int argc, const char **argv)
     if (argc > 1) {
         const std::string command = argv[1];
         if (command == "enum") {
-            for (const auto &s : specs) {
+            for (const auto &s : Registry::s_specs) {
                 for (const auto &t : s.second.tests) {
                     e172::Debug::withSepar("").emitMessage(Debug::PrintMessage,
                                                            s.first,
@@ -61,8 +36,8 @@ int exec(int argc, const char **argv)
                 const std::string test = argv[2];
                 const auto p = Additional::splitIntoPair(test, ':');
 
-                const auto specIt = specs.find(p.first);
-                if (specIt != specs.end()) {
+                const auto specIt = Registry::s_specs.find(p.first);
+                if (specIt != Registry::s_specs.end()) {
                     if (const auto &test = specIt->second.findTest(p.second)) {
                         test->testFunc();
                         return 0;
@@ -94,7 +69,7 @@ int exec(int argc, const char **argv)
             return 1;
         }
     }
-    for (const auto &s : specs) {
+    for (const auto &s : Registry::s_specs) {
         e172::Debug::print("----", s.first, "----");
         for (const auto &t : s.second.tests) {
             e172::Debug::print("test: ", t.name);
@@ -105,5 +80,4 @@ int exec(int argc, const char **argv)
     return 0;
 }
 
-} // namespace testing
-} // namespace e172
+}

@@ -1,9 +1,46 @@
-#ifndef TESTING_H
-#define TESTING_H
+#pragma once
 
 #include "debug.h"
 #include <cassert>
+#include <map>
+#include <optional>
 #include "type.h"
+
+namespace e172 {
+namespace testing {
+
+struct Test {
+    std::string name;
+    std::function<void()> testFunc;
+};
+
+struct Spec {
+    std::list<Test> tests;
+
+    std::optional<const Test> findTest(const std::string &str) const
+    {
+        for (const auto &t : tests) {
+            if (t.name == str) {
+                return t;
+            }
+        }
+        return std::nullopt;
+    }
+};
+
+class Registry {
+public:
+    friend int exec(int argc, const char **argv);
+
+    static int registerTest(const std::string& name, const std::string& spec, const std::function<void()>& func);
+private:
+    static inline std::map<std::string, Spec> s_specs;
+};
+
+int exec(int argc, const char **argv);
+
+}
+} // namespace e172
 
 #if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
 #define e172_pretty_function __FUNCSIG__
@@ -12,13 +49,13 @@
 #endif
 
 #define e172_initializerList(type, ...) \
-    type \
-    { \
+type \
+{ \
         __VA_ARGS__ \
-    }
+}
 
 #define e172_shouldEqual(actual, expected) \
-    if ((actual) != (expected)) { \
+if ((actual) != (expected)) { \
         e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
                            "Assertion failed:", \
                            actual, \
@@ -26,42 +63,17 @@
                            expected, \
                            "in test function:", \
                            e172_pretty_function); \
-    }
+}
 
 #define e172_shouldBeDefined(option) \
-    if ((option).isEmpty()) { \
+if ((option).isEmpty()) { \
         e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
                            "Option is not defined in test function:", \
                            e172_pretty_function); \
-    }
-
-namespace e172 {
-namespace testing {
-
-int registerTest(const std::string& name, const std::string& spec, const std::function<void()> &testFunc);
-int exec(int argc, const char **argv);
-
-template<typename T>
-class class_registerer {
-    static const inline int static_call = registerTestClass(Type<T>().name());
-public:
-    constexpr class_registerer() { (void)static_call; }
-};
-
-
 }
-} // namespace e172
 
 #define e172_test(SPEC, TEST) \
     ; \
-    static int inline __##TEST##_test_registration = e172::testing::registerTest(#TEST, \
+    static int inline __##TEST##_test_registration = e172::testing::Registry::registerTest(#TEST, \
                                                                                  #SPEC, \
                                                                                  &TEST)
-
-#define e172_register_class(TAG) auto __ ## TAG ## _class_registration() { \
-    static constexpr e172::testing::class_registerer<std::remove_pointer<decltype (this)>::type> result; \
-    return result; \
-}
-
-
-#endif // TESTING_H
