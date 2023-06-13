@@ -22,17 +22,6 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-    - name: Test1
-      shell: bash
-      working-directory: ${{github.workspace}}/build
-      run: |
-        pwd
-        find . -name "e172_unit_tests.exe"
-        ls -al
-        ls -al ./tests
-        ls -al ./tests/unit
-        ./tests/unit/Release/e172_unit_tests.exe
-
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}}

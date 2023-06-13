@@ -25,9 +25,9 @@ void Context::setProperty(const std::string &propertyId, const Variant &value) {
 
 Observer<Variant> Context::settingValue(const std::string &id) const {
     auto it = m_settings.find(id);
-    if(it == m_settings.end())
+    if(it == m_settings.end()) {
         it = const_cast<Context*>(this)->m_settings.insert(it, { id, Variant::fromString(Additional::readVof(absolutePath(SettingsFilePath), id)) });
-
+    }
     return it->second;
 }
 

@@ -17,8 +17,8 @@ class Observer
     };
     std::shared_ptr<Data> m_data;
 public:
-    [[deprecated("use Signal")]] Observer() {}
-    [[deprecated("use Signal")]] Observer(const T &value) { operator=(value); }
+    Observer() {}
+    Observer(const T &value) { operator=(value); }
 
     size_t connect(const std::function<void(const T &)> &callback)
     {

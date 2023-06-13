@@ -26,12 +26,16 @@
 
 namespace e172 {
 namespace {
-std::string ws2s(const std::wstring& wstr)
+#if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
+std::string ucs2ToUtf8(const std::wstring &wstr)
 {
-    using convert_typeX = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_typeX, wchar_t> converterX;
-    return converterX.to_bytes(wstr);
+    if(wstr.empty()) return std::string();
+    const auto size = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string result(size, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), result.data(), size, NULL, NULL);
+    return result;
 }
+#endif
 }
 }
 
@@ -133,11 +137,11 @@ std::string e172::Additional::homeDirectory() {
     if(pw) {
         return pw->pw_dir;
     }
-#else
+#elif defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
     WCHAR profilePath[MAX_PATH];
     HRESULT result = SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, profilePath);
     if (SUCCEEDED(result)) {
-        return ws2s(std::wstring (profilePath));
+        return ucs2ToUtf8(std::wstring (profilePath));
     }
 #endif
     return std::string();
@@ -219,7 +223,6 @@ std::string e172::Additional::jsonTopLevelField(const std::string &string, size_
     char beginFance;
 
     size_t fenceCount = 0;
-    size_t begin = 0;
     bool beginFound = false;
     for(size_t i = beginIndex; i < string.size(); ++i) {
         if(beginFound) {
@@ -228,9 +231,6 @@ std::string e172::Additional::jsonTopLevelField(const std::string &string, size_
             } else if(string[i] == endFence) {
                 if(--fenceCount == 0) {
                     beginFound = false;
-                    //if(endIndexPtr)
-                    //    *endIndexPtr = i + 1;
-                    //return string.substr(begin, i - begin + 1);
                 }
             }
         } else {
@@ -239,7 +239,6 @@ std::string e172::Additional::jsonTopLevelField(const std::string &string, size_
                     *nextIndexPtr = i + 1;
                 return string.substr(beginIndex, i - beginIndex);
             } else if(string[i] == '{' || string[i] == '[' || string[i] == '(') {
-                begin = i;
                 beginFound = true;
                 beginFance = string[i];
                 endFence = reversedFence(beginFance);

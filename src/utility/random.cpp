@@ -7,16 +7,16 @@ namespace e172 {
 #ifdef __unix__
 struct Random::Impl
 {
-    Impl(unsigned int seed)
-        : m_seed(seed)
+    Impl(uint64_t seed)
+        : m_seed(static_cast<unsigned int>(seed))
     {}
 
     unsigned int m_seed;
 };
 #else
 struct Random::Impl {
-    Impl(unsigned int seed)
-        : m_gen(seed)
+    Impl(uint64_t seed)
+        : m_gen(static_cast<std::mt19937::result_type>(seed))
     {}
 
     std::mt19937 m_gen;
