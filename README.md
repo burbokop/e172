@@ -1,7 +1,7 @@
 # e172
 
-[![Test Status](https://github.com/burbokop/e172/workflows/Ubuntu-22.04/badge.svg?event=push)](https://github.com/burbokop/e172/actions)
-[![Test Status](https://github.com/burbokop/e172/workflows/Windows-2022/badge.svg?event=push)](https://github.com/burbokop/e172/actions)
+[![Ubuntu-22.04](https://github.com/burbokop/e172/actions/workflows/ubuntu-22.04.yml/badge.svg?branch=0.6.6)](https://github.com/burbokop/e172/actions/workflows/ubuntu-22.04.yml)
+[![Windows-2022](https://github.com/burbokop/e172/actions/workflows/windows-2022.yml/badge.svg?branch=0.6.6)](https://github.com/burbokop/e172/actions/workflows/windows-2022.yml)
 
 Library provides tools for game gevelopment and api for video/audio output and keyboard input.</br>
 This lib can be called GAME ENGINE.</br>
