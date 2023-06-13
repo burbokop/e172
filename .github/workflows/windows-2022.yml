@@ -24,4 +24,6 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
+      env:
+        PATH: ${{env.PATH}}:${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}}
