@@ -2,39 +2,45 @@
 #include "debug.h"
 #include "gameapplication.h"
 
-#include <src/context.h>
+#include "entitylifetimeobserver.h"
+#include <iostream>
 #include <src/assettools/assetprovider.h>
 #include <src/audio/abstractaudioprovider.h>
-#include <src/abstracteventhandler.h>
-#include <src/graphics/abstractrenderer.h>
+#include <src/context.h>
+#include <src/eventhandler.h>
 #include <src/graphics/abstractgraphicsprovider.h>
+#include <src/graphics/abstractrenderer.h>
 #include <src/time/time.h>
-
-#include <iostream>
 
 namespace e172 {
 
-void __on_sigsegv(int s) {
+namespace {
+
+void handleSigsegv(int s)
+{
     const auto st = e172::Debug::stackTrace();
     Debug::warning("Segmentation Fault");
     Debug::warning("Stack trace info:");
-    for(auto s : st) {
+    for (const auto &s : st) {
         Debug::print('\t', s);
     }
     exit(s);
 }
 
+} // namespace
+
 size_t GameApplication::static_constructor() {
-    e172::Debug::installSigsegvHandler(__on_sigsegv);
+    e172::Debug::installSigsegvHandler(handleSigsegv);
     return 0;
 }
-
 
 ElapsedTimer::time_t GameApplication::renderDelay() const {
     return m_renderDelay;
 }
 
-e172::ptr<Entity> GameApplication::findEntity(const std::function<bool (const e172::ptr<Entity> &)> &condition) {
+e172::ptr<Entity> GameApplication::findEntity(
+    const std::function<bool(const e172::ptr<Entity> &)> &condition) const
+{
     const auto it = std::find_if(m_entities.begin(), m_entities.end(), condition);
     if (it != m_entities.end()) {
         return *it;
@@ -44,18 +50,22 @@ e172::ptr<Entity> GameApplication::findEntity(const std::function<bool (const e1
 }
 
 void GameApplication::schedule(e172::Time::time_t duration, const std::function<void ()> &function) {
-    m_scheduledTasks.push_back({ Time::currentMilliseconds() + duration, function });
+    m_scheduledTasks.push_back({.repeat = false, .timer = duration, .proceed = function});
+}
+
+void GameApplication::scheduleRepeated(Time::time_t duration, const std::function<void()> &function)
+{
+    m_scheduledTasks.push_back({.repeat = true, .timer = duration, .proceed = function});
 }
 
 ElapsedTimer::time_t GameApplication::proceedDelay() const {
     return m_proceedDelay;
 }
 
-
 void GameApplication::destroyAllEntities(Context *, const Variant &) {
     auto it = m_entities.begin();
     while (it != m_entities.end()) {
-        if((*it)->liveInHeap()) {
+        if ((*it)->liveInHeap() && !(*it)->liveInSharedPtr()) {
             safeDestroy(*it);
             it = m_entities.erase(it);
         } else {
@@ -65,10 +75,12 @@ void GameApplication::destroyAllEntities(Context *, const Variant &) {
 }
 
 void GameApplication::destroyEntity(Context*, const Variant &value) {
+    const auto id = value.toNumber<Entity::Id>();
     for(auto it = m_entities.begin(); it != m_entities.end(); ++it) {
-        if((*it)->entityId() == value.toNumber<Entity::id_t>()) {
+        if ((*it)->entityId() == id) {
             safeDestroy(*it);
             m_entities.erase(it);
+            emitEntityRemoved(id);
             return;
         }
     }
@@ -108,7 +120,10 @@ void GameApplication::render(const ptr<Entity> &entity, AbstractRenderer *render
     }
 }
 
-void GameApplication::proceed(const ptr<Entity> &entity, Context *context, AbstractEventHandler *eventHandler) {
+void GameApplication::proceed(const ptr<Entity> &entity,
+                              Context *context,
+                              EventHandler *eventHandler)
+{
     if(entity && context) {
         if(entity->enabled()) {
             bool disableKeyboard;
@@ -130,20 +145,52 @@ void GameApplication::proceed(const ptr<Entity> &entity, Context *context, Abstr
     }
 }
 
-
-std::list<ptr<Entity> > GameApplication::entities() const {
-    return m_entities;
+void GameApplication::emitEntityAdded(const ptr<Entity> &e)
+{
+    auto it = m_entityLifeTimeObservers.begin();
+    while (it != m_entityLifeTimeObservers.end()) {
+        if (const auto obs = it->lock()) {
+            obs->entityAdded(e);
+            ++it;
+        } else {
+            it = m_entityLifeTimeObservers.erase(it);
+        }
+    }
 }
+
+void GameApplication::emitEntityRemoved(Entity::Id id)
+{
+    auto it = m_entityLifeTimeObservers.begin();
+    while (it != m_entityLifeTimeObservers.end()) {
+        if (const auto obs = it->lock()) {
+            obs->entityRemoved(id);
+            ++it;
+        } else {
+            it = m_entityLifeTimeObservers.erase(it);
+        }
+    }
+}
+
+/// declared in .cpp because unique_ptr
+GameApplication::~GameApplication() = default;
 
 ptr<Entity> GameApplication::autoIteratingEntity() const {
     return m_entities.cyclicValue(nullptr);
 }
 
-AbstractGraphicsProvider *GameApplication::graphicsProvider() const {
-    return m_graphicsProvider;
+void GameApplication::setEventProvider(const std::shared_ptr<AbstractEventProvider> &eventProvider)
+{
+    m_eventProvider = eventProvider;
+
+    m_eventHandler = nullptr;
+    if (m_eventProvider) {
+        m_eventHandler = std::make_unique<EventHandler>(m_eventProvider);
+    }
 }
 
-void GameApplication::setGraphicsProvider(AbstractGraphicsProvider *graphicsProvider) {
+void GameApplication::setGraphicsProvider(
+    const std::shared_ptr<AbstractGraphicsProvider> &graphicsProvider)
+{
     if(graphicsProvider) {
         if(!graphicsProvider->fontLoaded(std::string())) {
             graphicsProvider->loadFont(std::string(), e172::Additional::defaultFont());
@@ -153,29 +200,10 @@ void GameApplication::setGraphicsProvider(AbstractGraphicsProvider *graphicsProv
     m_assetProvider->m_graphicsProvider = graphicsProvider;
 }
 
-AbstractAudioProvider *GameApplication::audioProvider() const {
-    return m_audioProvider;
-}
-
-void GameApplication::setAudioProvider(AbstractAudioProvider *audioProvider) {
+void GameApplication::setAudioProvider(const std::shared_ptr<AbstractAudioProvider> &audioProvider)
+{
     m_audioProvider = audioProvider;
     m_assetProvider->m_audioProvider = audioProvider;
-}
-
-void GameApplication::setEventHandler(AbstractEventHandler *eventHandler) {
-    m_eventHandler = eventHandler;
-}
-
-AbstractEventHandler *GameApplication::eventHandler() const {
-    return m_eventHandler;
-}
-
-Context *GameApplication::context() const {
-    return m_context;
-}
-
-AssetProvider *GameApplication::assetProvider() const {
-    return m_assetProvider;
 }
 
 std::vector<std::string> GameApplication::arguments() const {
@@ -206,8 +234,12 @@ Variant GameApplication::flag(const std::string &shortName) const {
     return m_flagParser.flag(shortName);
 }
 
-void GameApplication::setRenderInterval(ElapsedTimer::time_t interval) {
-    m_renderTimer = ElapsedTimer(interval);
+void GameApplication::addEntity(const ptr<Entity> &entity)
+{
+    if (entity) {
+        m_entities.push_back(entity);
+        emitEntityAdded(entity);
+    }
 }
 
 void GameApplication::removeApplicationExtension(size_t hash) {
@@ -216,12 +248,12 @@ void GameApplication::removeApplicationExtension(size_t hash) {
         m_applicationExtensions.erase(it);
 }
 
-GameApplication::GameApplication(int argc, char *argv[]) {
+GameApplication::GameApplication(int argc, const char *argv[]) {
     m_arguments = Additional::coverArgs(argc, argv);
     m_flagParser  = m_arguments;
-    m_assetProvider = new AssetProvider();
-    m_context = new Context(this);
-    m_assetProvider->m_context = m_context;
+    m_assetProvider = std::make_shared<AssetProvider>();
+    m_context = std::make_unique<Context>(this);
+    m_assetProvider->m_context = m_context.get();
 }
 
 void GameApplication::quitLater() {
@@ -238,26 +270,28 @@ int GameApplication::exec() {
         if(m.second->extensionType() == GameApplicationExtension::InitExtension)
             m.second->proceed(this);
     }
-    while (1) {
-        m_deltaTimeCalculator.update();
+    while (true) {
+        if (!!(m_mode & Mode::Proceed) && m_proceedTimer.check()) {
+            m_deltaTimeCalculator.update();
 
-        if(m_eventHandler) {
-            m_eventHandler->update();
-            if(m_eventHandler->exitFlag())
-                break;
-        }
+            if (m_eventHandler) {
+                m_eventHandler->update();
+                if (m_eventHandler->exitFlag())
+                    break;
+            }
 
-        e172::ElapsedTimer measureTimer;
-        for(const auto& m : m_applicationExtensions) {
-            if(m.second->extensionType() == GameApplicationExtension::PreProceedExtension)
-                m.second->proceed(this);
+            e172::ElapsedTimer measureTimer;
+            for (const auto &m : m_applicationExtensions) {
+                if (m.second->extensionType() == GameApplicationExtension::PreProceedExtension)
+                    m.second->proceed(this);
+            }
+            for (const auto &e : m_entities) {
+                proceed(e, m_context.get(), m_eventHandler.get());
+            }
+            m_proceedDelay = measureTimer.elapsed();
         }
-        for(const auto& e : m_entities) {
-            proceed(e, m_context, m_eventHandler);
-        }
-        m_proceedDelay = measureTimer.elapsed();
-        if(m_graphicsProvider && m_renderTimer.check()) {
-            measureTimer.reset();
+        if (!!(m_mode & Mode::Render) && m_graphicsProvider && m_renderTimer.check()) {
+            e172::ElapsedTimer measureTimer;
             auto r = m_graphicsProvider->renderer();
             if(r) {
                 r->m_locked = false;
@@ -286,10 +320,14 @@ int GameApplication::exec() {
         //}
         m_entities.nextCycle();
 
-        if(m_context) {
+        if (m_context) {
             m_context->popMessage(Context::DESTROY_ENTITY, this, &GameApplication::destroyEntity);
-            m_context->popMessage(Context::DESTROY_ALL_ENTITIES, this, &GameApplication::destroyAllEntities);
-            m_context->popMessage(Context::DESTROY_ENTITIES_WITH_TAG, this, &GameApplication::destroyEntitiesWithTag);
+            m_context->popMessage(Context::DESTROY_ALL_ENTITIES,
+                                  this,
+                                  &GameApplication::destroyAllEntities);
+            m_context->popMessage(Context::DESTROY_ENTITIES_WITH_TAG,
+                                  this,
+                                  &GameApplication::destroyEntitiesWithTag);
 
             m_context->m_messageQueue.invokeInternalFunctions();
             m_context->m_messageQueue.flushMessages();
@@ -299,11 +337,15 @@ int GameApplication::exec() {
         {
             auto it = m_scheduledTasks.begin();
             while(it != m_scheduledTasks.end()) {
-                if(Time::currentMilliseconds() > it->first) {
-                    it->second();
-                    it = m_scheduledTasks.erase(it);
+                if (it->timer.check()) {
+                    it->proceed();
+                    if (it->repeat) {
+                        ++it;
+                    } else {
+                        it = m_scheduledTasks.erase(it);
+                    }
                 } else {
-                    it++;
+                    ++it;
                 }
             }
         }
@@ -311,8 +353,6 @@ int GameApplication::exec() {
         if(mustQuit)
             break;
     }
-    delete m_assetProvider;
-    delete m_context;
     return 0;
 }
 
@@ -327,6 +367,5 @@ void GameApplicationExtension::setExtensionType(const ExtensionType &extensionTy
 GameApplicationExtension::GameApplicationExtension(GameApplicationExtension::ExtensionType extensionType) {
     m_extensionType = extensionType;
 }
-
 
 }

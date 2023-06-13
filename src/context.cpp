@@ -25,9 +25,9 @@ void Context::setProperty(const std::string &propertyId, const Variant &value) {
 
 Observer<Variant> Context::settingValue(const std::string &id) const {
     auto it = m_settings.find(id);
-    if(it == m_settings.end())
+    if(it == m_settings.end()) {
         it = const_cast<Context*>(this)->m_settings.insert(it, { id, Variant::fromString(Additional::readVof(absolutePath(SettingsFilePath), id)) });
-
+    }
     return it->second;
 }
 
@@ -44,7 +44,8 @@ void Context::setSettingValue(const std::string &id, const Variant &value) {
     }
 }
 
-AssetProvider *Context::assetProvider() const {
+std::shared_ptr<AssetProvider> Context::assetProvider() const
+{
     if(m_application)
         return m_application->assetProvider();
     return nullptr;
@@ -86,7 +87,7 @@ std::shared_ptr<Promice> Context::emitMessage(const MessageId &messageId, const 
     return m_messageQueue.emitMessage(messageId, value);
 }
 
-ptr<Entity> Context::entityById(const Entity::id_t &id) const {
+ptr<Entity> Context::entityById(const Entity::Id &id) const {
     const auto e = m_application->entities();
     for(auto a : e) {
         if(a && a->entityId() == id)

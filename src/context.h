@@ -62,7 +62,7 @@ public:
     Observer<Variant> settingValue(const std::string &id) const;
     void setSettingValue(const std::string &id, const e172::Variant &value);
 
-    AssetProvider *assetProvider() const;
+    std::shared_ptr<AssetProvider> assetProvider() const;
     std::list<ptr<Entity> > entities() const;
     void addEntity(const ptr<Entity> &entity);
     std::shared_ptr<Promice> emitMessage(const MessageId &messageId, const Variant &value = Variant());
@@ -75,20 +75,17 @@ public:
         m_messageQueue.popMessage(messageId, [object, this, callback](const auto& value) { (object->*callback)(this, value); });
     }
 
-
-
-    ptr<Entity> entityById(const Entity::id_t &id) const;
+    ptr<Entity> entityById(const Entity::Id &id) const;
 
     ptr<Entity> autoIteratingEntity() const;
     ElapsedTimer::time_t proceedDelay() const;
     ElapsedTimer::time_t renderDelay() const;
 
-
     template<typename T>
-    auto entityById(const Entity::id_t &id) const {
+    auto entityById(const Entity::Id &id) const
+    {
         return e172::smart_cast<T>(entityById(id));
     }
-
 
     e172::ptr<e172::Entity> findEntity(const std::function<bool(const e172::ptr<e172::Entity> &)>& condition);
 
@@ -103,9 +100,14 @@ public:
         }));
     }
 
-    void registerMessageHandler(const MessageId &messageId, const std::function<void(const Vector&)> &callback);
+    void registerMessageHandler(const MessageId &messageId,
+                                const std::function<void(const Vector<double> &)> &callback);
+
     template<typename C>
-    void registerMessageHandler(const MessageId &messageId, C *object, void(C::*callback)(const Vector&)) {
+    void registerMessageHandler(const MessageId &messageId,
+                                C *object,
+                                void (C::*callback)(const Vector<double> &))
+    {
         registerMessageHandler([messageId, object, callback](auto v){
             (object->*callback)(messageId, v);
         });

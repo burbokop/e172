@@ -1,10 +1,11 @@
 #include "additional.h"
+#include "src/todo.h"
 
+#include <codecvt>
 #include <list>
 #include <sstream>
 
 #include <string.h>
-#include <dirent.h>
 #include <sys/stat.h>
 #include <fstream>
 #include <algorithm>
@@ -13,9 +14,30 @@
 #include <src/math/math.h>
 #include <regex>
 #include <filesystem>
-#include <unistd.h>
 #include <sys/types.h>
+
+#ifdef __unix__
+#include <unistd.h>
 #include <pwd.h>
+#include <dirent.h>
+#else
+#include <shlobj.h>
+#endif
+
+namespace e172 {
+namespace {
+#if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
+std::string ucs2ToUtf8(const std::wstring &wstr)
+{
+    if(wstr.empty()) return std::string();
+    const auto size = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string result(size, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), result.data(), size, NULL, NULL);
+    return result;
+}
+#endif
+}
+}
 
 std::string e172::Additional::constrainPath(const std::string &path) {
     if(path.size() <= 0)
@@ -110,10 +132,18 @@ std::string e172::Additional::absolutePath(const std::string &path, const std::s
 }
 
 std::string e172::Additional::homeDirectory() {
+#ifdef __unix__
     passwd *pw = getpwuid(getuid());
     if(pw) {
         return pw->pw_dir;
     }
+#elif defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
+    WCHAR profilePath[MAX_PATH];
+    HRESULT result = SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, profilePath);
+    if (SUCCEEDED(result)) {
+        return ucs2ToUtf8(std::wstring (profilePath));
+    }
+#endif
     return std::string();
 }
 
@@ -193,7 +223,6 @@ std::string e172::Additional::jsonTopLevelField(const std::string &string, size_
     char beginFance;
 
     size_t fenceCount = 0;
-    size_t begin = 0;
     bool beginFound = false;
     for(size_t i = beginIndex; i < string.size(); ++i) {
         if(beginFound) {
@@ -202,9 +231,6 @@ std::string e172::Additional::jsonTopLevelField(const std::string &string, size_
             } else if(string[i] == endFence) {
                 if(--fenceCount == 0) {
                     beginFound = false;
-                    //if(endIndexPtr)
-                    //    *endIndexPtr = i + 1;
-                    //return string.substr(begin, i - begin + 1);
                 }
             }
         } else {
@@ -213,7 +239,6 @@ std::string e172::Additional::jsonTopLevelField(const std::string &string, size_
                     *nextIndexPtr = i + 1;
                 return string.substr(beginIndex, i - beginIndex);
             } else if(string[i] == '{' || string[i] == '[' || string[i] == '(') {
-                begin = i;
                 beginFound = true;
                 beginFance = string[i];
                 endFence = reversedFence(beginFance);
@@ -303,6 +328,7 @@ bool e172::Additional::writeFile(const std::string &path, const std::string &con
 }
 
 std::vector<std::string> e172::Additional::directoryContent(std::string path) {
+#ifdef __unix__
     DIR *dir;
     struct dirent *ent;
     if ((dir = opendir (path.c_str())) != nullptr) {
@@ -317,16 +343,23 @@ std::vector<std::string> e172::Additional::directoryContent(std::string path) {
     } else {
         return std::vector<std::string>();
     }
+#else
+    todo;
+#endif
 }
 
 
 bool e172::Additional::isDirectory(std::string path) {
+#ifdef __unix__
     struct stat st;
     if(stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
         return true;
     } else {
         return false;
     }
+#else
+    todo;
+#endif
 }
 
 std::string e172::Additional::fileSufix(std::string string) {
@@ -461,6 +494,7 @@ void e172::Additional::writeVof(const std::string &path, const std::string &id, 
 }
 
 std::vector<std::string> e172::Additional::executeCommand(const std::string &command) {
+#ifdef __unix__
     std::array<char, 128> buffer;
     std::vector<std::string> result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
@@ -471,6 +505,9 @@ std::vector<std::string> e172::Additional::executeCommand(const std::string &com
         result.push_back(buffer.data());
     }
     return result;
+#else
+    todo;
+#endif
 }
 
 void e172::Additional::parseForder(std::string path, const std::function<void(const std::string&)> &callback) {
@@ -504,14 +541,15 @@ std::string e172::Additional::defaultFont(const std::string &suffix) {
     std::filesystem::recursive_directory_iterator it(dir), end;
     while (it != end) {
         if(it->is_regular_file() && it->path().string().ends_with(suffix)) {
-            return it->path();
+            return it->path().string();
         }
         ++it;
     }
     return {};
 }
 
-std::vector<std::string> e172::Additional::coverArgs(int argc, char *argv[]) {
+std::vector<std::string> e172::Additional::coverArgs(int argc, const char *argv[])
+{
     std::vector<std::string> result;
     for(int i = 0; i < argc; i++) {
         result.push_back(argv[i]);
@@ -573,9 +611,10 @@ e172::Option<double> e172::Additional::parseRadians(const std::string &string) {
 std::string e172::Additional::sameBeginningSubstring(const std::list<std::string> &list) {
     size_t i = 0;
     std::string result;
-
-    size_t max = std::numeric_limits<size_t>::min();
-    for(auto l : list) {
+#undef min
+#undef max
+    auto max = std::numeric_limits<size_t>::min();
+    for(const auto &l : list) {
         if(l.size() > max) {
             max = l.size();
         }
@@ -583,7 +622,7 @@ std::string e172::Additional::sameBeginningSubstring(const std::list<std::string
 
     while(true) {
         std::string substr;
-        for(auto l : list) {
+        for(const auto &l : list) {
             auto s = l.substr(0, i);
             if(!substr.empty() && s != substr) {
                 return result;

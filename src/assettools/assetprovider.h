@@ -14,11 +14,12 @@ class AbstractGraphicsProvider;
 class AbstractAudioProvider;
 class Context;
 
-class AssetProvider {
+class AssetProvider : public std::enable_shared_from_this<AssetProvider>
+{
     friend class GameApplication;
     friend AbstractAssetExecutor;
-    AbstractGraphicsProvider *m_graphicsProvider = nullptr;
-    AbstractAudioProvider *m_audioProvider = nullptr;
+    std::shared_ptr<AbstractGraphicsProvider> m_graphicsProvider;
+    std::shared_ptr<AbstractAudioProvider> m_audioProvider;
     Context *m_context = nullptr;
 
     AbstractFactory<std::string, Loadable> m_factory;
@@ -55,7 +56,6 @@ public:
 
     void installExecutor(const std::string &id, const std::shared_ptr<AbstractAssetExecutor> &executor);
 };
-
 }
 
 #endif // ASSETPROVIDER_H

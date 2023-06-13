@@ -24,8 +24,8 @@ std::vector<std::string> e172::__enum_tools::split(const std::string &s, char de
 std::map<uint8_t, std::string> e172::__enum_tools::__va_args_to_map(const std::string &str) {
     auto vec = split(str, ',');
     std::map<uint8_t, std::string> result;
-    for(size_t i = 0, count = vec.size(); i < count; ++i) {
-        result[i] = trim(vec[i]);
+    for(size_t i = 0, count = std::min(vec.size(), static_cast<std::size_t>(256)); i < count; ++i) {
+        result[static_cast<std::uint8_t>(i)] = trim(vec[i]);
     }
     return result;
 }

@@ -11,7 +11,7 @@ void e172::Colider::setMatrix(const Matrix &matrix) {
     m_matrix = matrix;
 }
 
-void e172::Colider::setPosition(const Vector &position) {
+void e172::Colider::setPosition(const Vector<double> &position) {
     m_position = position;
 }
 
@@ -27,11 +27,9 @@ std::vector<e172::Colider::PositionalVector> e172::Colider::escapeVectors() cons
     return m_escapeVectors;
 }
 
-e172::Vector e172::Colider::collisionPoint() const {
-    return m_collisionPoint;
-}
-
-std::vector<e172::Colider::PositionalVector> e172::Colider::makeEdges(const std::vector<e172::Vector> &vertices) {
+std::vector<e172::Colider::PositionalVector> e172::Colider::makeEdges(
+    const std::vector<Vector<double>> &vertices)
+{
     std::vector<PositionalVector> edges(vertices.size());
     for(size_t i = 0; i < vertices.size(); ++i) {
         if(i < vertices.size() - 1) {
@@ -43,7 +41,9 @@ std::vector<e172::Colider::PositionalVector> e172::Colider::makeEdges(const std:
     return edges;
 }
 
-std::vector<e172::Colider::PositionalVector> e172::Colider::transformed(const std::vector<e172::Colider::PositionalVector> &vector, const e172::Matrix &matrix) {
+std::vector<e172::Colider::PositionalVector> e172::Colider::transformed(
+    const std::vector<Colider::PositionalVector> &vector, const Matrix &matrix)
+{
     std::vector<e172::Colider::PositionalVector> result(vector.size());
     for(size_t i = 0, count = vector.size(); i < count; ++i) {
         result[i].position = matrix * vector[i].position;
@@ -52,29 +52,21 @@ std::vector<e172::Colider::PositionalVector> e172::Colider::transformed(const st
     return result;
 }
 
-e172::Vector e172::Colider::perpendecularProjection(const e172::Vector &p0, const e172::Vector &p1, const e172::Vector &v) {
+e172::Vector<double> e172::Colider::perpendecularProjection(const Vector<double> &p0,
+                                                            const Vector<double> &p1,
+                                                            const Vector<double> &v)
+{
     return (p1 - p0).projection(v.leftNormal());
 }
 
 bool e172::Colider::penetration(double x0, double w0, double x1, double w1) {
-//    return ((x0 < x1) && (x1 < (x0 + w0)))
-//            || ((x0 < (x1 + w1)) && ((x1 + w1) < (x0 + w0)))
-//            || ((x1 < x0) && (x0 < (x1 + w1)))
-//            || ((x1 < (x0 + w0)) && ((x0 + w0) < (x1 + w1)));
-
     return (x1 - x0) * (x1 - x0 - w0) < 0
             || (x1 + w1 - x0) * (x1 + w1 - x0 - w0) < 0
             || (x0 - x1) * (x0 - x1 - w1) < 0
             || (x0 + w0 - x1) * (x0 + w0 - x1 - w1) < 0;
 }
 
-e172::Colider::Colider() {}
-
-std::vector<e172::Vector> e172::Colider::vertices() const {
-    return m_vertices;
-}
-
-void e172::Colider::setVertices(const std::vector<Vector> &vertices) {
+void e172::Colider::setVertices(const std::vector<Vector<double> > &vertices) {
     m_vertices = vertices;
     m_edges = makeEdges(vertices);
     m_projections.resize(vertices.size());
@@ -105,7 +97,7 @@ std::pair<e172::Colider::PositionalVector, e172::Colider::PositionalVector> e172
 
     std::list<PositionalVector> ev;
 
-    e172::Vector averagePosition;
+    e172::Vector<double> averagePosition;
     for(size_t i = 0, count = edgesProxy.size(); i < count; ++i) {
         const auto normal = edgesProxy[i].leftNormal();
         c0->m_projections[i] = objectProjection(e0, normal);
@@ -183,7 +175,8 @@ bool e172::Colider::PositionalVector::moduleLessComparator(const e172::Colider::
     return v0.vector.module() < v1.vector.module();
 }
 
-e172::Vector e172::Colider::PositionalVector::line() const {
+e172::Vector<double> e172::Colider::PositionalVector::line() const
+{
     if(vector.x() != e172::Math::null) {
         const auto k = vector.y() / vector.x();
         return { k, position.y() - k * position.x() };
@@ -191,7 +184,9 @@ e172::Vector e172::Colider::PositionalVector::line() const {
     return { std::numeric_limits<double>::max(), position.x() };
 }
 
-e172::Vector e172::Colider::PositionalVector::linesIntersection(const e172::Vector &line0, const e172::Vector &line1) {
+e172::Vector<double> e172::Colider::PositionalVector::linesIntersection(
+    const e172::Vector<double> &line0, const e172::Vector<double> &line1)
+{
     const double kk = line1.x() - line0.x();
     if(kk != e172::Math::null) {
         const auto x = (line0.y() - line1.y()) / kk;

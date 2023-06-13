@@ -1,9 +1,10 @@
-#ifndef ABSTRACTEVENTHANDLER_H
-#define ABSTRACTEVENTHANDLER_H
+#pragma once
 
+#include <optional>
+#include <queue>
 #include <src/math/vector.h>
-
-
+#include <src/net/common.h>
+#include <src/utility/buffer.h>
 
 namespace e172 {
 
@@ -11,8 +12,7 @@ namespace e172 {
  *  \brief These values are taken from SDL library
  *
  */
-typedef enum
-{
+enum Scancode : std::uint16_t {
     ScancodeUnknown = 0,
 
     /**
@@ -178,8 +178,8 @@ typedef enum
                                         *   LESS-THAN SIGN and GREATER-THAN SIGN
                                         *   in a Swiss German, German, or French
                                         *   layout. */
-    ScancodeApplication = 101, /**< windows contextual menu, compose */
-    ScancodePower = 102, /**< The USB document says this is a status flag,
+    ScancodeApplication = 101,    /**< windows contextual menu, compose */
+    ScancodePower = 102,          /**< The USB document says this is a status flag,
                                *   not a physical key - but some Mac keyboards
                                *   do have a power key. */
     ScancodeKPEquals = 103,
@@ -200,7 +200,7 @@ typedef enum
     ScancodeMenu = 118,
     ScancodeSelect = 119,
     ScancodeStop = 120,
-    ScancodeAgain = 121,   /**< redo */
+    ScancodeAgain = 121, /**< redo */
     ScancodeUndo = 122,
     ScancodeCut = 123,
     ScancodeCopy = 124,
@@ -209,10 +209,10 @@ typedef enum
     ScancodeMute = 127,
     ScancodeVolumeUp = 128,
     ScancodeVolumeDown = 129,
-/* not sure whether there's a reason to enable these */
-/*     ScancodeLOCKINGCAPSLOCK = 130,  */
-/*     ScancodeLOCKINGNUMLOCK = 131, */
-/*     ScancodeLOCKINGSCROLLLOCK = 132, */
+    /* not sure whether there's a reason to enable these */
+    /*     ScancodeLOCKINGCAPSLOCK = 130,  */
+    /*     ScancodeLOCKINGNUMLOCK = 131, */
+    /*     ScancodeLOCKINGSCROLLLOCK = 132, */
     ScancodeKPComma = 133,
     ScancodeKPEqualSas400 = 134,
 
@@ -305,12 +305,12 @@ typedef enum
     ScancodeRAlt = 230, /**< alt gr, option */
     ScancodeRGui = 231, /**< windows, command (apple), meta */
 
-    ScancodeMode = 257,    /**< I'm not sure if this is really not covered
+    ScancodeMode = 257, /**< I'm not sure if this is really not covered
                                  *   by any of the above, but since there's a
                                  *   special KMOD_MODE for it I'm adding it here
                                  */
 
-    /* @} *//* Usage page 0x07 */
+    /* @} */ /* Usage page 0x07 */
 
     /**
      *  \name Usage page 0x0C
@@ -337,7 +337,7 @@ typedef enum
     ScancodeAcRefresh = 273,
     ScancodeAcBookmarks = 274,
 
-    /* @} *//* Usage page 0x0C */
+    /* @} */ /* Usage page 0x0C */
 
     /**
      *  \name Walther keys
@@ -359,7 +359,7 @@ typedef enum
     ScancodeApp1 = 283,
     ScancodeApp2 = 284,
 
-    /* @} *//* Walther keys */
+    /* @} */ /* Walther keys */
 
     /**
      *  \name Usage page 0x0C (additional media keys)
@@ -371,33 +371,132 @@ typedef enum
     ScancodeAudioRewind = 285,
     ScancodeAudioFastForward = 286,
 
-    /* @} *//* Usage page 0x0C (additional media keys) */
+    /* @} */ /* Usage page 0x0C (additional media keys) */
 
     /* Add any other keys here. */
 
     ScancodesCount = 512 /**< not a key, just marks the number of scancodes
                                  for array bounds */
-} Scancode;
-
-
-
-class AbstractEventHandler {
-public:
-    virtual bool exitFlag() const = 0;
-    virtual bool keyHolded(Scancode key) const = 0;
-    virtual bool keySinglePressed(Scancode key) const = 0;
-    virtual std::string pullText() = 0;
-    virtual void update() = 0;
-    virtual Vector mousePosition() const = 0;
-    virtual void enableKeyboard() = 0;
-    virtual void disableKeyboard() = 0;
-    AbstractEventHandler();
-    virtual ~AbstractEventHandler();
 };
 
+class Event
+{
+public:
+    enum Type : std::uint8_t { KeyDown, KeyUp, MouseMotion, Quit };
+    using Pos = Vector<std::uint16_t>;
 
+    Type type() const { return m_type; };
 
+    std::optional<Scancode> scancode() const
+    {
+        return Data::hasScancode(m_type) ? std::optional<Scancode>(m_data.scancode) : std::nullopt;
+    };
 
+    std::optional<Pos> pos() const
+    {
+        return Data::hasPos(m_type) ? std::optional<Pos>(m_data.pos) : std::nullopt;
+    };
 
-}
-#endif // ABSTRACTEVENTHANDLER_H
+    std::optional<PackedClientId> clientId() const { return m_clientId; }
+
+    void serialize(WriteBuffer &buf) const;
+    static std::optional<Event> deserialize(ReadBuffer &buf);
+    static std::optional<Event> deserializeConsume(ReadBuffer &&buf) { return deserialize(buf); }
+
+    static Event keyDown(Scancode scancode) { return Event(std::nullopt, KeyDown, Data(scancode)); }
+
+    static Event keyUp(Scancode scancode) { return Event(std::nullopt, KeyUp, Data(scancode)); }
+
+    static Event mouseMotion(const Pos &pos) { return Event(std::nullopt, MouseMotion, Data(pos)); }
+
+    static Event quit() { return Event(std::nullopt, Quit, ScancodeUnknown); }
+
+    Event claimClientId(PackedClientId clientId) const { return Event(clientId, m_type, m_data); }
+
+    inline friend std::ostream &operator<<(std::ostream &stream, const Event &event)
+    {
+        switch (event.m_type) {
+        case Event::KeyDown:
+            return stream << "KeyDown { " << event.scancode().value() << " }";
+        case Event::KeyUp:
+            return stream << "KeyUp { " << event.scancode().value() << " }";
+        case Event::MouseMotion:
+            return stream << "MouseMotion { " << event.pos().value() << " }";
+        case Event::Quit:
+            return stream << "Quit";
+        }
+        return stream;
+    }
+
+private:
+    Event withClientId(const std::optional<PackedClientId> &clientId) const
+    {
+        return Event(clientId, m_type, m_data);
+    }
+
+    union Data {
+        Data(Scancode s)
+            : scancode(s)
+        {}
+
+        Data(Pos s)
+            : pos(s)
+        {}
+
+        static bool hasScancode(Event::Type t) { return t == KeyDown || t == KeyUp; }
+        static bool hasPos(Event::Type t) { return t == MouseMotion; }
+
+        Scancode scancode;
+        Pos pos;
+    };
+
+    explicit Event(const std::optional<PackedClientId> &clientId, Type type, Data data)
+        : m_clientId(clientId)
+        , m_type(type)
+        , m_data(data)
+    {}
+
+private:
+    std::optional<PackedClientId> m_clientId;
+    Type m_type;
+    Data m_data;
+};
+
+class AbstractEventProvider
+{
+public:
+    AbstractEventProvider() = default;
+
+    virtual std::optional<Event> pullEvent() = 0;
+
+    virtual ~AbstractEventProvider() = default;
+};
+
+/**
+ * @brief The MemEventProvider class provides events from application memory
+ * Can be used as stub in tests or proxy to be connected to another event system
+ */
+class MemEventProvider : public AbstractEventProvider
+{
+public:
+    MemEventProvider() = default;
+    void pushEvent(const Event &event) { m_queue.push(event); }
+
+    // AbstractEventProvider interface
+public:
+    std::optional<Event> pullEvent() override
+    {
+        if (m_queue.empty()) {
+            return std::nullopt;
+        } else {
+            const auto e = m_queue.front();
+            m_queue.pop();
+            return e;
+        }
+    }
+
+private:
+    std::queue<Event> m_queue;
+};
+
+} // namespace e172

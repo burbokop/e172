@@ -1,5 +1,4 @@
-#ifndef VARIANT_H
-#define VARIANT_H
+#pragma once
 
 #define E172_DISABLE_VARIANT_ABSTRACT_CONSTRUCTOR
 #define E172_USE_VARIANT_RTTI_OBJECT
@@ -23,51 +22,66 @@
 
 namespace e172 {
 
-
-
-
+template<typename T>
+struct TypeTag {
+    using Type = T;
+};
 
 struct VariantBaseHandle { virtual ~VariantBaseHandle() {}; };
 template<typename T>
 struct VariantHandle : public VariantBaseHandle { T value; };
 
 class VariantRTTIObject {
-    std::string m_typeName;
-    size_t m_typeHash = 0;
-
-    std::function<void(VariantBaseHandle*)> m_destructor;
-    std::function<VariantBaseHandle*(VariantBaseHandle*)> m_copyConstructor;
-    std::function<std::string(VariantBaseHandle*)> m_streamValue;
-    std::function<std::string(VariantBaseHandle*)> m_stringConvertor;
-
-    std::function<bool(VariantBaseHandle*, VariantBaseHandle*)> m_comparator;
-    std::function<bool(VariantBaseHandle*, VariantBaseHandle*)> m_lessOperator;
+    template <typename T>
+    friend class VariantRTTITable;
 public:
-    inline void destruct(VariantBaseHandle* h) { if(m_destructor) m_destructor(h); }
-    inline VariantBaseHandle* copy(VariantBaseHandle* h) {
+    void destruct(VariantBaseHandle *h) const
+    {
+        if (m_destructor)
+            m_destructor(h);
+    }
+
+    VariantBaseHandle *copy(VariantBaseHandle *h) const
+    {
         if(m_copyConstructor)
             return m_copyConstructor(h);
         return nullptr;
     }
-    inline std::string streamValue(VariantBaseHandle* h) { if(m_streamValue) return m_streamValue(h); return ""; }
-    inline std::string toString(VariantBaseHandle* h) { if(m_stringConvertor) return m_stringConvertor(h); return ""; }
-    inline bool compare(VariantBaseHandle* h0, VariantBaseHandle* h1) {
+
+    std::string streamValue(VariantBaseHandle *h) const
+    {
+        if (m_streamValue)
+            return m_streamValue(h);
+        return "";
+    }
+
+    std::string toString(VariantBaseHandle *h) const
+    {
+        if (m_stringConvertor)
+            return m_stringConvertor(h);
+        return "";
+    }
+
+    bool compare(VariantBaseHandle *h0, VariantBaseHandle *h1) const
+    {
         if(m_comparator)
             return m_comparator(h0, h1);
         return false;
     }
-    inline bool less(VariantBaseHandle* h0, VariantBaseHandle* h1) {
+
+    bool less(VariantBaseHandle *h0, VariantBaseHandle *h1) const
+    {
         if(m_lessOperator)
             return m_lessOperator(h0, h1);
         return false;
     }
-    inline auto typeName() const { return m_typeName; }
-    inline auto typeHash() const { return m_typeHash; }
 
+    auto typeName() const { return m_typeName; }
+    auto typeHash() const { return m_typeHash; }
+
+private:
     template<typename T>
-    VariantRTTIObject(T&&) {
-        //typedef typename std::conditional<sfinae::CanPrintWithCout<T>::value, std::ostream, std::wostream>::type stream_type;
-
+    VariantRTTIObject(TypeTag<T>) {
         m_destructor = [](VariantBaseHandle* obj) {
             delete dynamic_cast<VariantHandle<T>*>(obj);
         };
@@ -76,7 +90,6 @@ public:
             return new VariantHandle<T>(*casted_obj);
         };
 
-        // additional operators
         if constexpr(sfinae::StreamOperator<std::ostream, T>::value) {
             m_streamValue = [](VariantBaseHandle* obj) {
                 VariantHandle<T>* casted_obj = dynamic_cast<VariantHandle<T>*>(obj);
@@ -86,8 +99,8 @@ public:
             };
         }
 
-        if constexpr(std::is_same<T, std::string>::value || sfinae::TypeConvertionOperator<T, std::string>::value) {
-            m_stringConvertor = [](VariantBaseHandle* obj) {
+        if constexpr(std::is_same<T, std::string>::value || std::is_convertible<T, std::string>::value) {
+            m_stringConvertor = [](VariantBaseHandle* obj) -> std::string {
                 return dynamic_cast<VariantHandle<T>*>(obj)->value;
             };
         } else if constexpr(std::is_integral<T>::value || std::is_same<T, double>::value || std::is_same<T, long double>::value || std::is_same<T, float>::value) {
@@ -115,22 +128,60 @@ public:
         m_typeName = Type<T>::name();
         m_typeHash = Type<T>::hash();
     }
+private:
+    std::string m_typeName;
+    size_t m_typeHash = 0;
+
+    std::function<void(VariantBaseHandle*)> m_destructor;
+    std::function<VariantBaseHandle*(VariantBaseHandle*)> m_copyConstructor;
+    std::function<std::string(VariantBaseHandle*)> m_streamValue;
+    std::function<std::string(VariantBaseHandle*)> m_stringConvertor;
+
+    std::function<bool(VariantBaseHandle*, VariantBaseHandle*)> m_comparator;
+    std::function<bool(VariantBaseHandle*, VariantBaseHandle*)> m_lessOperator;
+};
+
+class VariantRTTIPtr {
+    template <typename T>
+    friend class VariantRTTITable;
+public:
+    VariantRTTIPtr() = default;
+
+    operator bool() const { return m_obj; }
+    bool operator!() const { return m_obj == nullptr; }
+    auto operator ->() const { return m_obj; }
+
+    bool operator ==(VariantRTTIPtr other) const {
+        if(m_obj == other.m_obj) {
+            return true;
+        }
+#if defined(__MINGW32__) || (defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER))
+        if(m_obj && other.m_obj) {
+            /// Additional comparison needed on mingw and msvc if two rtti objects created in different libraries
+            return m_obj->typeHash() == other.m_obj->typeHash();
+        }
+#endif
+        return false;
+    }
+private:
+    VariantRTTIPtr(const VariantRTTIObject* obj) : m_obj(obj) {}
+private:
+    const VariantRTTIObject* m_obj = nullptr;
+};
+
+template <typename T>
+class VariantRTTITable {
+public:
+    static VariantRTTIPtr object() { return s_object; }
+private:
+    inline static VariantRTTIPtr s_object = new VariantRTTIObject(TypeTag<T>{});
 };
 
 class Variant;
 
-template <typename T>
-class VariantRTTITable {
-    static inline VariantRTTIObject *m_object = new VariantRTTIObject(T());
-public:
-    static VariantRTTIObject *object() { return m_object; }
-};
-
-
-
-typedef std::vector<Variant> VariantVector;
-typedef std::list<Variant> VariantList;
-typedef std::map<std::string, Variant> VariantMap;
+using VariantVector = std::vector<Variant>;
+using VariantList = std::list<Variant>;
+using VariantMap = std::map<std::string, Variant>;
 
 std::ostream &operator<<(std::ostream &stream, const VariantVector &vector);
 std::ostream &operator<<(std::ostream &stream, const VariantList &list);
@@ -141,7 +192,7 @@ class Variant {
     VariantBaseHandle *m_data = nullptr;
 
 #ifdef E172_USE_VARIANT_RTTI_OBJECT
-    VariantRTTIObject *m_rttiObject = nullptr;
+    VariantRTTIPtr m_rttiObject;
 #else
     std::string m_typeName;
     size_t m_typeHash = 0;
@@ -155,9 +206,13 @@ class Variant {
     std::function<bool(VariantBaseHandle*, VariantBaseHandle*)> m_less_operator;
 #endif
 
-
+    /**
+     * @brief valueUnchecked - get value without any checks
+     * @note if variant is invalid or not contains T then undefined behaviour.
+     * @return value containing in variant
+     */
     template<typename T>
-    T value_fast() const { return dynamic_cast<VariantHandle<T>*>(m_data)->value; }
+    T valueUnchecked() const { return dynamic_cast<VariantHandle<T>*>(m_data)->value; }
 
     template<typename T>
     static std::string containerToJson(const T& container) {
@@ -184,7 +239,7 @@ public:
     Variant(T value) { assign(value); }
 #endif
 
-    inline Variant(const Variant &obj) { operator=(obj); }
+    Variant(const Variant &obj) { operator=(obj); }
 
     template<typename T>
     void operator=(const T& value) { assign(value); }
@@ -208,7 +263,7 @@ public:
 #endif
     }
 
-    inline ~Variant() {
+    ~Variant() {
 #ifdef E172_USE_VARIANT_RTTI_OBJECT
         if(m_data && m_rttiObject) { m_rttiObject->destruct(m_data); }
 #else
@@ -227,11 +282,12 @@ public:
     }
 
     template<typename T>
-    T value_default() const {
+    T valueOr(const T &defaultValue) const
+    {
         if(containsType<T>()) {
             return dynamic_cast<VariantHandle<T>*>(m_data)->value;
         }
-        return T();
+        return defaultValue;
     }
 
     template<typename T, typename R>
@@ -255,7 +311,7 @@ public:
 #ifdef E172_USE_VARIANT_RTTI_OBJECT
     template<typename T>
     void assign(const T& value) {
-        if(m_rttiObject != VariantRTTITable<T>::object()) {
+        if (!m_data || m_rttiObject != VariantRTTITable<T>::object()) {
             if(m_data)
                 m_rttiObject->destruct(m_data);
 
@@ -364,7 +420,12 @@ public:
     Variant(const VariantMap &value) { assign(value); }
     Variant(const VariantList &value) { assign(value); }
     Variant(const VariantVector &value) { assign(value); }
-    Variant(const Vector &value) { assign(value); }
+
+    template<typename T>
+    Variant(const Vector<T> &value)
+    {
+        assign(value);
+    }
 
     Variant(double value) { assign(value); }
 
@@ -385,7 +446,7 @@ public:
     bool isString() const;
 
 #ifdef E172_USE_VARIANT_RTTI_OBJECT
-    inline bool isNull() const { return m_rttiObject == nullptr; }
+    inline bool isNull() const { return !m_rttiObject; }
 #else
     inline bool isNull() const { return m_typeName.size() <= 0; }
 #endif
@@ -416,22 +477,31 @@ public:
 
     E172_VARIANT_NUM_CONVERTER(Size_t, size_t)
 
-    inline auto toMap() const { return value_default<VariantMap>(); };
-    inline auto toList() const {
+    auto toMap() const { return valueOr<VariantMap>({}); };
+
+    auto toList() const
+    {
         if(containsType<VariantVector>()) {
-            const auto l = value_default<VariantVector>();
+            const auto l = valueOr<VariantVector>({});
             return VariantList(l.begin(), l.end());
         }
-        return value_default<VariantList>();
+        return valueOr<VariantList>({});
     };
-    inline auto toVector() const {
+
+    auto toVector() const
+    {
         if(containsType<VariantList>()) {
-            const auto l = value_default<VariantList>();
+            const auto l = valueOr<VariantList>({});
             return VariantVector(l.begin(), l.end());
         }
-        return value_default<VariantVector>();
+        return valueOr<VariantVector>({});
     };
-    inline auto toMathVector() const { return value_default<Vector>();};
+
+    template<typename T>
+    auto toMathVector() const
+    {
+        return valueOr<Vector<T>>({});
+    };
 
     std::string toString() const;
     static Variant fromString(const std::string &string);
@@ -469,32 +539,40 @@ T Variant::toNumber(bool *ok) const {
     if(ok)
         *ok = true;
 
-    if(containsType<bool>()) { return value_fast<bool>();
-    } else if(containsType<char               >()) { return value_fast<char>();
-    } else if(containsType<unsigned char      >()) { return value_fast<unsigned char>();
+    if(containsType<bool>()) { return static_cast<T>(valueUnchecked<bool>());
+    } else if(containsType<char               >()) { return static_cast<T>(valueUnchecked<char>());
+    } else if(containsType<unsigned char      >()) { return static_cast<T>(valueUnchecked<unsigned char>());
 #ifdef _WCHAR_T_DEFINED
-    } else if(containsType<wchar_t            >()) { return value_fast<wchar_t>();
+    } else if(containsType<wchar_t            >()) { return static_cast<T>(valueUnchecked<wchar_t>());
 #endif
 #ifdef __CHAR16_TYPE__
-    } else if(containsType<char16_t           >()) { return value_fast<char16_t>();
+    } else if(containsType<char16_t           >()) { return static_cast<T>(valueUnchecked<char16_t>());
 #endif
 #ifdef __CHAR32_TYPE__
-    } else if(containsType<char32_t           >()) { return value_fast<char32_t>();
+    } else if(containsType<char32_t           >()) { return static_cast<T>(valueUnchecked<char32_t>());
 #endif
-    } else if(containsType<short              >()) { return value_fast<short>();
-    } else if(containsType<unsigned short     >()) { return value_fast<unsigned short>();
-    } else if(containsType<int                >()) { return value_fast<int>();
-    } else if(containsType<unsigned int       >()) { return value_fast<unsigned int>();
-    } else if(containsType<long               >()) { return value_fast<long>();
-    } else if(containsType<unsigned long      >()) { return value_fast<unsigned long>();
-    } else if(containsType<long long          >()) { return value_fast<long long>();
-    } else if(containsType<unsigned long long >()) { return value_fast<unsigned long long>();
-    } else if(containsType<float              >()) { return value_fast<float>();
-    } else if(containsType<double             >()) { return value_fast<double>();
-    } else if(containsType<long double        >()) { return value_fast<long double>();
+    } else if(containsType<short              >()) { return static_cast<T>(valueUnchecked<short>());
+    } else if(containsType<unsigned short     >()) { return static_cast<T>(valueUnchecked<unsigned short>());
+    } else if(containsType<int                >()) { return static_cast<T>(valueUnchecked<int>());
+    } else if(containsType<unsigned int       >()) { return static_cast<T>(valueUnchecked<unsigned int>());
+    } else if(containsType<long               >()) { return static_cast<T>(valueUnchecked<long>());
+    } else if(containsType<unsigned long      >()) { return static_cast<T>(valueUnchecked<unsigned long>());
+    } else if(containsType<long long          >()) { return static_cast<T>(valueUnchecked<long long>());
+    } else if(containsType<unsigned long long >()) { return static_cast<T>(valueUnchecked<unsigned long long>());
+    } else if(containsType<float              >()) { return static_cast<T>(valueUnchecked<float>());
+    } else if(containsType<double             >()) { return static_cast<T>(valueUnchecked<double>());
+    } else if(containsType<long double        >()) { return static_cast<T>(valueUnchecked<long double>());
     } else if(containsType<std::string        >()) {
         try {
-            return std::stod(value_fast<std::string>());
+            if constexpr (std::is_same<T, double>::value) {
+                return std::stod(valueUnchecked<std::string>());
+            } else if constexpr (std::is_same<T, float>::value) {
+                return std::stof(valueUnchecked<std::string>());
+            } else if constexpr (std::is_signed<T>::value) {
+                return static_cast<T>(std::stoll(valueUnchecked<std::string>()));
+            } else {
+                return static_cast<T>(std::stoull(valueUnchecked<std::string>()));
+            }
         } catch (std::invalid_argument) {
             if(ok)
                 *ok = false;
@@ -507,13 +585,4 @@ T Variant::toNumber(bool *ok) const {
     return 0;
 }
 
-
-
-
-
-
-
-
-}
-
-#endif // VARIANT_H
+} // namespace e172

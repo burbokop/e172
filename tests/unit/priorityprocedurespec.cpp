@@ -5,7 +5,8 @@
 #include <map>
 #include <src/testing.h>
 
-void e172::PriorityProcedureSpec::execTest0() {
+void e172::tests::PriorityProcedureSpec::execTest0()
+{
     std::map<int64_t, size_t> map;
 
     PriorityProcedure::Queue queue;
@@ -34,8 +35,8 @@ void e172::PriorityProcedureSpec::execTest0() {
     e172_shouldEqual(map.at(100), 1);
 }
 
-
-void e172::PriorityProcedureSpec::execTest1() {
+void e172::tests::PriorityProcedureSpec::execTest1()
+{
     std::vector<int64_t> vector;
 
     PriorityProcedure::Queue queue;
@@ -65,7 +66,8 @@ void e172::PriorityProcedureSpec::execTest1() {
     e172_shouldEqual(vector[7], 100);
 }
 
-void e172::PriorityProcedureSpec::execTest2() {
+void e172::tests::PriorityProcedureSpec::execTest2()
+{
     std::vector<int64_t> vector;
 
     PriorityProcedure::Queue queue;

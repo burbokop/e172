@@ -5,27 +5,13 @@
 
 namespace e172 {
 
-AbstractGraphicsProvider *AbstractAssetExecutor::graphicsProvider() const
-{
-    return m_graphicsProvider;
-}
-
-AbstractAudioProvider *AbstractAssetExecutor::audioProvider() const
-{
-    return m_audioProvider;
-}
-
 std::string AbstractAssetExecutor::fullPath(const std::string &path) {
-    return Additional::concatenatePaths(executor_path, path);
+    return Additional::concatenatePaths(executorPath, path);
 }
-
-AbstractAssetExecutor::AbstractAssetExecutor() {}
-
-AbstractAssetExecutor::~AbstractAssetExecutor() {}
 
 e172::LoadableTemplate e172::AbstractAssetExecutor::createTemplate(const e172::VariantMap &object) {
     if(m_provider) {
-        return m_provider->createTemplate(object, executor_path);
+        return m_provider->createTemplate(object, executorPath);
     }
     return LoadableTemplate();
 }
@@ -39,6 +25,5 @@ LoadableTemplate AbstractAssetExecutor::loadTemplate(const std::string &template
     }
     return LoadableTemplate();
 }
-
 
 }

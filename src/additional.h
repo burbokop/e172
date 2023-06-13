@@ -1,5 +1,4 @@
-#ifndef ADDITIONAL_H
-#define ADDITIONAL_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -7,7 +6,7 @@
 #include <list>
 #include <functional>
 #include <src/utility/option.h>
-#include "typedefs.h"
+#include <algorithm>
 
 namespace e172 {
 
@@ -80,15 +79,14 @@ struct Additional {
     static std::string defaultFontDirectory();
     static std::string defaultFont(const std::string &suffix = ".ttf");
 
-
-    static std::vector<std::string> coverArgs(int argc, char *argv[]);
+    static std::vector<std::string> coverArgs(int argc, const char *argv[]);
 
     static Option<double> parseRadians(const std::string& string);
 
     template<typename T>
     static T filter(const T& container, const std::function<bool(const typename T::value_type&)> cb) {
         T result;
-        std::copy_if (container.begin(), container.end(), std::back_inserter(result), cb);
+        std::copy_if(container.begin(), container.end(), std::back_inserter(result), cb);
         return result;
     }
 
@@ -97,5 +95,3 @@ struct Additional {
 };
 
 }
-
-#endif // ADDITIONAL_H

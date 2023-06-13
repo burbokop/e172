@@ -35,7 +35,7 @@ void ElapsedTimer::reset() {
 }
 
 double ElapsedTimer::progress() const {
-    const double milliseconds = Time::currentMilliseconds();
+    const double milliseconds = static_cast<double>(Time::currentMilliseconds());
     if(m_interval == 0)\
         return 0;
     return (milliseconds - m_checkPoint) / m_interval;

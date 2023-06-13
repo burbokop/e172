@@ -1,5 +1,9 @@
 #include "dynamiclibrary.h"
+
+#ifdef __unix__
 #include <dlfcn.h>
+#endif
+
 #include <src/additional.h>
 
 std::string e172::DynamicLibrary::path() const {
@@ -30,15 +34,21 @@ void *e172::DynamicLibrary::__symbol(const std::string &name) const {
 }
 
 std::list<std::string> e172::DynamicLibrary::polymorphicSymbols(const std::string &name) const {
-    const auto stdout = e172::Additional::executeCommand(("objdump --syms " + m_path + " | grep \" _Z" + std::to_string(name.size()) + name + '"').c_str());
+#ifdef __unix__
+
+    const auto objdumpStdout = e172::Additional::executeCommand(("objdump --syms " + m_path + " | grep \" _Z" + std::to_string(name.size()) + name + '"').c_str());
     std::list<std::string> result;
-    for(const auto& s : stdout) {
+    for(const auto& s : objdumpStdout) {
         const auto l = e172::Additional::split(s, ' ');
         if(l.size() > 0) {
             result.push_back(e172::Additional::trim(l[l.size() - 1]));
         }
     }
     return result;
+#else
+    (void)name;
+    return {};
+#endif
 }
 
 e172::DynamicLibrary e172::DynamicLibrary::load(const std::string &path) {

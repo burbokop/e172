@@ -29,8 +29,8 @@ Animator::Animator(const e172::Image &origin, int frames, int tracks) {
     m_origin = origin;
     m_frameCount = frames;
     m_trackCount = tracks;
-    const int frameWidth = origin.width() / frames;
-    const int frameHeigth = origin.height() / tracks;
+    const auto frameWidth = origin.width() / frames;
+    const auto frameHeigth = origin.height() / tracks;
 
     m_currentFrameIndex = 0;
     m_currentTrackIndex = 0;
@@ -47,7 +47,7 @@ void Animator::play(unsigned mode) {
 }
 
 
-void Animator::setPosition(const e172::Vector &position) {
+void Animator::setPosition(const Vector<double> &position) {
     m_position = position;
 }
 
@@ -59,7 +59,8 @@ void Animator::setZoom(double zoom) {
     m_zoom = zoom;
 }
 
-e172::Vector Animator::render(e172::AbstractRenderer *renderer) {
+e172::Vector<double> Animator::render(e172::AbstractRenderer *renderer)
+{
     if(m_isValid) {
         const auto currentFrame = m_frames[static_cast<unsigned long>(m_currentFrameIndex)];
         if (renderer != nullptr && m_mode != NotRender) {
@@ -72,9 +73,9 @@ e172::Vector Animator::render(e172::AbstractRenderer *renderer) {
             }
         }
         if(m_defaultMode != Inactive) m_mode = m_defaultMode;
-        return e172::Vector(currentFrame.width(), currentFrame.height());
+        return e172::Vector<std::size_t>(currentFrame.width(), currentFrame.height()).into<double>();
     }
-    return e172::Vector();
+    return e172::Vector<double>();
 }
 
 bool operator ==(const Animator &anim0, const Animator &anim1) {

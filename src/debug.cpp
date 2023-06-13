@@ -1,33 +1,48 @@
 #include "additional.h"
 #include "debug.h"
+#include "src/consolecolor.h"
 #include "type.h"
 
 #include <iostream>
 
 #include <signal.h>    // for signal
+
+#ifdef __unix__
 #include <execinfo.h>  // for backtrace
 #include <dlfcn.h>     // for dladdr
+#endif
 
 namespace e172 {
 
+class FatalException : public std::exception
+{
+public:
+    FatalException(const std::string &message)
+        : m_message(message){};
 
+    // exception interface
+public:
+    const char *what() const noexcept override { return m_message.c_str(); }
 
-std::function<void(const std::string &, Debug::MessageType)> Debug::m_proceedMessage = [](const std::string &data, Debug::MessageType type){
-    if(type == Debug::PrintMessage) {
-        std::cout << data << std::endl;
-    } else if(type == Debug::WarningMessage) {
-        std::cout << "\033[33m" << data << "\033[0m" << std::endl;
-    } else if(type == Debug::FatalMessage) {
-        std::cerr << data << std::endl;
-        exit(1);
-    }
+private:
+    std::string m_message;
 };
 
-std::string Debug::m_separator = " ";
-
-void Debug::setSeparator(const std::string &separator) {
-    m_separator = separator;
-}
+Debug::Handler Debug::m_handler =
+    [](const std::string &data, Debug::MessageType type) {
+        if (type == Debug::PrintMessage) {
+            std::cout << data << std::endl;
+        } else if (type == Debug::WarningMessage) {
+            std::cerr << Yellow.wrap(data) << std::endl;
+        } else if (type == Debug::FatalMessage) {
+#if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
+            std::cerr << Red.wrap(data) << std::endl;
+            abort();
+#else
+            throw FatalException(data);
+#endif
+        }
+    };
 
 int Debug::functionName(void *addr, std::string *fname, std::string *sname) {
 #ifdef __unix__
@@ -57,7 +72,7 @@ std::list<StackTraceInfo> Debug::stackTrace() {
     free(symbollist);
 #endif
     std::list<StackTraceInfo> result;
-    for(auto sti : st) {
+    for(const auto &sti : st) {
         StackTraceInfo info;
         const auto p0 = Additional::split(sti, '(');
         if(p0.size() > 1) {
@@ -101,18 +116,26 @@ std::string Debug::codeLocation(const char *file, int line) {
     return std::string(file) + ":" + std::to_string(line) + ":";
 }
 
-std::string Debug::make_version(int a, int b, int c) {
+std::string Debug::makeVersion(int a, int b, int c)
+{
     std::ostringstream ss;
     ss << a << '.' << b << '.' << c;
     return ss.str();
+}
+
+void Debug::handle(const std::string &ss, MessageType t)
+{
+    if(m_handler) {
+        m_handler(ss, t);
+    }
 }
 
 Debug::CompilerInfo Debug::compilerInfo() {
     return CompilerInfo(cxx, cxx_version);
 }
 
-void Debug::installHandler(const std::function<void (const std::string &, Debug::MessageType)> &handler) {
-    m_proceedMessage = handler;
+void Debug::installHandler(const Handler &handler) {
+    m_handler = handler;
 }
 
 std::string StackTraceInfo::libName() const {

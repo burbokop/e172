@@ -1,11 +1,9 @@
-#ifndef ANIMATOR_H
-#define ANIMATOR_H
+#pragma once
 
-
-#include <vector>
+#include <src/graphics/image.h>
 #include <src/math/vector.h>
 #include <src/time/elapsedtimer.h>
-#include <src/graphics/image.h>
+#include <vector>
 
 namespace e172 {
 
@@ -21,8 +19,26 @@ public:
         ToTheFrame,
         Inactive
     };
+
+    Animator();
+    Animator(const e172::Image &origin, int frames = 1, int tracks = 1);
+    void play(unsigned mode);
+    void setDefaultMode(unsigned value);
+    void setPosition(const Vector<double> &position);
+    void setAngle(double angle);
+    void setZoom(double zoom);
+
+    friend bool operator==(const Animator &anim0, const Animator &anim1);
+    bool isValid() const;
+    int frameCount() const;
+    int trackCount() const;
+
+    // Entity interface
+public:
+    Vector<double> render(e172::AbstractRenderer *renderer);
+
 private:
-    e172::Vector m_position;
+    e172::Vector<double> m_position;
     double m_angle;
     double m_zoom;
 
@@ -38,28 +54,8 @@ private:
     int m_currentTrackIndex;
     bool m_isValid = false;
 
-    static inline int nextId = 0;
-    int m_id = nextId++;
-public:
-    Animator();
-    Animator(const e172::Image &origin, int frames = 1, int tracks = 1);
-    void play(unsigned mode);
-    void setDefaultMode(unsigned value);
-    void setPosition(const Vector &position);
-    void setAngle(double angle);
-    void setZoom(double zoom);
-
-    // Entity interface
-public:
-    Vector render(e172::AbstractRenderer *renderer);
-
-
-    friend bool operator ==(const Animator& anim0, const Animator& anim1);
-    bool isValid() const;
-    int frameCount() const;
-    int trackCount() const;
+    static inline int s_nextId = 0;
+    int m_id = s_nextId++;
 };
 
-}
-
-#endif // ANIMATOR_H
+} // namespace e172

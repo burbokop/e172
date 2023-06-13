@@ -12,7 +12,7 @@ class Intergrator {
 
     struct ChannelState {
         double lastY;
-        e172::Complex lastComplexY;
+        Complex<double> lastComplexY;
         bool frst = true;
     };
 
@@ -20,9 +20,8 @@ class Intergrator {
 public:
     Intergrator(double alpha = 0.9);
 
-
     double proceed(double value, size_t channel = 0);
-    Complex proceed(const e172::Complex &value, size_t channel = 0);
+    Complex<double> proceed(const Complex<double> &value, size_t channel = 0);
 };
 
 template<typename OriginalIt>

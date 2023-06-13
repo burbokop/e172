@@ -1,12 +1,28 @@
 #include "type.h"
 
-
 #if !__has_include(<boost/core/demangle.hpp>)
 
+#if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
+namespace {
+void eraseAllSubstrings(std::string& str, const std::string& what) {
+    auto pos = std::string::npos;
+    while ((pos = str.find(what)) != std::string::npos) {
+        str.erase(pos, what.length());
+    }
+}
+}
+#else
 #include <cxxabi.h>
 #include <stdexcept>
+#endif
 
 std::string e172::TypeTools::demangle(const std::string &typeName) {
+#if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
+    auto result = typeName;
+    eraseAllSubstrings(result, "class ");
+    eraseAllSubstrings(result, "struct ");
+    return result;
+#else
     size_t originalTypeNameSize = typeName.size();
     int status = 0;
     char *demangleResult = abi::__cxa_demangle(typeName.c_str(), nullptr, &originalTypeNameSize, &status);
@@ -22,5 +38,7 @@ std::string e172::TypeTools::demangle(const std::string &typeName) {
     }
     std::free(demangleResult);
     return result;
+#endif
 }
+
 #endif

@@ -1,7 +1,8 @@
-#include <math.h>
-#include <execution>
-
 #include "math.h"
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <execution>
 
 #define INV_PI 180 / M_PI
 #define NOTINV_PI M_PI / 180
@@ -20,8 +21,6 @@ const double e172::Math::SQRT_ROUND_LEVEL = 1000;
 const double e172::Math::SQRT_INV_ROUND_LEVEL = 1 / SQRT_ROUND_LEVEL;
 
 
-
-
 bool e172::Math::cmpf(float a, float b, float epsilon) {
     return (fabsf(a - b) < epsilon);
 }
@@ -31,8 +30,6 @@ bool e172::Math::cmpf(double a, double b, double epsilon) {
 }
 
 double e172::Math::sin(double angle) {
-    //std::cout << "SQRT: " << sqrtCache.size() << " ACOS: " << arccosCache.size() << " SIN: " << sinCache.size() << " COS: " << cosCache.size() << "\n";
-
     if(sinCache.find(angle) == sinCache.end()) {
         const double result = std::sin(angle);
         sinCache[angle] = result;
@@ -44,8 +41,6 @@ double e172::Math::sin(double angle) {
 
 
 double e172::Math::cos(double angle) {
-    //std::cout << "SQRT: " << sqrtCache.size() << " ACOS: " << arccosCache.size() << " SIN: " << sinCache.size() << " COS: " << cosCache.size() << "\n";
-
     if(cosCache.find(angle) == cosCache.end()) {
         const double result = std::cos(angle);
         cosCache[angle] = result;
@@ -56,10 +51,7 @@ double e172::Math::cos(double angle) {
 }
 
 double e172::Math::acos(double value) {
-    //std::cout << "SQRT: " << sqrtCache.size() << " ACOS: " << arccosCache.size() << " SIN: " << sinCache.size() << " COS: " << cosCache.size() << "\n";
-
     value = std::round(value * ACOS_ROUND_LEVEL) * ACOS_INV_ROUND_LEVEL;
-
     if(arccosCache.find(value) == arccosCache.end()) {
         const double result = std::acos(value);
         arccosCache[value] = result;
@@ -70,10 +62,7 @@ double e172::Math::acos(double value) {
 }
 
 double e172::Math::sqrt(double value) {
-    //std::cout << "SQRT: " << sqrtCache.size() << " ACOS: " << arccosCache.size() << " SIN: " << sinCache.size() << " COS: " << cosCache.size() << "\n";
-
     value = std::round(value * SQRT_ROUND_LEVEL) * SQRT_INV_ROUND_LEVEL;
-
     if(sqrtCache.find(value) == sqrtCache.end()) {
         const double result = std::sqrt(value);
         sqrtCache[value] = result;
@@ -190,23 +179,6 @@ double e172::Math::topLimitedFunction(double x) {
         return 1 - 1 / xPlus1;
     }
     return 0;
-}
-
-size_t e172::Math::fractalLevel(const Complex &c, size_t limit, const ComplexFunction &f) {
-    e172::Complex x = { 0, 0 };
-    while (std::abs(x) < 2) {
-        x = f(x) + c;
-        if(limit-- <= 0) {
-            return 0;
-        }
-    }
-    return limit;
-}
-
-double e172::Math::fractalLevel(size_t x, size_t y, size_t w, size_t h, size_t limit, const ComplexFunction &f) {
-    const auto real = (double(x) / double(w) - 0.5) * 4;
-    const auto imag = (double(y) / double(h) - 0.5) * 4;
-    return fractalLevel({ real, imag },  limit, f) / double(limit);
 }
 
 void e172::Math::concurentInitMatrix(size_t w, size_t h, const std::function<void (const std::pair<size_t, size_t> &)> &function) {
