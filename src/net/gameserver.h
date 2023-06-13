@@ -75,7 +75,7 @@ private:
 private:
     struct Client
     {
-        PackedEntityId id;
+        PackedClientId id;
         std::shared_ptr<Socket> socket;
     };
 

@@ -12,7 +12,7 @@ namespace e172::benches {
 
 class VariantBenches
 {
-    static void banchmark() e172_test(VariantSpec, banchmark);
+    static void banchmark() e172_test(VariantBenches, banchmark);
 
     static std::pair<int64_t, int64_t> speedTest(size_t count);
     static double speedTest();

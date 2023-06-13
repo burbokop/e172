@@ -6,13 +6,27 @@
 
 #include <src/time/elapsedtimer.h>
 
+void e172::tests::VariantSpec::rttiTableTest() {
+    const auto int0 = VariantRTTITable<int>::object();
+    const auto int1 = VariantRTTITable<int>::object();
+    e172_shouldEqual(int0, int1)
+
+    const auto str0 = VariantRTTITable<std::string>::object();
+    const auto str1 = VariantRTTITable<std::string>::object();
+    e172_shouldEqual(str0, str1)
+}
+
 void e172::tests::VariantSpec::compareTest0()
 {
-    const auto v0 = e172::Variant("123");
+    e172_shouldEqual(Variant::containsNumber("123"), true)
+
+    const auto v0 = Variant("123");
     e172_shouldEqual(v0.typeName(), Type<std::string>().name())
+    e172_shouldEqual(v0.containsType<std::string>(), true)
+    e172_shouldEqual(v0.value<std::string>(), "123")
     e172_shouldEqual(v0.isNumber(), true)
-    const auto v1 = e172::Variant(123);
-    e172_shouldEqual(v1.typeName(), "int")
+    const auto v1 = Variant(123);
+    e172_shouldEqual(v1.typeName(), Type<int>().name())
     e172_shouldEqual(v1.isNumber(), true)
 
     e172_shouldEqual(v0, v1)

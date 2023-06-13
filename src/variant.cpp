@@ -3,9 +3,7 @@
 
 #include <src/time/elapsedtimer.h>
 
-
 namespace e172 {
-
 
 std::ostream &operator<<(std::ostream &stream, const Variant &arg) {
 #ifdef E172_USE_VARIANT_RTTI_OBJECT
@@ -181,15 +179,11 @@ bool operator<(const Variant &varian0, const Variant &varian1) {
 #endif
 }
 
-
-
 bool Variant::containsNumber(const std::string &string) {
     std::string::const_iterator it = string.begin();
     while (it != string.end() && std::isdigit(*it)) ++it;
     return !string.empty() && it == string.end();
 }
-
-
 
 bool Variant::isNumber() const {
     if(containsType<bool>()
@@ -229,7 +223,7 @@ bool Variant::isString() const {
 
 std::string Variant::toString() const {
     if(containsType<std::string>())
-        return value_fast<std::string>();
+        return valueUnchecked<std::string>();
 #ifdef E172_USE_VARIANT_RTTI_OBJECT
     if(m_rttiObject)
         return m_rttiObject->toString(m_data);
@@ -264,7 +258,7 @@ std::string Variant::toJson() const {
     std::string result;
     if(containsType<VariantMap>()) {
         result += "{";
-        const auto c = value_fast<VariantMap>();
+        const auto c = valueUnchecked<VariantMap>();
         size_t i = 0;
         for (const auto &cc : c) {
             result += "\"" + cc.first + "\" : " + cc.second.toJson();
@@ -276,9 +270,9 @@ std::string Variant::toJson() const {
         result += "}";
         return result;
     } else if(containsType<VariantList>()) {
-        return containerToJson(value_fast<VariantList>());
+        return containerToJson(valueUnchecked<VariantList>());
     } else if(containsType<VariantVector>()) {
-        return containerToJson(value_fast<VariantVector>());
+        return containerToJson(valueUnchecked<VariantVector>());
     } else if(isNumber()) {
         return std::to_string(toDouble());
     } else {

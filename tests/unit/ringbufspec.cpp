@@ -2,6 +2,7 @@
 
 #include <iomanip>
 #include <queue>
+#include <src/time/elapsedtimer.h>
 #include <src/utility/ringbuf.h>
 
 namespace std {
@@ -168,7 +169,7 @@ void streamTestWithCapacity()
 
     std::queue<std::uint8_t> dataToSend;
     for (std::size_t i = 0; i < count; ++i) {
-        const std::uint32_t d = i;
+        const std::uint32_t d = static_cast<std::uint32_t>(i);
         const std::uint8_t *ptr = reinterpret_cast<const std::uint8_t *>(&d);
         for (std::size_t j = 0; j < sizeof(std::uint32_t); ++j) {
             dataToSend.push(ptr[j]);
@@ -177,6 +178,8 @@ void streamTestWithCapacity()
     std::vector<std::uint32_t> receivedData;
 
     RingBuf<std::uint8_t, C> buf;
+
+    ElapsedTimer timeout = 4000;
 
     std::uint32_t nextData = 0;
     while (receivedData.size() < count) {
@@ -205,6 +208,9 @@ void streamTestWithCapacity()
             receivedData.push_back(data);
             ++nextData;
         }
+        if(timeout.check()) {
+            throw std::runtime_error("data transmission timeout");
+        };
     }
 
     e172_shouldEqual(receivedData.size(), count);

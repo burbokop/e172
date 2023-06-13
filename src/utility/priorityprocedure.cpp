@@ -2,7 +2,7 @@
 
 e172::PriorityProcedure::PriorityProcedure() {}
 
-e172::PriorityProcedure::PriorityProcedure(int64_t priority, int64_t index, const std::function<void ()> &function)
+e172::PriorityProcedure::PriorityProcedure(std::int64_t priority, std::int64_t index, const std::function<void ()> &function)
     : m_priority(priority), m_index(index), m_function(function) {}
 
 void e172::PriorityProcedure::operator()() const {
@@ -18,7 +18,7 @@ bool e172::PriorityProcedure::operator<(const PriorityProcedure &other) const {
     }
 }
 
-void e172::PriorityProcedure::Queue::push(int64_t priority, const std::function<void ()> &function) {
+void e172::PriorityProcedure::Queue::push(std::int64_t priority, const std::function<void ()> &function) {
     m_queue.push(PriorityProcedure(priority, m_index++, function));
 }
 

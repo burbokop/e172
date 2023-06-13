@@ -5,7 +5,8 @@
 
 namespace e172 {
 
-struct Time {
+class Time {
+public:
     typedef int64_t time_t;
 
     static time_t currentMilliseconds();

@@ -8,7 +8,6 @@ set(CPACK_PACKAGE_CONTACT "io.github.burbokop")
 
 include(CPack)
 
-
 message("CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 message("CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 

@@ -3,6 +3,7 @@ if(CCACHE_PROGRAM)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
 
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1)
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 add_library(e172 SHARED)
@@ -201,7 +202,9 @@ if(UNIX)
         ${CMAKE_CURRENT_LIST_DIR}/src/net/linux/socket.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/net/linux/networker.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/net/linux/server.cpp)
-endif ()
+else()
+    # TODO for windows
+endif()
 
 if(UNIX)
     target_link_libraries(e172

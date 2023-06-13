@@ -30,6 +30,9 @@ public:
 class Debug {
 public:
     enum MessageType { PrintMessage, WarningMessage, FatalMessage };
+
+    using Handler = std::function<void(const std::string &, MessageType)>;
+
     class CompilerInfo {
         std::string m_name;
         std::string m_version;
@@ -44,7 +47,7 @@ public:
 
     static CompilerInfo compilerInfo();
 
-    static void installHandler(const std::function<void(const std::string &, MessageType)> &handler);
+    static void installHandler(const Handler &handler);
 
     template <typename Separator, typename Arg, typename... Args>
     static void passArgsToStream(std::ostream& out, const Separator &separator, const Arg& arg, const Args& ...args) {
@@ -55,11 +58,9 @@ public:
     template<typename Arg, typename... Args>
     void emitMessage(MessageType type, const Arg &arg, const Args &...args)
     {
-        if(m_proceedMessage) {
-            std::stringstream ss;
-            passArgsToStream(ss, m_separ, arg, args...);
-            m_proceedMessage(ss.str(), type);
-        }
+        std::stringstream ss;
+        passArgsToStream(ss, m_separ, arg, args...);
+        handle(ss.str(), type);
     }
 
     template<typename Arg, typename... Args>
@@ -93,20 +94,30 @@ private:
     static std::string makeVersion(int a, int b, int c);
 
 private:
-    static std::function<void(const std::string &, MessageType)> m_proceedMessage;
+    static Handler m_handler;
+
+    static void handle(const std::string &, MessageType);
 
     static inline const std::string cxx =
-#ifdef __clang__
+#if defined(__clang__)
         "clang++";
-#else
+#elif defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
+        "msvc";
+#elif defined(__GNUC__)
         "g++";
+#else
+        "unknown";
 #endif
 
     static inline const std::string cxx_version =
-#ifdef __clang__
+#if defined(__clang__)
         makeVersion(__clang_major__, __clang_minor__, __clang_patchlevel__);
-#else
+#elif defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
+        makeVersion((_MSC_FULL_VER / 10000000) % 100, (_MSC_FULL_VER / 100000) % 100, _MSC_FULL_VER % 100000);
+#elif defined(__GNUC__)
         makeVersion(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+#else
+        makeVersion(0, 0, 0);
 #endif
 
     std::string m_separ;

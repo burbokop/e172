@@ -5,6 +5,12 @@
 #include <cassert>
 #include "type.h"
 
+#if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
+#define e172_pretty_function __FUNCSIG__
+#else
+#define e172_pretty_function __PRETTY_FUNCTION__
+#endif
+
 #define e172_initializerList(type, ...) \
     type \
     { \
@@ -12,21 +18,21 @@
     }
 
 #define e172_shouldEqual(actual, expected) \
-    if (actual != expected) { \
+    if ((actual) != (expected)) { \
         e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
                            "Assertion failed:", \
                            actual, \
                            "is not", \
                            expected, \
                            "in test function:", \
-                           __PRETTY_FUNCTION__); \
+                           e172_pretty_function); \
     }
 
 #define e172_shouldBeDefined(option) \
-    if (option.isEmpty()) { \
+    if ((option).isEmpty()) { \
         e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
                            "Option is not defined in test function:", \
-                           __PRETTY_FUNCTION__); \
+                           e172_pretty_function); \
     }
 
 namespace e172 {

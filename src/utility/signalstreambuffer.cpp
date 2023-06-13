@@ -1,5 +1,7 @@
 #include "signalstreambuffer.h"
 
+#include <ostream>
+
 e172::SignalStreamBuffer::SignalStreamBuffer() {}
 
 void e172::SignalStreamBuffer::connect(const SignalStreamBuffer::HandlerFunc &func) {

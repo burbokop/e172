@@ -1,5 +1,4 @@
-#ifndef OPTION_H
-#define OPTION_H
+#pragma once
 
 #include <ostream>
 #include <functional>
@@ -111,4 +110,4 @@ public:
 };
 
 }
-#endif // OPTION_H
+

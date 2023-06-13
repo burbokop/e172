@@ -14,7 +14,9 @@ add_executable(e172_unit_tests
     ${CMAKE_CURRENT_LIST_DIR}/packagespec.h
     ${CMAKE_CURRENT_LIST_DIR}/packagespec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ringbufspec.h
-    ${CMAKE_CURRENT_LIST_DIR}/ringbufspec.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/ringbufspec.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/typespec.h
+    ${CMAKE_CURRENT_LIST_DIR}/typespec.cpp)
 
 target_link_libraries(e172_unit_tests
     e172)

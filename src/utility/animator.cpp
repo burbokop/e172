@@ -29,8 +29,8 @@ Animator::Animator(const e172::Image &origin, int frames, int tracks) {
     m_origin = origin;
     m_frameCount = frames;
     m_trackCount = tracks;
-    const int frameWidth = origin.width() / frames;
-    const int frameHeigth = origin.height() / tracks;
+    const auto frameWidth = origin.width() / frames;
+    const auto frameHeigth = origin.height() / tracks;
 
     m_currentFrameIndex = 0;
     m_currentTrackIndex = 0;
@@ -73,7 +73,7 @@ e172::Vector<double> Animator::render(e172::AbstractRenderer *renderer)
             }
         }
         if(m_defaultMode != Inactive) m_mode = m_defaultMode;
-        return e172::Vector<double>(currentFrame.width(), currentFrame.height());
+        return e172::Vector<std::size_t>(currentFrame.width(), currentFrame.height()).into<double>();
     }
     return e172::Vector<double>();
 }

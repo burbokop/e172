@@ -1,7 +1,8 @@
-#include <math.h>
-#include <execution>
-
 #include "math.h"
+
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <execution>
 
 #define INV_PI 180 / M_PI
 #define NOTINV_PI M_PI / 180
