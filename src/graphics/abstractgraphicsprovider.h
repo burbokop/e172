@@ -12,7 +12,7 @@ namespace e172 {
 class AbstractGraphicsProvider {
     std::vector<std::string> m_args;
 protected:
-    Image imageFromData(Image::data_ptr data, int w, int h) const;
+    Image imageFromData(Image::data_ptr data, std::size_t w, std::size_t h) const;
     void installParentToRenderer(AbstractRenderer *renderer);
 public:
     using ImageInitFunction = std::function<void(uint32_t *)>;
@@ -39,7 +39,7 @@ protected:
     virtual Image::ptr imageBitMap(Image::data_ptr ptr) const = 0;
     virtual bool saveImage(Image::data_ptr, const std::string&) const = 0;
     virtual Image::data_ptr imageFragment(
-        Image::data_ptr ptr, int x, int y, std::size_t &w, std::size_t &h) const
+        Image::data_ptr ptr, std::size_t x, std::size_t y, std::size_t &w, std::size_t &h) const
         = 0;
 
     virtual Image::data_ptr blitImages(Image::data_ptr ptr0,

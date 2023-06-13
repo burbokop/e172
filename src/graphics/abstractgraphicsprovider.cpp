@@ -1,5 +1,4 @@
 #include "abstractgraphicsprovider.h"
-#include "../functional/metafunction.h"
 
 namespace e172 {
 
@@ -7,7 +6,7 @@ std::vector<std::string> AbstractGraphicsProvider::args() const {
     return m_args;
 }
 
-Image AbstractGraphicsProvider::imageFromData(SharedContainer::data_ptr data, int w, int h) const {
+Image AbstractGraphicsProvider::imageFromData(SharedContainer::data_ptr data, std::size_t w, std::size_t h) const {
     return Image::newImage(
         data,
         this,
@@ -22,9 +21,9 @@ Image AbstractGraphicsProvider::imageFromData(SharedContainer::data_ptr data, in
                int y,
                std::size_t &w,
                std::size_t &h) { return blitImages(ptr0, ptr1, x, y, w, h); },
-        [this](e172::Image::data_ptr d, int x, int y, std::size_t &w, std::size_t &h)
+        [this](e172::Image::data_ptr d, std::size_t x, std::size_t y, std::size_t &w, std::size_t &h)
             -> e172::Image::data_ptr { return imageFragment(d, x, y, w, h); },
-        [this](Image::data_ptr ptr, uint64_t code) { return transformImage(ptr, code); });
+        [this](Image::data_ptr ptr, std::uint64_t code) { return transformImage(ptr, code); });
 }
 
 void AbstractGraphicsProvider::installParentToRenderer(AbstractRenderer *renderer) {
