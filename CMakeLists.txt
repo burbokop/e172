@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-project(e172 LANGUAGES CXX VERSION 0.6.6)
+project(e172 LANGUAGES CXX VERSION 0.7.0)
 
 option(E172_STATIC_BUILD "Build the static library" OFF)
 
