@@ -30,12 +30,14 @@ AbstractGraphicsProvider *AbstractRenderer::provider() const {
 
 AbstractRenderer::~AbstractRenderer() {}
 
-void AbstractRenderer::drawLine(const Line2d &line, uint32_t color) {
+void AbstractRenderer::drawLine(const Line2d &line, Color color)
+{
     const auto& points = line.rectIntersection(resolution());
     drawLine(points.first, points.second, color);
 }
 
-void AbstractRenderer::drawLineShifted(const Line2d &line, uint32_t color) {
+void AbstractRenderer::drawLineShifted(const Line2d &line, Color color)
+{
     drawLine(line.tanslated(offset()), color);
 }
 
@@ -49,7 +51,12 @@ void AbstractRenderer::drawVectorShifted(const Vector<double> &position, const V
     drawSquareShifted(position, 2, color);
 }
 
-Vector<double> AbstractRenderer::drawText(const std::string &text, const Vector<double> &position, int width, uint32_t color, const TextFormat &format) {
+Vector<double> AbstractRenderer::drawText(const std::string &text,
+                                          const Vector<double> &position,
+                                          int width,
+                                          Color color,
+                                          const TextFormat &format)
+{
     if(format.fontWidth() == 0)
         return Vector<double>();
 
@@ -121,7 +128,13 @@ Color randomColor(Random &random)
     return random.next<Color>() % static_cast<Color>(std::pow(2, 24));
 }
 
-Color blendPixels(Color top, Color bottom) {
+Color randomColor(Random &&random)
+{
+    return random.next<Color>() % static_cast<Color>(std::pow(2, 24));
+}
+
+Color blendPixels(Color top, Color bottom)
+{
     const auto bA = uint8_t((top >>  0) & 0x000000ff);
     const auto gA = uint8_t((top >>  8) & 0x000000ff);
     const auto rA = uint8_t((top >> 16) & 0x000000ff);
@@ -140,4 +153,4 @@ Color blendPixels(Color top, Color bottom) {
     return aOut | rOut | gOut | bOut;
 }
 
-}
+} // namespace e172

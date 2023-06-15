@@ -26,7 +26,32 @@ e172::Object::Object() {
     }
 }
 
-e172::Object::LifeInfo e172::Object::lifeInfo() const {
+template<e172::Weak AAA>
+void aaaaa(AAA)
+{}
+
+class B : public e172::Object
+{
+public:
+    B() = default;
+};
+
+template<e172::Weak AAA>
+struct OOO
+{
+    AAA a;
+};
+
+e172::Object::LifeInfo e172::Object::lifeInfo() const
+{
+    e172::Object o;
+    B b;
+    aaaaa(o);
+    aaaaa(b);
+
+    const auto o0 = OOO<Object>{.a = o};
+    const auto o1 = OOO<B>{.a = b};
+
     LifeInfo lifeInfo;
     lifeInfo.m_data = m_lifeInfoData;
     return lifeInfo;

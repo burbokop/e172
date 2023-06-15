@@ -1,8 +1,7 @@
-#ifndef AVERAGECALCULATOR_H
-#define AVERAGECALCULATOR_H
+#pragma once
 
-
-class AverageCalculator {
+class AverageCalculator
+{
     double average = 0;
     unsigned long count = 0;
 
@@ -16,5 +15,3 @@ public:
     bool enableAutoReset() const;
     void setEnableAutoReset(bool enableAutoReset);
 };
-
-#endif // AVERAGECALCULATOR_H

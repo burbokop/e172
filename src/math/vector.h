@@ -17,7 +17,13 @@ template<typename T>
 class Vector
 {
 public:
-    enum Quarter { QuarterRightDown = 0, QuarterLeftDown, QuarterLeftUp, QuarterRightUp };
+    enum class Quarter : std::uint8_t {
+        RightBottom = 0,
+        LeftBottom = 1,
+        LeftTop = 2,
+        RightTop = 3,
+        MaxValue = 4
+    };
 
     constexpr Vector() = default;
 
@@ -37,7 +43,12 @@ public:
 
     static Vector createRandom(Random &random, T max)
     {
-        return Vector::createByAngle(random.nextInRange(0, max), random.next<T>());
+        return Vector::createByAngle(random.nextInRange(static_cast<T>(0), max), random.next<T>());
+    }
+
+    static Vector createRandom(Random &&random, T max)
+    {
+        return Vector::createByAngle(random.nextInRange(static_cast<T>(0), max), random.next<T>());
     }
 
     constexpr Vector operator+(const Vector &term) const
@@ -143,19 +154,19 @@ public:
         return 0;
     }
 
-    Quarter quarter(Quarter offset = 0) const
+    Quarter quarter(Quarter offset = Quarter::RightBottom) const
     {
         if (this->m_y >= 0) {
             if (this->m_x >= 0) {
-                return (0 + offset) % 4;
+                return Quarter::RightBottom + offset;
             } else {
-                return (1 + offset) % 4;
+                return Quarter::LeftBottom + offset;
             }
         } else {
             if (this->m_x >= 0) {
-                return (3 + offset) % 4;
+                return Quarter::RightTop + offset;
             } else {
-                return (2 + offset) % 4;
+                return Quarter::LeftTop + offset;
             }
         }
     }
@@ -267,6 +278,13 @@ public:
     Vector<R> into() const
     {
         return {static_cast<R>(m_x), static_cast<R>(m_y)};
+    }
+
+private:
+    friend Quarter operator+(Quarter l, Quarter r)
+    {
+        using U = typename std::underlying_type<Quarter>::type;
+        return Quarter((U(l) + U(r)) % U(Quarter::MaxValue));
     }
 
 private:

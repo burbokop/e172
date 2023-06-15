@@ -190,3 +190,18 @@ void e172::Math::concurentInitMatrix(size_t w, size_t h, const std::function<voi
     }
     std::for_each(std::execution::par_unseq, job.begin(), job.end(), function);
 }
+
+float e172::Math::mod(float a, float b)
+{
+    return fmodf(a, b);
+}
+
+double e172::Math::mod(double a, double b)
+{
+    return fmod(a, b);
+}
+
+long double e172::Math::mod(long double a, long double b)
+{
+    return fmodl(a, b);
+}

@@ -7,11 +7,14 @@
 
 namespace e172 {
 
-template <typename T>
-class ptr {
-    template<typename A> friend class ptr;
+template<typename T>
+class ptr
+{
+    template<typename A>
+    friend class ptr;
     T *m_data = nullptr;
     Object::LifeInfo m_lifeInfo;
+
 public:
     E172_SFINAE_METHOD_CHECKER(lifeInfo)
     ptr() {}
@@ -20,21 +23,31 @@ public:
     static ptr<T> make(Args ...args) { return new T(args...); }
 
     template<typename TT>
-    ptr(TT* data) {
+    ptr(TT *data)
+    {
         m_data = data;
-        static_assert (has_lifeInfo_method<TT>::value, "T must be inherited by e172::Object");
-        if constexpr(has_lifeInfo_method<TT>::value) {
-            if(m_data)
+        static_assert(has_lifeInfo_method<TT>::value, "T must be inherited by e172::Object");
+        if constexpr (has_lifeInfo_method<TT>::value) {
+            if (m_data)
                 m_lifeInfo = m_data->lifeInfo();
         }
     }
+
     template<typename O>
-    ptr(const ptr<O>& p) { operator=(p); }
+    ptr(const ptr<O> &p)
+        requires(std::is_const<T>::value || !std::is_const<O>::value)
+    {
+        operator=(p);
+    }
+
     template<typename O>
-    void operator=(const ptr<O> &p) {
+    void operator=(const ptr<O> &p)
+        requires(std::is_const<T>::value || !std::is_const<O>::value)
+    {
         m_data = p.m_data;
         m_lifeInfo = p.m_lifeInfo;
     }
+
     T *operator->() { return m_data; };
     T *operator->() const { return m_data; };
     T* data() const { return m_data; }
@@ -73,9 +86,8 @@ template<typename T>
 struct smart_ptr_type {
     typedef typename std::remove_pointer<T>::type no_ptr_t;
     typedef typename ptr<no_ptr_t>::template has_lifeInfo_method<no_ptr_t> is_object;
-    typedef typename std::conditional<is_object::value, ptr<no_ptr_t>, no_ptr_t*>::type type;
+    typedef typename std::conditional<is_object::value, ptr<no_ptr_t>, no_ptr_t *>::type type;
 };
-
 
 template <typename T>
 bool safeDestroy(const e172::ptr<T> &ptr) {
@@ -100,7 +112,6 @@ auto smart_cast(A *p) {
     }
     return return_type();
 }
-
 
 }
 

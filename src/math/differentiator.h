@@ -1,5 +1,4 @@
-#ifndef DIFFERENTIATOR_H
-#define DIFFERENTIATOR_H
+#pragma once
 
 #include <src/time/deltatimecalculator.h>
 #include <vector>
@@ -53,4 +52,3 @@ std::vector<double> differentiate_vec(const std::pair<std::vector<double>, std::
 
 }
 
-#endif // DIFFERENTIATOR_H

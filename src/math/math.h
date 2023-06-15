@@ -58,6 +58,17 @@ public:
     static double sqrt(double value);
 
     template<typename T>
+    static T mod(T a, T b)
+        requires std::is_integral<T>::value
+    {
+        return a % b;
+    }
+
+    static float mod(float, float);
+    static double mod(double, double);
+    static long double mod(long double, long double);
+
+    template<typename T>
     static T sqr(const T &x)
     {
         return x * x;

@@ -34,7 +34,7 @@ int exec(int argc, const char **argv)
         } else if (command == "one") {
             if (argc > 2) {
                 const std::string test = argv[2];
-                const auto p = Additional::splitIntoPair(test, ':');
+                const auto p = Additional::splitIntoPair(test, '.');
 
                 const auto specIt = Registry::s_specs.find(p.first);
                 if (specIt != Registry::s_specs.end()) {

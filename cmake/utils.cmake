@@ -10,10 +10,9 @@ function(e172_register_tests TARGET)
         foreach(LINE ${FILE_CONTENT})
             string(REGEX MATCH "e172_test\\((.*),[ ]*(.*)\\)" _ ${LINE})
             if(CMAKE_MATCH_1 AND CMAKE_MATCH_2)
-                set(TEST_NAME "${CMAKE_MATCH_1}:${CMAKE_MATCH_2}")
-                message("test registered: ${TARGET}:${TEST_NAME}")
+                set(TEST_NAME "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
                 add_test(
-                    NAME "${TARGET}:${TEST_NAME}"
+                    NAME "${TARGET}.${TEST_NAME}"
                     COMMAND ${TARGET} one ${TEST_NAME}
                     WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
             endif()

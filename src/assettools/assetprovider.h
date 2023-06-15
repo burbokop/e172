@@ -50,7 +50,9 @@ public:
     void addTemplate(const LoadableTemplate& tmpl);
 
     template<typename T>
-    void registerType() {
+    void registerType()
+        requires std::is_base_of<Loadable, T>::value
+    {
         m_factory.registerType<T>();
     }
 

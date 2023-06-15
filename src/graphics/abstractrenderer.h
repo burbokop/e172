@@ -9,8 +9,8 @@
 
 namespace e172 {
 
-using Color = uint32_t;
-using ColorComponent = uint8_t;
+using Color = std::uint32_t;
+using ColorComponent = std::uint8_t;
 
 /**
  * @brief argb
@@ -63,6 +63,7 @@ constexpr ColorComponent blue(Color color)
 }
 
 Color randomColor(Random &random);
+Color randomColor(Random &&random);
 
 Color blendPixels(Color top, Color bottom);
 
@@ -103,27 +104,27 @@ protected:
     AbstractGraphicsProvider *provider() const;
 
 public:
-    void drawPixelShifted(const Vector<double> &point, uint32_t color)
+    void drawPixelShifted(const Vector<double> &point, Color color)
     {
         drawPixel(point + offset(), color);
     }
 
-    void drawLineShifted(const Vector<double> &point0, const Vector<double> &point1, uint32_t color)
+    void drawLineShifted(const Vector<double> &point0, const Vector<double> &point1, Color color)
     {
         drawLine(point0 + offset(), point1 + offset(), color);
     }
 
-    void drawRectShifted(const Vector<double> &point0, const Vector<double> &point1, uint32_t color)
+    void drawRectShifted(const Vector<double> &point0, const Vector<double> &point1, Color color)
     {
         drawRect(point0 + offset(), point1 + offset(), color);
     }
 
-    void drawSquareShifted(const Vector<double> &point, int radius, uint32_t color)
+    void drawSquareShifted(const Vector<double> &point, int radius, Color color)
     {
         drawSquare(point + offset(), radius, color);
     }
 
-    void drawCircleShifted(const Vector<double> &point, int radius, uint32_t color)
+    void drawCircleShifted(const Vector<double> &point, int radius, Color color)
     {
         drawCircle(point + offset(), radius, color);
     }
@@ -131,7 +132,7 @@ public:
     void drawDiagonalGridShifted(const Vector<double> &point0,
                                  const Vector<double> &point1,
                                  int interval,
-                                 uint32_t color)
+                                 Color color)
     {
         drawDiagonalGrid(point0 + offset(), point1 + offset(), interval, color);
     }
@@ -152,18 +153,18 @@ public:
         return drawString(string, position + offset(), color, format);
     }
 
-    void drawLine(const Line2d &line, uint32_t color);
-    void drawLineShifted(const Line2d &line, uint32_t color);
+    void drawLine(const Line2d &line, Color color);
+    void drawLineShifted(const Line2d &line, Color color);
 
-    void drawVector(const Vector<double> &position, const Vector<double> &vector, e172::Color color);
+    void drawVector(const Vector<double> &position, const Vector<double> &vector, Color color);
     void drawVectorShifted(const Vector<double> &position,
                            const Vector<double> &vector,
-                           e172::Color color);
+                           Color color);
 
     Vector<double> drawText(const std::string &text,
                             const Vector<double> &position,
                             int width,
-                            uint32_t color,
+                            Color color,
                             const TextFormat &format = TextFormat());
 
     Vector<double> offset() const;
@@ -183,7 +184,7 @@ public:
     virtual void setDepth(int64_t depth) = 0;
     virtual void fill(uint32_t color) = 0;
     virtual void drawPixel(const Vector<double> &point, uint32_t color) = 0;
-    virtual void drawLine(const Vector<double> &point0, const Vector<double> &point1, uint32_t color)
+    virtual void drawLine(const Vector<double> &point0, const Vector<double> &point1, Color color)
         = 0;
 
     virtual void drawRect(const Vector<double> &point0,
@@ -192,12 +193,12 @@ public:
                           const ShapeFormat &format = ShapeFormat(false))
         = 0;
 
-    virtual void drawSquare(const Vector<double> &point, int radius, uint32_t color) = 0;
-    virtual void drawCircle(const Vector<double> &point, int radius, uint32_t color) = 0;
+    virtual void drawSquare(const Vector<double> &point, int radius, Color color) = 0;
+    virtual void drawCircle(const Vector<double> &point, int radius, Color color) = 0;
     virtual void drawDiagonalGrid(const Vector<double> &point0,
                                   const Vector<double> &point1,
                                   int interval,
-                                  uint32_t color)
+                                  Color color)
         = 0;
 
     virtual void drawImage(const Image &image,
@@ -208,7 +209,7 @@ public:
 
     virtual Vector<double> drawString(const std::string &string,
                                       const Vector<double> &position,
-                                      uint32_t color,
+                                      Color color,
                                       const TextFormat &format = TextFormat())
         = 0;
 
@@ -224,8 +225,8 @@ public:
                              double coefficient)
         = 0;
 
-    virtual void enableEffect(uint64_t effect) = 0;
-    virtual void disableEffect(uint64_t effect) = 0;
+    virtual void enableEffect(std::uint64_t effect) = 0;
+    virtual void disableEffect(std::uint64_t effect) = 0;
 
     virtual void setFullscreen(bool value) = 0;
     virtual void setResolution(Vector<double> value) = 0;

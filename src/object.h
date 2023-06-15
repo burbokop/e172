@@ -20,27 +20,38 @@ public:
 
     class LifeInfo {
         friend Object;
-        std::shared_ptr<bool> m_data;
     public:
-        inline LifeInfo() {};
-        inline operator bool() const { return m_data ? *m_data : false; }
+        LifeInfo() = default;
+        operator bool() const { return m_data ? *m_data : false; }
+
+    private:
+        std::shared_ptr<bool> m_data;
     };
+
     LifeInfo lifeInfo() const;
 
-    template <typename Type>
-    inline bool instanceOf() const { return cast<Type>(); }
+    template<typename Type>
+    bool instanceOf() const
+    {
+        return cast<Type>();
+    }
 
-    template <typename Type>
-    inline bool instanceOf() { return cast<Type>(); }
+    template<typename Type>
+    bool instanceOf()
+    {
+        return cast<Type>();
+    }
 
-    template <typename Type>
-    inline typename std::remove_pointer<Type>::type *cast() const {
+    template<typename Type>
+    typename std::remove_pointer<Type>::type *cast() const
+    {
         typedef typename std::remove_pointer<Type>::type no_ptr_t;
         return dynamic_cast<const no_ptr_t*>(this);
     }
 
-    template <typename Type>
-    inline typename std::remove_pointer<Type>::type *cast() {
+    template<typename Type>
+    typename std::remove_pointer<Type>::type *cast()
+    {
         typedef typename std::remove_pointer<Type>::type no_ptr_t;
         return dynamic_cast<no_ptr_t*>(this);
     }
@@ -52,6 +63,13 @@ public:
 private:
     bool m_liveInHeap = false;
     std::shared_ptr<bool> m_lifeInfoData = std::make_shared<bool>(true);
+};
+
+template<typename T>
+concept Weak = requires(T const v) {
+    {
+        v.lifeInfo()
+    } -> std::convertible_to<Object::LifeInfo>;
 };
 
 } // namespace e172
