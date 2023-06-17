@@ -42,14 +42,14 @@ class Type {
 public:
     static std::string name()
     {
-        return m_name.size() > 0 ? m_name : TypeTools::demangle(typeid(T).name());
+        return s_name.size() > 0 ? s_name : TypeTools::demangle(typeid(T).name());
     }
 
-    static size_t hash() { return m_hash ? m_hash : typeid(T).hash_code(); }
+    static std::size_t hash() { return s_hash ? s_hash : typeid(T).hash_code(); }
 
 private:
-    static const std::string m_name = TypeTools::demangle(typeid(T).name());
-    static const size_t m_hash = typeid(T).hash_code();
+    static inline const std::string s_name = TypeTools::demangle(typeid(T).name());
+    static inline const std::size_t s_hash = typeid(T).hash_code();
 };
 
 } // namespace e172
