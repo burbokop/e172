@@ -21,7 +21,7 @@ struct MemotyUsage
     std::int64_t vm;
 };
 
-e172_enum_class(MemotyUsageError, FailedToReadProcInfo);
+e172_enum_class(MemotyUsageError, FailedToReadProcInfo, FailedToParseProcInfo, MemUsageDataNotFound);
 
 /**
  * @brief memoryUsage
