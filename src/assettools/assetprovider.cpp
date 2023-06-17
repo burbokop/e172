@@ -2,11 +2,11 @@
 
 #include "assetprovider.h"
 
-#include <src/debug.h>
-#include <src/graphics/abstractgraphicsprovider.h>
+#include "abstractassetexecutor.h"
 #include <src/additional.h>
 #include <src/context.h>
-#include "abstractassetexecutor.h"
+#include <src/debug.h>
+#include <src/graphics/abstractgraphicsprovider.h>
 
 namespace e172 {
 
@@ -26,11 +26,11 @@ void AssetProvider::searchInFolder(std::string path)
     }
 }
 
-Loadable *AssetProvider::createLoadable(const std::string &templateId) {
+Either<AssetProvider::Error, Loadable *> AssetProvider::createLoadable(const std::string &templateId)
+{
     const auto it = m_templates.find(templateId);
     if (it == m_templates.end()) {
-        Debug::warning("AssetProvider::createLoadable: Loadable template not found for id:", templateId);
-        return nullptr;
+        return Left(TemplateNotFound{.id = templateId}.toErr());
     }
     return createLoadable(it->second);
 }
@@ -59,22 +59,25 @@ void AssetProvider::processFile(std::string file, std::string path) {
             Debug::warning("Empty json object detected or parsing error. file:", file);
             return;
         }
-        const auto t = createTemplate(root, path);
+        const auto t = parseTemplate(root, path);
         if (t.isValid()) {
             addTemplate(t);
         }
     }
 }
 
-LoadableTemplate AssetProvider::createTemplate(const VariantMap &root, const std::string &path) {
+LoadableTemplate AssetProvider::parseTemplate(const VariantMap &root, const std::string &path)
+{
     const auto id = Additional::value(root, "id");
     const auto className = Additional::value(root, "class");
-    if (id.isNull() || className.isNull()) {
-        if (id.isNull()) {
-            Debug::warning("Template id missing. object:", root);
-        } else {
-            Debug::warning("Template class name missing. object:", root);
-        }
+
+    if (id.isNull()) {
+        Debug::warning("Template id missing. object:", root);
+        return LoadableTemplate();
+    }
+
+    if (className.isNull()) {
+        Debug::warning("Template class name missing. object:", root);
         return LoadableTemplate();
     }
 
@@ -101,20 +104,19 @@ LoadableTemplate AssetProvider::createTemplate(const VariantMap &root, const std
     return LoadableTemplate(id.toString(), className.toString(), resultAssets);
 }
 
-Loadable *AssetProvider::createLoadable(const LoadableTemplate &loadableTemplate) {
+Either<e172::AssetProvider::Error, Loadable *> AssetProvider::createLoadable(
+    const LoadableTemplate &loadableTemplate)
+{
     auto result = m_factory.create(loadableTemplate.className());
     if (!result) {
-        Debug::warning("AssetProvider::createLoadable: Type not registered:",
-                       loadableTemplate.className(),
-                       "( template id: ",
-                       loadableTemplate.id(),
-                       ")");
-        return nullptr;
+        return Left(TypeNotRegistered{.typeName = loadableTemplate.className(),
+                                      .templateId = loadableTemplate.id()}
+                        .toErr());
     }
 
     result->m_assets = loadableTemplate.assets();
     result->m_className = loadableTemplate.className();
-    result->m_loadableId = loadableTemplate.id();
+    result->m_templateId = loadableTemplate.id();
     result->m_assetProvider = this;
 
     for (const auto &f : result->m_initFunctions) {
@@ -122,7 +124,7 @@ Loadable *AssetProvider::createLoadable(const LoadableTemplate &loadableTemplate
     }
     result->m_initFunctions.clear();
     result->m_released = true;
-    return result;
+    return Right(result);
 }
 
 } // namespace e172

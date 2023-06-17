@@ -28,22 +28,23 @@ public:
 
     using MessageId = Variant;
 
-    enum {
-        DESTROY_ENTITY = 0,
-        DESTROY_ALL_ENTITIES,
-        DESTROY_ENTITIES_WITH_TAG,
-        SPAWN_EXPLOSIVE,
-        SPAWN_ENGINE_PARTICLES,
-        SPAWN_UNIT,
-        SPAWN_SURFACE,
-        ADD_CAPABILITY,
-        REMOVE_CAPABILITY,
-        EMERGENCY_MESSAGE,
-        BACKGROUND_FLASHING,
-        FLOATING_MESSAGE,
-        CHANGE_RESOLUTION,
-        CHANGE_FULLSCREEN,
-        CHANGE_ANAGLYPH
+    enum MessageType : std::uint32_t {
+        DestroyEntity = 0,
+        DestroyAllEntities,
+        DestroyEntitiesWithTag,
+
+        /**
+         * UserMessage - for used defined messages
+         * Example:
+         * ```
+         * enum MyMessageType : std::underlying_type<e172::Context::MessageType>::type {
+         *     MyType0 = e172::Context::UserMessage,
+         *     MyType1,
+         *     ...
+         * }
+         * ```
+         */
+        UserMessage = 0x1000,
     };
 
     Context(GameApplication *application);

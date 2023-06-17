@@ -63,7 +63,7 @@ void GameApplication::destroyAllEntities(Context *, const Variant &) {
     auto it = m_entities.begin();
     while (it != m_entities.end()) {
         if ((*it)->liveInHeap() && !(*it)->liveInSharedPtr()) {
-            safeDestroy(*it);
+            destroy(*it);
             it = m_entities.erase(it);
         } else {
             ++it;
@@ -75,7 +75,7 @@ void GameApplication::destroyEntity(Context*, const Variant &value) {
     const auto id = value.toNumber<Entity::Id>();
     for (auto it = m_entities.begin(); it != m_entities.end(); ++it) {
         if ((*it)->entityId() == id) {
-            safeDestroy(*it);
+            destroy(*it);
             m_entities.erase(it);
             emitEntityRemoved(id);
             return;
@@ -89,7 +89,7 @@ void GameApplication::destroyEntitiesWithTag(Context *, const Variant &value) {
     auto it = m_entities.begin();
     while (it != m_entities.end()) {
         if ((*it)->liveInHeap() && (*it)->containsTag(tag)) {
-            safeDestroy(*it);
+            destroy(*it);
             it = m_entities.erase(it);
         } else {
             ++it;
@@ -314,11 +314,11 @@ int GameApplication::exec()
         m_entities.nextCycle();
 
         if (m_context) {
-            m_context->popMessage(Context::DESTROY_ENTITY, this, &GameApplication::destroyEntity);
-            m_context->popMessage(Context::DESTROY_ALL_ENTITIES,
+            m_context->popMessage(Context::DestroyEntity, this, &GameApplication::destroyEntity);
+            m_context->popMessage(Context::DestroyAllEntities,
                                   this,
                                   &GameApplication::destroyAllEntities);
-            m_context->popMessage(Context::DESTROY_ENTITIES_WITH_TAG,
+            m_context->popMessage(Context::DestroyEntitiesWithTag,
                                   this,
                                   &GameApplication::destroyEntitiesWithTag);
 

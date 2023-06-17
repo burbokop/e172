@@ -23,12 +23,32 @@ endfunction()
 function(e172_lint_target TARGET)
     get_target_property(TARGET_SOURCES ${TARGET} SOURCES)
     foreach(SOURCE_FILE ${TARGET_SOURCES})
-        message("Lint ${SOURCE_FILE}")
-            add_custom_command(
-                TARGET ${TARGET}
-                POST_BUILD
-                COMMAND cpplint --output=eclipse ${SOURCE_FILE}
-                COMMENT "Linting ${SOURCE_FILE}"
-                VERBATIM)
+        add_custom_command(
+            TARGET ${TARGET}
+            POST_BUILD
+            COMMAND cpplint --output=eclipse ${SOURCE_FILE}
+            COMMENT "Linting ${SOURCE_FILE}"
+            VERBATIM)
+    endforeach()
+endfunction()
+
+
+
+function(e172_copy_target TARGET DST_DIR)
+    get_target_property(TARGET_SOURCES ${TARGET} SOURCES)
+    get_target_property(SOURCE_DIR ${TARGET} SOURCE_DIR)
+
+    foreach(SRC_FILE_PATH ${TARGET_SOURCES})
+        file(RELATIVE_PATH REL_SRC_PATH ${SOURCE_DIR} ${SRC_FILE_PATH})
+        file(REAL_PATH ${REL_SRC_PATH} DST_FILE_PATH BASE_DIRECTORY ${DST_DIR})
+
+        add_custom_command(
+            TARGET ${TARGET}
+            POST_BUILD
+            BYPRODUCTS "${DST_FILE_PATH}"
+            COMMAND cmake -E copy "${SRC_FILE_PATH}" "${DST_FILE_PATH}"
+            DEPENDS "${SRC_FILE_PATH}"
+            COMMENT "Copiyng ${SRC_FILE_PATH} -> ${DST_FILE_PATH}"
+            VERBATIM)
     endforeach()
 endfunction()

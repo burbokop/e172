@@ -15,4 +15,13 @@ template<typename T>
 struct IsOptional<std::optional<T>> : std::true_type
 {};
 
+template<class... T>
+struct Overloaded : T...
+{
+    using T::operator()...;
+};
+
+template<class... Ts>
+Overloaded(Ts...) -> Overloaded<Ts...>;
+
 } // namespace e172

@@ -450,16 +450,15 @@ public:
 
     Variant(double value) { assign(value); }
 
-    Variant(uint8_t value) { assign(value); }
-    Variant(uint16_t value) { assign(value); }
-    Variant(uint32_t value) { assign(value); }
-    Variant(uint64_t value) { assign(value); }
+    Variant(std::uint8_t value) { assign(value); }
+    Variant(std::uint16_t value) { assign(value); }
+    Variant(std::uint32_t value) { assign(value); }
+    Variant(std::uint64_t value) { assign(value); }
 
-    Variant(int8_t value) { assign(value); }
-    Variant(int16_t value) { assign(value); }
-    Variant(int32_t value) { assign(value); }
-    Variant(int64_t value) { assign(value); }
-
+    Variant(std::int8_t value) { assign(value); }
+    Variant(std::int16_t value) { assign(value); }
+    Variant(std::int32_t value) { assign(value); }
+    Variant(std::int64_t value) { assign(value); }
 
     VariantVector constrained() const;
 

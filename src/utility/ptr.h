@@ -76,7 +76,11 @@ public:
         }
     }
 
-    bool safeDestroy() const
+    /**
+     * @brief destroy
+     * @return false if already destroyed
+     */
+    bool destroy() const
     {
         if (operator bool()) {
             if (m_data->liveInHeap() && !m_data->liveInSharedPtr()) {
@@ -99,9 +103,15 @@ struct smart_ptr_type {
     typedef typename std::conditional<is_object::value, ptr<no_ptr_t>, no_ptr_t *>::type type;
 };
 
-template <typename T>
-bool safeDestroy(const e172::ptr<T> &ptr) {
-    return ptr.safeDestroy();
+/**
+ * @brief destroy - safe destroy ptr<T>
+ * @param ptr
+ * @return false if already destroyed
+ */
+template<typename T>
+bool destroy(const e172::ptr<T> &ptr)
+{
+    return ptr.destroy();
 }
 
 template<typename T, typename A>
@@ -122,8 +132,6 @@ auto smart_cast(A *p) {
     }
     return return_type();
 }
-
-} // namespace e172
 
 template<typename A, typename B>
 bool operator==(const e172::ptr<A> &ptr0, const e172::ptr<B> &ptr1)
@@ -196,26 +204,4 @@ std::ostream &operator<<(std::ostream &stream, const std::set<e172::ptr<T>> &set
     return stream << "]";
 }
 
-template<typename A>
-bool operator==(const e172::ptr<A> &ptr, std::nullptr_t)
-{
-    return !ptr;
-}
-
-template<typename A>
-bool operator!=(const e172::ptr<A> &ptr, std::nullptr_t)
-{
-    return ptr;
-}
-
-template<typename A>
-bool operator==(std::nullptr_t, const e172::ptr<A> &ptr)
-{
-    return !ptr;
-}
-
-template<typename A>
-bool operator!=(std::nullptr_t, const e172::ptr<A> &ptr)
-{
-    return ptr;
-}
+} // namespace e172

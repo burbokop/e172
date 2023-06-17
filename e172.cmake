@@ -113,6 +113,7 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src/meta.h
     ${CMAKE_CURRENT_LIST_DIR}/src/traits.h
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/concepts.h
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src/assettools/abstractassetexecutor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/assettools/assetprovider.cpp

@@ -2,11 +2,13 @@
 
 #pragma once
 
+#include "../type.h"
 #include "loadable.h"
 #include "loadabletemplate.h"
 #include <map>
 #include <memory>
 #include <src/memcontrol/abstractfactory.h>
+#include <src/utility/either.h>
 #include <src/utility/ptr.h>
 #include <string>
 #include <vector>
@@ -26,15 +28,147 @@ class AssetProvider : public std::enable_shared_from_this<AssetProvider>
 public:
     AssetProvider() = default;
 
-    Loadable *createLoadable(const LoadableTemplate &loadableTemplate);
-    Loadable *createLoadable(const std::string& templateId);
-    template<typename T>
-    auto createLoadable(const LoadableTemplate& loadableTemplate) {
-        return e172::smart_cast<T>(createLoadable(loadableTemplate));
+    struct TemplateNotFound;
+    struct TypeNotRegistered;
+    struct LoadableCastFailed;
+
+    using Error = std::variant<TemplateNotFound, TypeNotRegistered, LoadableCastFailed>;
+
+    /**
+     * template with id not found
+     */
+    struct TemplateNotFound
+    {
+        std::string id;
+
+        Error toErr() const { return *this; }
+    };
+
+    /**
+     * type declated in template not registered
+     */
+    struct TypeNotRegistered
+    {
+        std::string typeName;
+        std::string templateId;
+
+        Error toErr() const { return *this; }
+    };
+
+    /**
+     * loadable created but can not be casted to T
+     */
+    struct LoadableCastFailed
+    {
+        std::string fromTypeName;
+        std::string toTypeName;
+
+        Error toErr() const { return *this; }
+    };
+
+    inline friend std::ostream &operator<<(std::ostream &stream, const Error &err)
+    {
+        return std::visit(e172::Overloaded{
+                              [&stream](const TemplateNotFound &err) -> std::ostream & {
+                                  return stream << "Template with id " << err.id << " not found.";
+                              },
+                              [&stream](const TypeNotRegistered &err) -> std::ostream & {
+                                  return stream << "Type with name " << err.typeName
+                                                << " not registered (requested from template '"
+                                                << err.templateId << "').";
+                              },
+                              [&stream](const LoadableCastFailed &err) -> std::ostream & {
+                                  return stream << "Failed to cast loadable of type "
+                                                << err.fromTypeName << " to " << err.toTypeName;
+                              },
+                          },
+                          err);
     }
+
+    /**
+     * @brief createLoadable - create loadable from template
+     * Guarantees that unwrapped Loadable ptr is not null
+     * @param loadableTemplate - template to create loadable from
+     * @return loadable or error
+     */
+    Either<Error, Loadable *> createLoadable(const LoadableTemplate &loadableTemplate);
+
+    /**
+     * @brief createLoadable - create loadable from template id
+     * Guarantees that unwrapped Loadable ptr is not null
+     * @param templateId - id to search template in this AssetProvider's context
+     * @return loadable or error
+     */
+    Either<Error, Loadable *> createLoadable(const std::string &templateId);
+
+    /**
+     * @brief createLoadable - create loadable from template and cast to T
+     * Guarantees that unwrapped Loadable ptr is not null
+     * @param loadableTemplate - template to create loadable from
+     * @return loadable casted to T or error
+     */
     template<typename T>
-    auto createLoadable(std::string templateId) {
-        return e172::smart_cast<T>(createLoadable(templateId));
+    auto createLoadable(const LoadableTemplate &loadableTemplate)
+    {
+        if constexpr (std::is_base_of<Object, T>::value) {
+            return createLoadable(loadableTemplate)
+                .flatMap<ptr<T>>([](auto obj) -> Either<Error, ptr<T>> {
+                    if (const auto res = e172::smart_cast<T>(obj)) {
+                        return Right(res);
+                    } else {
+                        const auto n = obj->className();
+                        delete obj;
+                        return Left(
+                            LoadableCastFailed{.fromTypeName = n, .toTypeName = Type<T>::name()}
+                                .toErr());
+                    }
+                });
+        } else {
+            return createLoadable(loadableTemplate).flatMap<T *>([](auto obj) -> Either<Error, T *> {
+                if (const auto res = dynamic_cast<T *>(obj)) {
+                    return Right(res);
+                } else {
+                    const auto n = obj->className();
+                    obj.destroy();
+                    return Left(LoadableCastFailed{.fromTypeName = n, .toTypeName = Type<T>::name()}
+                                    .toErr());
+                }
+            });
+        }
+    }
+
+    /**
+     * @brief createLoadable - create loadable from template id and cast to T
+     * Guarantees that unwrapped Loadable ptr is not null
+     * @param templateId - id to search template in this AssetProvider's context
+     * @return loadable casted to T or error
+     */
+    template<typename T>
+    auto createLoadable(const std::string &templateId)
+    {
+        if constexpr (std::is_base_of<Object, T>::value) {
+            return createLoadable(templateId).flatMap<ptr<T>>([](auto obj) -> Either<Error, ptr<T>> {
+                if (const auto res = e172::smart_cast<T>(obj)) {
+                    return Right(res);
+                } else {
+                    const auto n = obj->className();
+                    delete obj;
+                    return Left(LoadableCastFailed{.fromTypeName = n, .toTypeName = Type<T>::name()}
+                                    .toErr());
+                }
+            });
+        } else {
+            return createLoadable(templateId).flatMap<T *>([](auto obj) -> Either<Error, T *> {
+                if (const auto res = dynamic_cast<T *>(obj)) {
+                    return Right(res);
+                } else {
+                    const auto n = obj->className();
+                    obj.destroy();
+                    return Left(LoadableCastFailed{.fromTypeName = n, .toTypeName = Type<T>::name()}
+                                    .toErr());
+                }
+            });
+        }
     }
 
     void searchInFolder(std::string path);
@@ -54,7 +188,7 @@ public:
 
 private:
     void processFile(std::string file, std::string path);
-    LoadableTemplate createTemplate(const e172::VariantMap &root, const std::string &path);
+    LoadableTemplate parseTemplate(const e172::VariantMap &root, const std::string &path);
 
 private:
     std::shared_ptr<AbstractGraphicsProvider> m_graphicsProvider;

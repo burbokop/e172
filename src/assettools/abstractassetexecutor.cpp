@@ -14,7 +14,7 @@ std::string AbstractAssetExecutor::fullPath(const std::string &path) {
 e172::LoadableTemplate e172::AbstractAssetExecutor::createTemplate(const e172::VariantMap &object)
 {
     if (m_provider) {
-        return m_provider->createTemplate(object, m_executorPath);
+        return m_provider->parseTemplate(object, m_executorPath);
     }
     return LoadableTemplate();
 }

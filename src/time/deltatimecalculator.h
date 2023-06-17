@@ -11,7 +11,7 @@ template<typename T>
 class DeltaTimeCalculator
 {
     using Clock = T;
-    using TimePoint = Clock::time_point;
+    using TimePoint = typename Clock::time_point;
 
 public:
     DeltaTimeCalculator() = default;

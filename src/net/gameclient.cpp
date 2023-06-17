@@ -118,7 +118,7 @@ bool e172::GameClient::processRemoveEntityPackage(ReadPackage &&package)
     const auto id = package.read<PackedEntityId>();
     if (!id)
         return false;
-    m_app.context()->emitMessage(e172::Context::DESTROY_ENTITY, *id);
+    m_app.context()->emitMessage(e172::Context::DestroyEntity, *id);
     return true;
 }
 
