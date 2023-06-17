@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "../utility/buffer.h"
@@ -105,7 +107,7 @@ void Kinematics<T>::addLimitedFriction(double maxVelocity, double coeficient) {
 template<typename T>
 void Kinematics<T>::accept(double deltaTime) {
     m_velocity += m_acceleration * deltaTime;
-    if(m_valueProcessor) {
+    if (m_valueProcessor) {
         m_value = m_valueProcessor(m_value + (m_velocity * deltaTime));
     } else {
         m_value += m_velocity * deltaTime;
@@ -113,5 +115,4 @@ void Kinematics<T>::accept(double deltaTime) {
     m_acceleration = initValue<T>();
 }
 
-
-}
+} // namespace e172

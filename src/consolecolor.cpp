@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "consolecolor.h"
 
 std::string e172::ConsoleColor::foreground() const {

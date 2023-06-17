@@ -1,9 +1,13 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <utility>
 
 namespace e172 {
 

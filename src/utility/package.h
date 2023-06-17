@@ -1,7 +1,11 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "buffer.h"
 #include "io.h"
+#include <string>
+#include <utility>
 
 namespace e172 {
 
@@ -49,7 +53,6 @@ private:
 class ReadPackage
 {
 public:
-
     std::size_t bytesAvailable() const { return m_buf.bytesAvailable(); }
 
     std::optional<Bytes> read(std::size_t size) { return m_buf.read(size); }

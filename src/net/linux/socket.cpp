@@ -1,8 +1,13 @@
+// Copyright 2023 Borys Boiko
+
 #include "socket.h"
 
+#include <algorithm>
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
+
+namespace e172 {
 
 class LinuxSocketBufferizeException : public std::exception
 {
@@ -104,20 +109,16 @@ std::size_t e172::LinuxSocket::write(const uint8_t *src, std::size_t size)
 }
 
 void e172::LinuxSocket::flush()
-{
-    //if (::fsync(m_fd) < 0) {
-    //    throw LinuxSocketWriteException(errno);
-    //}
-}
+{}
 
 std::size_t e172::LinuxSocket::bufferizeChunk()
 {
-    const auto sizeToRead = std::min(m_buf.push_ability(), s_chunkSize);
+    const auto sizeToRead = std::min(m_buf.push_ability(), ChunkSize);
     if (sizeToRead == 0) {
         return 0;
     }
 
-    std::uint8_t chunk[s_chunkSize];
+    std::uint8_t chunk[ChunkSize];
     const auto size = ::read(m_fd, chunk, sizeToRead);
     if (size < 0) {
         switch (errno) {
@@ -135,3 +136,5 @@ std::size_t e172::LinuxSocket::bufferizeChunk()
     }
     return size;
 }
+
+} // namespace e172

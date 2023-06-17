@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "testing.h"
 
 #include "consolecolor.h"
@@ -6,12 +8,11 @@
 #include <optional>
 #include <src/additional.h>
 
-
 namespace e172::testing {
 
 int Registry::registerTest(const std::string &name,
-                 const std::string &spec,
-                 const std::function<void ()> &func)
+                           const std::string &spec,
+                           const std::function<void()> &func)
 {
     s_specs[spec].tests.push_back({ name, func });
     return 0;
@@ -80,4 +81,4 @@ int exec(int argc, const char **argv)
     return 0;
 }
 
-}
+} // namespace e172::testing

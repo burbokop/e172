@@ -1,46 +1,100 @@
-#ifndef KSMARTENUM_H
-#define KSMARTENUM_H
+// Copyright 2023 Borys Boiko
 
+#pragma once
+
+#include <map>
+#include <optional>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <map>
-#include <sstream>
 
-namespace e172 {
+namespace e172::smartenum {
 
-struct __enum_tools {
-    static std::string trim(const std::string& str);
-    static std::vector<std::string> split(const std::string& s, char delimiter);
-    static std::map<uint8_t, std::string> __va_args_to_map(const std::string &str);
+class Meta
+{
+public:
+    using UnderlyingType = std::uint32_t;
+
+    static Meta fromVaArgs(const std::string &str);
+
+    const std::map<UnderlyingType, std::string> &names() const { return m_names; };
+
+    template<typename T>
+    std::optional<std::string> toString(T v) const
+        requires std::is_enum<T>::value && (sizeof(T) <= sizeof(UnderlyingType))
+    {
+        const auto it = m_names.find(static_cast<UnderlyingType>(v));
+        if (it != m_names.end()) {
+            return it->second;
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    template<typename T>
+    std::ostream &write(std::ostream &stream, T v) const
+        requires std::is_enum<T>::value && (sizeof(T) <= sizeof(UnderlyingType))
+    {
+        const auto it = m_names.find(static_cast<UnderlyingType>(v));
+        if (it != m_names.end()) {
+            return stream << it->second;
+        } else {
+            return stream;
+        }
+    }
+
+private:
+    Meta(const std::map<UnderlyingType, std::string> &names)
+        : m_names(names)
+    {}
+
+private:
+    std::map<UnderlyingType, std::string> m_names;
 };
 
-}
-
-#define e172_enum_class(TYPE, ...) struct TYPE { \
-    enum Enum { __VA_ARGS__ }; static inline const auto names = e172::__enum_tools::__va_args_to_map(#__VA_ARGS__); \
-    static inline std::string toString(Enum v) { return names.at(v); } \
-};
+} // namespace e172::smartenum
 
 #define e172_enum(TYPE, ...) \
-    public: \
-        enum TYPE { __VA_ARGS__ }; \
-    private: \
-        static inline const auto TYPE ## Strings2 = e172::__enum_tools::__va_args_to_map(#__VA_ARGS__); \
-    public: \
-        friend inline std::ostream& operator<<(std::ostream& stream, TYPE value) { \
-            return stream << TYPE ## Strings2.at(value); \
-        } \
-    private:
+public: \
+    enum TYPE { __VA_ARGS__ }; \
+\
+private: \
+    static inline const auto TYPE##Meta = e172::smartenum::Meta::fromVaArgs(#__VA_ARGS__); \
+\
+public: \
+    friend inline std::ostream &operator<<(std::ostream &stream, TYPE value) \
+    { \
+        return TYPE##Meta.write(stream, value); \
+    } \
+\
+private: \
+    ; // NOLINT
+
+#define e172_enum_class(TYPE, ...) \
+    enum class TYPE { __VA_ARGS__ }; \
+    inline const auto TYPE##Meta = e172::smartenum::Meta::fromVaArgs(#__VA_ARGS__); \
+    inline std::ostream &operator<<(std::ostream &stream, TYPE value) \
+    { \
+        return TYPE##Meta.write(stream, value); \
+    }
 
 #define e172_enum_member(TYPE, NAME, ...) \
-    public: \
-        enum TYPE { __VA_ARGS__ }; \
-    private: \
-        TYPE m_ ## NAME; \
-        static inline const auto NAME ## Strings = e172::__enum_tools::__va_args_to_map(#__VA_ARGS__); \
-    public: \
-        TYPE NAME() const { return m_ ## NAME; } \
-        std::string NAME ## String() const { return NAME ## Strings.at(m_ ## NAME); } \
-    private:
-
-#endif // KSMARTENUM_H
+public: \
+    enum TYPE { __VA_ARGS__ }; \
+\
+private: \
+    TYPE m_##NAME; \
+    static inline const auto TYPE##Meta = e172::smartenum::Meta::fromVaArgs(#__VA_ARGS__); \
+\
+public: \
+    TYPE NAME() const \
+    { \
+        return m_##NAME; \
+    } \
+    auto NAME##String() const \
+    { \
+        return TYPE##Meta.toString(m_##NAME).value_or(std::string()); \
+    } \
+\
+private: \
+    ; // NOLINT

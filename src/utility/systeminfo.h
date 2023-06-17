@@ -1,19 +1,32 @@
-#ifndef SYSTEMINFO_H
-#define SYSTEMINFO_H
+// Copyright 2023 Borys Boiko
 
-namespace e172 {
+#pragma once
 
+#include "../smartenum.h"
+#include "either.h"
+#include <cstdint>
 
-class SystemInfo {
-public:
-    struct MemotyUsageInfo {
-        long rss;
-        long vm;
-        bool isValid = false;
-    };
-    static bool memoryUsageKb(long* vmrss_kb, long* vmsize_kb);
-    static MemotyUsageInfo memoryUsageKb();
+namespace e172::sysinfo {
+
+struct MemotyUsage
+{
+    /**
+     * @brief rss - kilobytes
+     */
+    std::int64_t rss;
+
+    /**
+     * @brief vm - kilobytes
+     */
+    std::int64_t vm;
 };
 
-}
-#endif // SYSTEMINFO_H
+e172_enum_class(MemotyUsageError, FailedToReadProcInfo);
+
+/**
+ * @brief memoryUsage
+ * @return 
+ */
+Either<MemotyUsageError, MemotyUsage> memoryUsage();
+
+} // namespace e172::sysinfo

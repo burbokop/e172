@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include <stdlib.h>
@@ -7,9 +9,6 @@ namespace e172 {
 
 template<typename T>
 class MatrixProxy {
-    T *m_data = nullptr;
-    size_t m_width = 0;
-    size_t m_height = 0;
 public:
     MatrixProxy() {}
     MatrixProxy(size_t width, size_t height, T *data) {
@@ -38,6 +37,11 @@ public:
 
     T& center() { return m_data[m_height / 2 * m_width + m_width / 2]; }
     T center() const { return m_data[m_height / 2 * m_width + m_width / 2]; }
+
+private:
+    T *m_data = nullptr;
+    size_t m_width = 0;
+    size_t m_height = 0;
 };
 
-}
+} // namespace e172

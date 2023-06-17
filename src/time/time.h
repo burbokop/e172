@@ -1,16 +1,16 @@
-#ifndef TIME_H
-#define TIME_H
+// Copyright 2023 Borys Boiko
 
-#include <inttypes.h>
+#pragma once
+
+#include <cstdint>
 
 namespace e172 {
 
 class Time {
 public:
-    typedef int64_t time_t;
+    using Value = std::int64_t;
 
-    static time_t currentMilliseconds();
+    static Value currentMilliseconds();
 };
 
-}
-#endif // TIME_H
+} // namespace e172

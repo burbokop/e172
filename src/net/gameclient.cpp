@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "gameclient.h"
 
 #include "../abstracteventprovider.h"
@@ -8,6 +10,8 @@
 #include "src/context.h"
 #include "src/debug.h"
 #include "src/utility/package.h"
+#include <string>
+#include <utility>
 
 void e172::GameClient::sync()
 {

@@ -1,12 +1,15 @@
-#ifndef ABSTRACTASSETEXECUTOR_H
-#define ABSTRACTASSETEXECUTOR_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include "loadabletemplate.h"
-
-#include <src/variant.h>
+#include <memory>
 #include <src/utility/ptr.h>
+#include <src/variant.h>
+#include <string>
 
 namespace e172 {
+
 class AbstractGraphicsProvider;
 class AbstractAudioProvider;
 class Loadable;
@@ -27,6 +30,7 @@ public:
     {
         return m_graphicsProvider;
     }
+
     std::shared_ptr<AbstractAudioProvider> audioProvider() const { return m_audioProvider; }
 
     virtual Variant proceed(const Variant &value) = 0;
@@ -36,9 +40,7 @@ private:
     std::shared_ptr<AssetProvider> m_provider;
     std::shared_ptr<AbstractGraphicsProvider> m_graphicsProvider;
     std::shared_ptr<AbstractAudioProvider> m_audioProvider;
-
-    std::string executorPath;
+    std::string m_executorPath;
 };
-} // namespace e172
 
-#endif // ABSTRACTASSETEXECUTOR_H
+} // namespace e172

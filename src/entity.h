@@ -1,8 +1,13 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "meta.h"
 #include "object.h"
 #include "typedefs.h"
+#include <list>
+#include <utility>
+#include <vector>
 
 namespace e172 {
 

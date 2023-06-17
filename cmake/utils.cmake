@@ -1,5 +1,5 @@
  
-function(e172_register_tests TARGET)
+function(e172_target_discover_tests TARGET)
     get_target_property(TARGET_SOURCES ${TARGET} SOURCES)
 
     foreach(SOURCE_FILE ${TARGET_SOURCES})
@@ -20,3 +20,15 @@ function(e172_register_tests TARGET)
     endforeach()
 endfunction()
 
+function(e172_lint_target TARGET)
+    get_target_property(TARGET_SOURCES ${TARGET} SOURCES)
+    foreach(SOURCE_FILE ${TARGET_SOURCES})
+        message("Lint ${SOURCE_FILE}")
+            add_custom_command(
+                TARGET ${TARGET}
+                POST_BUILD
+                COMMAND cpplint --output=eclipse ${SOURCE_FILE}
+                COMMENT "Linting ${SOURCE_FILE}"
+                VERBATIM)
+    endforeach()
+endfunction()

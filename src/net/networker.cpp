@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "networker.h"
 
 #include "../gameapplication.h"

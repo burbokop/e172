@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "signalstreambuffer.h"
 
 #include <ostream>
@@ -10,7 +12,7 @@ void e172::SignalStreamBuffer::connect(const SignalStreamBuffer::HandlerFunc &fu
 
 std::streamsize e172::SignalStreamBuffer::xsputn(const std::streambuf::char_type *s, std::streamsize n) {
     const auto& string = std::string(s, n);
-    for(const auto& f : m_handleFuncs) {
+    for (const auto &f : m_handleFuncs) {
         f(string);
     }
     return n;

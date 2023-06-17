@@ -71,7 +71,6 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/ptr.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/dynamiclibrary.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/defer.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/testing.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/lightvector.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/matrixproxy.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/boolean.h
@@ -138,16 +137,10 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src/math/averagecalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/colider.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/intergrator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/math/discretizer.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/math/cellularautomaton.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/line2d.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/physicalobject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/matrix.cpp
 
-    ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractfactory.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/memcontrol/abstractstrategy.cpp
-
-    ${CMAKE_CURRENT_LIST_DIR}/src/time/deltatimecalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/time/elapsedtimer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/time/time.cpp
 
@@ -155,28 +148,14 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src/net/gameserver.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/net/gameclient.cpp
 
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/vectorproxy.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/systeminfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/animator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/observer.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/cycliciterator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/ptr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/dynamiclibrary.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/defer.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/testing.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/lightvector.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/matrixproxy.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/boolean.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/flagparser.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/reflection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/either.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/utility/option.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/priorityprocedure.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/closableoutputstream.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/signalstreambuffer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/random.cpp
-
-    ${CMAKE_CURRENT_LIST_DIR}/src/functional/metafunction.cpp
 
     ${CMAKE_CURRENT_LIST_DIR}/src/eventhandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/abstracteventprovider.cpp
@@ -191,8 +170,6 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src/object.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/messagequeue.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/debug.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/args.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/conversion.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/consolecolor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/testing.cpp)
 
@@ -218,6 +195,10 @@ if(UNIX)
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/utils.cmake)
+
+#if(ENABLE_E172_LINT)
+e172_lint_target(e172)
+#endif()
 
 enable_testing()
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)

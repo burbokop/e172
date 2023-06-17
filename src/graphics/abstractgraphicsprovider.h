@@ -1,22 +1,18 @@
-#ifndef ABSTRACTRENDERENGINE_H
-#define ABSTRACTRENDERENGINE_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include "abstractrenderer.h"
 #include "image.h"
 #include <string>
-
+#include <vector>
 
 namespace e172 {
 
-
 class AbstractGraphicsProvider {
-    std::vector<std::string> m_args;
-protected:
-    Image imageFromData(Image::data_ptr data, std::size_t w, std::size_t h) const;
-    void installParentToRenderer(AbstractRenderer *renderer);
 public:
-    using ImageInitFunction = std::function<void(uint32_t *)>;
-    using ImageInitFunctionExt = std::function<void(size_t, size_t, uint32_t *)>;
+    using ImageInitFunction = std::function<void(std::uint32_t *)>;
+    using ImageInitFunctionExt = std::function<void(std::size_t, std::size_t, std::uint32_t *)>;
 
     AbstractGraphicsProvider(const std::vector<std::string> &args)
         : m_args(args)
@@ -32,27 +28,27 @@ public:
     virtual bool fontLoaded(const std::string &name) const = 0;
 
     virtual ~AbstractGraphicsProvider() = default;
-    std::vector<std::string> args() const;
+    std::vector<std::string> args() const { return m_args; }
 
 protected:
-    virtual void destructImage(Image::data_ptr ptr) const = 0;
-    virtual Image::ptr imageBitMap(Image::data_ptr ptr) const = 0;
-    virtual bool saveImage(Image::data_ptr, const std::string&) const = 0;
-    virtual Image::data_ptr imageFragment(
-        Image::data_ptr ptr, std::size_t x, std::size_t y, std::size_t &w, std::size_t &h) const
+    Image imageFromData(Image::DataPtr data, std::size_t w, std::size_t h) const;
+    void installParentToRenderer(AbstractRenderer *renderer);
+
+    virtual void destructImage(Image::DataPtr ptr) const = 0;
+    virtual Image::Ptr imageBitMap(Image::DataPtr ptr) const = 0;
+    virtual bool saveImage(Image::DataPtr, const std::string &) const = 0;
+    virtual Image::DataPtr imageFragment(
+        Image::DataPtr ptr, std::size_t x, std::size_t y, std::size_t &w, std::size_t &h) const
         = 0;
 
-    virtual Image::data_ptr blitImages(Image::data_ptr ptr0,
-                                       Image::data_ptr ptr1,
-                                       int x,
-                                       int y,
-                                       std::size_t &w,
-                                       std::size_t &h) const
+    virtual Image::DataPtr blitImages(
+        Image::DataPtr ptr0, Image::DataPtr ptr1, int x, int y, std::size_t &w, std::size_t &h) const
         = 0;
 
-    virtual Image::data_ptr transformImage(Image::data_ptr, uint64_t) const = 0;
+    virtual Image::DataPtr transformImage(Image::DataPtr, uint64_t) const = 0;
+
+private:
+    std::vector<std::string> m_args;
 };
 
-}
-
-#endif // ABSTRACTRENDERENGINE_H
+} // namespace e172

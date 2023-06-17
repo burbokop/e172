@@ -1,7 +1,10 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "type.h"
 #include <memory>
+#include <string>
 
 namespace e172 {
 

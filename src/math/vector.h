@@ -1,16 +1,18 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
+#include "math.h"
+#include <algorithm>
 #include <complex>
 #include <functional>
-#include <sstream>
-
-#include "math.h"
 #include <src/utility/buffer.h>
 #include <src/utility/random.h>
+#include <sstream>
 
 namespace e172 {
 
-constexpr double relativisticAdditionConstant = 0.7;
+constexpr double RelativisticAdditionConstant = 0.7;
 
 template<typename T>
     requires std::is_arithmetic_v<T>
@@ -116,8 +118,8 @@ public:
         return {};
     }
 
-    Vector leftNormal() const { return {m_y, -m_x}; }
-    Vector rightNormal() const { return {-m_y, m_x}; }
+    constexpr Vector leftNormal() const { return {m_y, -m_x}; }
+    constexpr Vector rightNormal() const { return {-m_y, m_x}; }
 
     auto angle() const
     {
@@ -130,16 +132,16 @@ public:
 
     Vector relativisticAddition(Vector term, double c) const
     {
-        double termModule = term.module();
+        const auto termModule = term.module();
         if (!e172::Math::cmpf(termModule, 0)) {
-            c *= relativisticAdditionConstant;
+            c *= RelativisticAdditionConstant;
             const Vector classicSum = *this + term;
 
-            double thisModule = this->module();
-            double classicSumModule = classicSum.module();
+            const auto thisModule = module();
+            const auto classicSumModule = classicSum.module();
 
-            double k = e172::Math::sqrt((1 + thisModule * termModule / (c * c)));
-            double u = classicSumModule / k;
+            const auto k = e172::Math::sqrt((1 + thisModule * termModule / (c * c)));
+            const auto u = classicSumModule / k;
 
             return Vector(u * classicSum.m_x / classicSumModule,
                           u * classicSum.m_y / classicSumModule);

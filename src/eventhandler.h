@@ -1,8 +1,11 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "abstracteventprovider.h"
 #include <map>
 #include <memory>
+#include <string>
 
 namespace e172 {
 
@@ -24,7 +27,7 @@ public:
 
     bool keyHolded(Scancode key) const
     {
-        if (m_keyboardEnabled && key < s_bufferSize)
+        if (m_keyboardEnabled && key < BufferSize)
             return m_holdedKeys[key];
 
         return false;
@@ -32,7 +35,7 @@ public:
 
     bool keySinglePressed(Scancode key) const
     {
-        if (m_keyboardEnabled && key < s_bufferSize)
+        if (m_keyboardEnabled && key < BufferSize)
             return m_singlePressedKeys[key];
 
         return false;
@@ -50,10 +53,10 @@ private:
     static char keySym(Scancode scancode, bool upper);
 
 private:
-    static constexpr size_t s_bufferSize = 512;
+    static constexpr size_t BufferSize = 512;
 
-    bool m_holdedKeys[s_bufferSize];
-    bool m_singlePressedKeys[s_bufferSize];
+    bool m_holdedKeys[BufferSize];
+    bool m_singlePressedKeys[BufferSize];
     Event::Pos m_mousePosition;
     bool m_exitFlag = false;
     std::string m_textBuffer;

@@ -1,14 +1,12 @@
-#ifndef TEXTFORMAT_H
-#define TEXTFORMAT_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include <string>
 
 namespace e172 {
 
-
 class TextFormat {
-    int m_fontSize = 0;
-    std::string m_font;
 public:
     enum Alignment {
         AlignHCenter = 1,
@@ -21,28 +19,36 @@ public:
         AlignDefault = AlignRight | AlignBottom
     };
 
-    friend Alignment operator |(Alignment a0, Alignment a1);
-private:
-    Alignment m_alignment = AlignRight | AlignBottom;
-public:
-    TextFormat();
-    TextFormat(Alignment alignment);
-    TextFormat(Alignment alignment, int size);
+    TextFormat() = default;
 
-    static TextFormat fromFont(const std::string& font, int size = 16);
+    TextFormat(Alignment alignment)
+        : m_alignment(alignment)
+    {}
+
+    TextFormat(Alignment alignment, int size)
+        : m_alignment(alignment)
+        , m_fontSize(size)
+    {}
+
+    friend Alignment operator|(Alignment a0, Alignment a1);
+
+    static TextFormat fromFont(const std::string &font, int size = 16);
     static TextFormat fromFontSize(int size);
 
-    int fontSize() const;
+    int fontSize() const { return m_fontSize; }
     int fontWidth() const;
     int fontHeight() const;
 
-    Alignment alignment() const;
-    void setAlignment(const Alignment &alignment);
-    void setFontSize(int fontSize);
-    std::string font() const;
-    void setFont(const std::string &font);
+    Alignment alignment() const { return m_alignment; }
+    void setAlignment(const Alignment &alignment) { m_alignment = alignment; }
+    void setFontSize(int fontSize) { m_fontSize = fontSize; }
+    const std::string &font() const { return m_font; }
+    void setFont(const std::string &font) { m_font = font; }
+
+private:
+    Alignment m_alignment = AlignRight | AlignBottom;
+    int m_fontSize = 0;
+    std::string m_font;
 };
 
-}
-
-#endif // TEXTFORMAT_H
+} // namespace e172

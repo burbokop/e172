@@ -1,11 +1,13 @@
-#ifndef METAFUNCTION_H
-#define METAFUNCTION_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include "../type.h"
-
-#include <string>
 #include <functional>
+#include <string>
+#include <tuple>
 #include <type_traits>
+#include <utility>
 
 #ifdef QT_CORE_LIB
     #include <QVariantList>
@@ -22,7 +24,6 @@
  */
 
 namespace e172 {
-
 
 /**
  * @brief bind function is used for converting member functions to independent functions.
@@ -46,41 +47,14 @@ auto bind(const C *object, T (C::*function)(A...)const) {
     return [function, object](A ...a) -> T { return (object->*function)(a...); };
 }
 
-template <typename VariantList
+template<typename VariantList
 #ifdef QT_CORE_LIB
-          = QVariantList
+         = QVariantList
 #endif
-          >
-class MetaFunction {
-
-    template <typename F>
-    struct function_traits;
-
-    template <typename R, class... Args>
-    struct function_traits<R(*)(Args...)> : public function_traits<R(Args...)> {};
-
-    template <typename R, class... Args>
-    struct function_traits<R(Args...)> {};
-
-    template <typename C, class R, class... Args>
-    struct function_traits<R(C::*)(Args...) const> : public function_traits<R(C&, Args...)> {
-        using args = std::tuple<Args...>;
-    };
-
-    template <typename F, typename Args, std::size_t ... I>
-    static auto invoke_impl(std::string &functionName, F&& f, const VariantList& args, std::index_sequence<I ...>) {
-        constexpr int index_sequence_size = sizeof...(I);
-        const std::string size_string = std::to_string(index_sequence_size);
-        if(index_sequence_size <= args.size()) {
-            return f(args.at(I).template value<std::remove_const_t<std::remove_reference_t<std::tuple_element_t<I, Args>>>>() ...);
-        } else {
-            throw std::string("to less arguments of function: needs ") + size_string + std::string(" passed: ") + std::to_string(args.size()) + " function: " + functionName;
-        }
-    }
-
-    std::function<void(VariantList)> function;
+         >
+class MetaFunction
+{
 public:
-
     /**
      * @brief invokeMethod function is used for static metacall
      * @param name - name of function witch is used for throwing errors
@@ -110,10 +84,11 @@ public:
      * @brief methodAddress function extracts address of method passed as call paremeter
      */
     template<typename T, typename... U>
-    static size_t methodAddress(std::function<T(U...)> f) {
+    static std::size_t methodAddress(std::function<T(U...)> f)
+    {
         typedef T(fnType)(U...);
         fnType ** fnPointer = f.template target<fnType*>();
-        return (size_t) *fnPointer;
+        return reinterpret_cast<std::size_t>(*fnPointer);
     }
 
     MetaFunction() {}
@@ -165,8 +140,47 @@ public:
     /**
      * @brief assignFunction for assigning lambda and std::function
      */
-    template <typename Function>
+    template<typename Function>
     void assignFunction(Function function);
+
+private:
+    template<typename F>
+    struct function_traits;
+
+    template<typename R, class... Args>
+    struct function_traits<R (*)(Args...)> : public function_traits<R(Args...)>
+    {};
+
+    template<typename R, class... Args>
+    struct function_traits<R(Args...)>
+    {};
+
+    template<typename C, class R, class... Args>
+    struct function_traits<R (C::*)(Args...) const> : public function_traits<R(C &, Args...)>
+    {
+        using args = std::tuple<Args...>;
+    };
+
+    template<typename F, typename Args, std::size_t... I>
+    static auto invoke_impl(std::string &functionName,
+                            F &&f,
+                            const VariantList &args,
+                            std::index_sequence<I...>)
+    {
+        constexpr int index_sequence_size = sizeof...(I);
+        const std::string size_string = std::to_string(index_sequence_size);
+        if (index_sequence_size <= args.size()) {
+            return f(args.at(I)
+                         .template value<std::remove_const_t<
+                             std::remove_reference_t<std::tuple_element_t<I, Args>>>>()...);
+        } else {
+            throw std::string("to less arguments of function: needs ") + size_string
+                + std::string(" passed: ") + std::to_string(args.size())
+                + " function: " + functionName;
+        }
+    }
+
+    std::function<void(VariantList)> m_function;
 };
 
 template<typename VariantList>
@@ -198,7 +212,4 @@ void MetaFunction<VariantList>::assignFunction(C *object, T (C::*function)(A...)
     };
 }
 
-
-}
-
-#endif // METAFUNCTION_H
+} // namespace e172

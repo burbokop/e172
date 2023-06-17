@@ -1,6 +1,9 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "../server.h"
+#include <memory>
 
 namespace e172 {
 
@@ -16,7 +19,7 @@ public:
 
     // Server interface
 public:
-    virtual std::shared_ptr<Socket> pullConnection() override;
+    std::shared_ptr<Socket> pullConnection() override;
 
 private:
     int m_fd;

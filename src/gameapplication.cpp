@@ -1,9 +1,12 @@
+// Copyright 2023 Borys Boiko
+
+#include "gameapplication.h"
 #include "additional.h"
 #include "debug.h"
-#include "gameapplication.h"
 
 #include "entitylifetimeobserver.h"
 #include <iostream>
+#include <limits>
 #include <src/assettools/assetprovider.h>
 #include <src/audio/abstractaudioprovider.h>
 #include <src/context.h>
@@ -29,13 +32,10 @@ void handleSigsegv(int s)
 
 } // namespace
 
-size_t GameApplication::static_constructor() {
+size_t GameApplication::staticConstructor()
+{
     e172::Debug::installSigsegvHandler(handleSigsegv);
     return 0;
-}
-
-ElapsedTimer::time_t GameApplication::renderDelay() const {
-    return m_renderDelay;
 }
 
 e172::ptr<Entity> GameApplication::findEntity(
@@ -49,17 +49,14 @@ e172::ptr<Entity> GameApplication::findEntity(
     }
 }
 
-void GameApplication::schedule(e172::Time::time_t duration, const std::function<void ()> &function) {
+void GameApplication::schedule(Time::Value duration, const std::function<void()> &function)
+{
     m_scheduledTasks.push_back({.repeat = false, .timer = duration, .proceed = function});
 }
 
-void GameApplication::scheduleRepeated(Time::time_t duration, const std::function<void()> &function)
+void GameApplication::scheduleRepeated(Time::Value duration, const std::function<void()> &function)
 {
     m_scheduledTasks.push_back({.repeat = true, .timer = duration, .proceed = function});
-}
-
-ElapsedTimer::time_t GameApplication::proceedDelay() const {
-    return m_proceedDelay;
 }
 
 void GameApplication::destroyAllEntities(Context *, const Variant &) {
@@ -76,7 +73,7 @@ void GameApplication::destroyAllEntities(Context *, const Variant &) {
 
 void GameApplication::destroyEntity(Context*, const Variant &value) {
     const auto id = value.toNumber<Entity::Id>();
-    for(auto it = m_entities.begin(); it != m_entities.end(); ++it) {
+    for (auto it = m_entities.begin(); it != m_entities.end(); ++it) {
         if ((*it)->entityId() == id) {
             safeDestroy(*it);
             m_entities.erase(it);
@@ -91,7 +88,7 @@ void GameApplication::destroyEntitiesWithTag(Context *, const Variant &value) {
 
     auto it = m_entities.begin();
     while (it != m_entities.end()) {
-        if((*it)->liveInHeap() && (*it)->containsTag(tag)) {
+        if ((*it)->liveInHeap() && (*it)->containsTag(tag)) {
             safeDestroy(*it);
             it = m_entities.erase(it);
         } else {
@@ -100,20 +97,13 @@ void GameApplication::destroyEntitiesWithTag(Context *, const Variant &value) {
     }
 }
 
-ptr<Entity> GameApplication::entityInFocus() const {
-    return m_entityInFocus;
-}
-
-void GameApplication::setEntityInFocus(const ptr<Entity> &entityInFocus) {
-    m_entityInFocus = entityInFocus;
-}
-
-void GameApplication::render(const ptr<Entity> &entity, AbstractRenderer *renderer) {
-    if(entity) {
-        if(entity->enabled()) {
+void GameApplication::render(const ptr<Entity> &entity, AbstractRenderer *renderer)
+{
+    if (entity) {
+        if (entity->enabled()) {
             renderer->setDepth(entity->depth());
             entity->render(renderer);
-            for(auto euf : entity->__euf) {
+            for (auto euf : entity->__euf) {
                 euf.second(entity.data(), renderer);
             }
         }
@@ -124,21 +114,21 @@ void GameApplication::proceed(const ptr<Entity> &entity,
                               Context *context,
                               EventHandler *eventHandler)
 {
-    if(entity && context) {
-        if(entity->enabled()) {
+    if (entity && context) {
+        if (entity->enabled()) {
             bool disableKeyboard;
-            if(context->entityInFocus()) {
+            if (context->entityInFocus()) {
                 disableKeyboard = context->entityInFocus() != entity;
             } else {
                 disableKeyboard = !entity->keyboardEnabled();
             }
 
-            if(disableKeyboard) {
+            if (disableKeyboard) {
                 eventHandler->disableKeyboard();
             }
             entity->proceed(context, eventHandler);
             eventHandler->enableKeyboard();
-            for(auto euf : entity->__euf) {
+            for (auto euf : entity->__euf) {
                 euf.first(entity.data(), context, eventHandler);
             }
         }
@@ -191,8 +181,8 @@ void GameApplication::setEventProvider(const std::shared_ptr<AbstractEventProvid
 void GameApplication::setGraphicsProvider(
     const std::shared_ptr<AbstractGraphicsProvider> &graphicsProvider)
 {
-    if(graphicsProvider) {
-        if(!graphicsProvider->fontLoaded(std::string())) {
+    if (graphicsProvider) {
+        if (!graphicsProvider->fontLoaded(std::string())) {
             graphicsProvider->loadFont(std::string(), e172::Additional::defaultFont());
         }
     }
@@ -206,15 +196,17 @@ void GameApplication::setAudioProvider(const std::shared_ptr<AbstractAudioProvid
     m_assetProvider->m_audioProvider = audioProvider;
 }
 
-std::vector<std::string> GameApplication::arguments() const {
-    return m_arguments;
-}
-
-void GameApplication::registerValueFlag(const std::string &shortName, const std::string &fullName, const std::string &description) {
+void GameApplication::registerValueFlag(const std::string &shortName,
+                                        const std::string &fullName,
+                                        const std::string &description)
+{
     m_flagParser.registerValueFlag(shortName, fullName, description);
 }
 
-void GameApplication::registerBoolFlag(const std::string &shortName, const std::string &fullName, const std::string &description) {
+void GameApplication::registerBoolFlag(const std::string &shortName,
+                                       const std::string &fullName,
+                                       const std::string &description)
+{
     m_flagParser.registerBoolFlag(shortName, fullName, description);
 }
 
@@ -244,7 +236,7 @@ void GameApplication::addEntity(const ptr<Entity> &entity)
 
 void GameApplication::removeApplicationExtension(size_t hash) {
     const auto it = m_applicationExtensions.find(hash);
-    if(it != m_applicationExtensions.end())
+    if (it != m_applicationExtensions.end())
         m_applicationExtensions.erase(it);
 }
 
@@ -257,17 +249,18 @@ GameApplication::GameApplication(int argc, const char *argv[]) {
 }
 
 void GameApplication::quitLater() {
-    mustQuit = true;
+    m_mustQuit = true;
 }
 
-int GameApplication::exec() {
-    if(m_flagParser.containsFlag("-h")) {
+int GameApplication::exec()
+{
+    if (m_flagParser.containsFlag("-h")) {
         displayHelp(std::cout);
         return 0;
     }
 
-    for(auto m : m_applicationExtensions) {
-        if(m.second->extensionType() == GameApplicationExtension::InitExtension)
+    for (auto m : m_applicationExtensions) {
+        if (m.second->extensionType() == GameApplicationExtension::InitExtension)
             m.second->proceed(this);
     }
     while (true) {
@@ -293,21 +286,21 @@ int GameApplication::exec() {
         if (!!(m_mode & Mode::Render) && m_graphicsProvider && m_renderTimer.check()) {
             e172::ElapsedTimer measureTimer;
             auto r = m_graphicsProvider->renderer();
-            if(r) {
+            if (r) {
                 r->m_locked = false;
-                if(r->m_autoClear) {
+                if (r->m_autoClear) {
                     r->setDepth(std::numeric_limits<int64_t>::min());
                     r->fill(0);
                 }
-                for(const auto& m : m_applicationExtensions) {
-                    if(m.second->extensionType() == GameApplicationExtension::PreRenderExtension)
+                for (const auto &m : m_applicationExtensions) {
+                    if (m.second->extensionType() == GameApplicationExtension::PreRenderExtension)
                         m.second->proceed(this);
                 }
-                for(const auto& e : m_entities) {
+                for (const auto &e : m_entities) {
                     render(e, r);
                 }
                 r->m_locked = true;
-                if(!r->update()) {
+                if (!r->update()) {
                     break;
                 }
             }
@@ -336,7 +329,7 @@ int GameApplication::exec() {
 
         {
             auto it = m_scheduledTasks.begin();
-            while(it != m_scheduledTasks.end()) {
+            while (it != m_scheduledTasks.end()) {
                 if (it->timer.check()) {
                     it->proceed();
                     if (it->repeat) {
@@ -350,22 +343,10 @@ int GameApplication::exec() {
             }
         }
 
-        if(mustQuit)
+        if (m_mustQuit)
             break;
     }
     return 0;
 }
 
-GameApplicationExtension::ExtensionType GameApplicationExtension::extensionType() const {
-    return m_extensionType;
-}
-
-void GameApplicationExtension::setExtensionType(const ExtensionType &extensionType) {
-    m_extensionType = extensionType;
-}
-
-GameApplicationExtension::GameApplicationExtension(GameApplicationExtension::ExtensionType extensionType) {
-    m_extensionType = extensionType;
-}
-
-}
+} // namespace e172

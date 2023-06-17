@@ -1,16 +1,25 @@
-#ifndef DEFER_H
-#define DEFER_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include <functional>
 
 namespace e172 {
 
 class Defer {
-    std::function<void()> m_f;
 public:
-    Defer(const std::function<void()> &f);
-    ~Defer();
+    Defer(const std::function<void()> &f)
+        : m_f(f)
+    {}
+
+    ~Defer()
+    {
+        if (m_f)
+            m_f();
+    }
+
+private:
+    std::function<void()> m_f;
 };
 
-}
-#endif // DESTROYSIGNAL_H
+} // namespace e172

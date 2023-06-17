@@ -11,4 +11,4 @@ target_link_libraries(e172_benches
 
 enable_testing()
 include(CTest)
-e172_register_tests(e172_benches)
+e172_target_discover_tests(e172_benches)

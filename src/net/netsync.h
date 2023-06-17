@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include <concepts>
@@ -49,8 +51,8 @@ protected:
  * @brief The NetSync class - wraps T to be auto synchronized with network
  */
 template<typename T>
-requires Serialize<T> && Deserialize<T>
-    class NetSync : public AbstractNetSync
+    requires Serialize<T> && Deserialize<T>
+class NetSync : public AbstractNetSync
 {
 public:
     NetSync(const T &val, Entity &e)

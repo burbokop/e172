@@ -1,16 +1,18 @@
-#ifndef BOOLEAN_H
-#define BOOLEAN_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 namespace e172 {
 
-class boolean {
-    bool m_value;
+class Boolean
+{
 public:
-    boolean(bool value = false) { m_value = value; }
+    Boolean(bool value = false) { m_value = value; }
     operator bool () const { return m_value; }
     bool value() const { return m_value; }
+
+private:
+    bool m_value;
 };
 
-}
-
-#endif // BOOLEAN_H
+} // namespace e172

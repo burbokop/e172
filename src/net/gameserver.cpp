@@ -1,9 +1,13 @@
+// Copyright 2023 Borys Boiko
+
 #include "gameserver.h"
+
 #include "../gameapplication.h"
 #include "common.h"
 #include "networker.h"
 #include "src/utility/package.h"
 #include <src/debug.h>
+#include <utility>
 
 e172::GameServer::GameServer(GameApplication &app,
                              Networker *networker,
@@ -61,14 +65,6 @@ void e172::GameServer::sync()
     }
 
     for (const auto &client : m_clients) {
-        //m_incompleatedStatistics.bytesWritenPerSecond
-        //    += WritePackage::push(*client.socket,
-        //                          PackageType(GamePackageType::SyncEntity),
-        //                          [](WritePackage p) {
-        //                              Bytes b(3000, 0);
-        //                              p.write(std::move(b));
-        //                          });
-
         client.socket->flush();
     }
 

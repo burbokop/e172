@@ -1,9 +1,13 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <optional>
 #include <ostream>
 #include <sstream>
+#include <string>
 #include <variant>
 
 namespace e172 {

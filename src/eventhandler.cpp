@@ -1,10 +1,14 @@
+// Copyright 2023 Borys Boiko
+
 #include "eventhandler.h"
+
+#include <utility>
 
 namespace e172 {
 
 ClientEventHandler::ClientEventHandler()
 {
-    for (size_t i = 0; i < s_bufferSize; i++) {
+    for (size_t i = 0; i < BufferSize; i++) {
         m_singlePressedKeys[i] = false;
         m_holdedKeys[i] = false;
     }
@@ -20,7 +24,7 @@ void ClientEventHandler::handleEvent(const Event &event)
 {
     if (event.type() == Event::KeyDown) {
         const auto scancode = event.scancode().value();
-        if (scancode < s_bufferSize) {
+        if (scancode < BufferSize) {
             m_holdedKeys[scancode] = true;
             m_singlePressedKeys[scancode] = true;
 
@@ -34,7 +38,7 @@ void ClientEventHandler::handleEvent(const Event &event)
         }
     } else if (event.type() == Event::KeyUp) {
         const auto scancode = event.scancode().value();
-        if (scancode < s_bufferSize) {
+        if (scancode < BufferSize) {
             m_holdedKeys[scancode] = false;
         }
     } else if (event.type() == Event::MouseMotion) {
@@ -77,7 +81,7 @@ bool EventHandler::keySinglePressed(e172::Scancode key) const
 void EventHandler::update()
 {
     for (auto &client : m_clients) {
-        for (size_t i = 0; i < ClientEventHandler::s_bufferSize; i++) {
+        for (size_t i = 0; i < ClientEventHandler::BufferSize; i++) {
             client.second.m_singlePressedKeys[i] = false;
         }
     }

@@ -1,26 +1,45 @@
-#ifndef DELTATIMECALCULATOR_H
-#define DELTATIMECALCULATOR_H
+// Copyright 2023 Borys Boiko
 
+#pragma once
 
 #include <chrono>
+
 namespace e172 {
 
+template<typename T>
+    requires std::chrono::is_clock_v<T>
+class DeltaTimeCalculator
+{
+    using Clock = T;
+    using TimePoint = Clock::time_point;
 
-class DeltaTimeCalculator {
-    typedef std::chrono::high_resolution_clock cl;
-    cl::time_point lastTimePoint = cl::now();
-
-    int64_t calculateDuration();
-
-    double m_deltaTime = 0;
-    double m_timeSpead = 1;
 public:
-    DeltaTimeCalculator();
-    void update();
+    DeltaTimeCalculator() = default;
 
-    double deltaTime();
-    void setTimeSpead(double value);
+    void update() { m_deltaTime = calculateDuration() * 0.000001 * m_timeSpeed; }
+
+    /**
+     * @brief deltaTime
+     * @return seconds
+     */
+    double deltaTime() { return m_deltaTime; }
+
+    void setTimeSpeed(double value) { m_timeSpeed = value; }
+
+private:
+    std::int64_t calculateDuration()
+    {
+        const auto now = Clock::now();
+        std::int64_t microseconds
+            = std::chrono::duration_cast<std::chrono::microseconds>(now - m_lastTimePoint).count();
+        m_lastTimePoint = now;
+        return microseconds;
+    }
+
+private:
+    TimePoint m_lastTimePoint = Clock::now();
+    double m_deltaTime = 0;
+    double m_timeSpeed = 1;
 };
 
-}
-#endif // DELTATIMECALCULATOR_H
+} // namespace e172

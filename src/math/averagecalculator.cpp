@@ -1,36 +1,21 @@
+// Copyright 2023 Borys Boiko
+
 #include "averagecalculator.h"
+
 #include "math.h"
+#include <cmath>
 
-#include <math.h>
-
-double AverageCalculator::autoResetError() const
-{
-    return m_autoResetError;
-}
-
-void AverageCalculator::setAutoResetError(double autoResetError)
-{
-    m_autoResetError = autoResetError;
-}
-
-bool AverageCalculator::enableAutoReset() const
-{
-    return m_enableAutoReset;
-}
-
-void AverageCalculator::setEnableAutoReset(bool enableAutoReset)
-{
-    m_enableAutoReset = enableAutoReset;
-}
-
-AverageCalculator::AverageCalculator() {}
+namespace e172 {
 
 double AverageCalculator::proceed(double value) {
-    if(m_enableAutoReset && value != e172::Math::null && (std::abs(average - value) / value) > m_autoResetError) {
-        average = value;
+    if (m_autoResetEnabled && value != e172::Math::null
+        && (std::abs(m_average - value) / value) > m_autoResetError) {
+        m_average = value;
     }
 
-    average = ((average * count + value) / (count + 1));
-    count++;
-    return average;
+    m_average = ((m_average * m_count + value) / (m_count + 1));
+    m_count++;
+    return m_average;
 }
+
+} // namespace e172

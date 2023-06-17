@@ -1,8 +1,13 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "server.h"
 #include "socket.h"
+#include <map>
+#include <memory>
 #include <src/net/networker.h>
+#include <string>
 
 namespace e172 {
 
@@ -31,7 +36,7 @@ public:
     }
 
     Either<Error, std::shared_ptr<Socket>> connect(std::uint16_t port,
-                                                   const std::string &address = localhost) override
+                                                   const std::string &address = Localhost) override
     {
         std::lock_guard lock(m_mutex);
         auto it = m_servers.find(port);

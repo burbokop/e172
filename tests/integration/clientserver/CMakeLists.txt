@@ -14,4 +14,4 @@ target_link_libraries(e172_clientserver_integration_test
 
 enable_testing()
 include(CTest)
-e172_register_tests(e172_clientserver_integration_test)
+e172_target_discover_tests(e172_clientserver_integration_test)

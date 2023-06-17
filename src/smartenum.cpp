@@ -1,8 +1,16 @@
+// Copyright 2023 Borys Boiko
+
 #include "smartenum.h"
 
+#include <algorithm>
+#include <limits>
 
+namespace e172::smartenum {
 
-std::string e172::__enum_tools::trim(const std::string &str) {
+namespace {
+
+std::string trim(const std::string &str)
+{
     size_t first = str.find_first_not_of(' ');
     if (std::string::npos == first) {
         return str;
@@ -11,7 +19,8 @@ std::string e172::__enum_tools::trim(const std::string &str) {
     return str.substr(first, (last - first + 1));
 }
 
-std::vector<std::string> e172::__enum_tools::split(const std::string &s, char delimiter) {
+std::vector<std::string> split(const std::string &s, char delimiter)
+{
     std::vector<std::string> tokens;
     std::string token;
     std::istringstream tokenStream(s);
@@ -21,11 +30,21 @@ std::vector<std::string> e172::__enum_tools::split(const std::string &s, char de
     return tokens;
 }
 
-std::map<uint8_t, std::string> e172::__enum_tools::__va_args_to_map(const std::string &str) {
+} // namespace
+
+Meta Meta::fromVaArgs(const std::string &str)
+{
     auto vec = split(str, ',');
-    std::map<uint8_t, std::string> result;
-    for(size_t i = 0, count = std::min(vec.size(), static_cast<std::size_t>(256)); i < count; ++i) {
-        result[static_cast<std::uint8_t>(i)] = trim(vec[i]);
+    std::map<UnderlyingType, std::string> result;
+    for (size_t i = 0,
+                count = std::min(vec.size(),
+                                 static_cast<std::size_t>(
+                                     std::numeric_limits<UnderlyingType>::max()));
+         i < count;
+         ++i) {
+        result.insert({static_cast<std::uint32_t>(i), trim(vec[i])});
     }
-    return result;
+    return Meta(result);
 }
+
+} // namespace e172::smartenum

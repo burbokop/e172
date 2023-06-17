@@ -1,34 +1,24 @@
+// Copyright 2023 Borys Boiko
+
 #include "sharedcontainer.h"
 #include <stdexcept>
 
 namespace e172 {
 
-
-SharedContainer::ptr SharedContainer::provider() const { return m_provider; }
-
-SharedContainer::data_ptr SharedContainer::data() const {
-    return m_data;
-}
-
-void SharedContainer::setData(const data_ptr &data) {
-    m_data = data;
-}
-
-
-SharedContainer::SharedContainer() {}
-
-void SharedContainer::__detach() {
-    if(ref_count_ptr) {
-        --(*ref_count_ptr);
-        if(*ref_count_ptr <= 0) {
-            if(!m_destructor && m_data) {
+void SharedContainer::detach()
+{
+    if (m_refCountPtr) {
+        --(*m_refCountPtr);
+        if (*m_refCountPtr <= 0) {
+            if (!m_destructor && m_data) {
                 throw std::runtime_error("[e172::SharedContainer]: destructor is not set\n");
             }
 
             m_destructor(m_data);
-            delete ref_count_ptr;
+            delete m_refCountPtr;
+            m_refCountPtr = nullptr;
         }
-    } else if(m_data) {
+    } else if (m_data) {
         throw std::runtime_error("[e172::SharedContainer]: detaching broken object\n");
     }
 }
@@ -38,30 +28,15 @@ SharedContainer::SharedContainer(const SharedContainer &obj) {
 }
 
 void SharedContainer::operator=(const SharedContainer &obj) {
-    __detach();
+    detach();
 
     m_destructor = obj.m_destructor;
     m_data = obj.m_data;
-    ref_count_ptr = obj.ref_count_ptr;
+    m_refCountPtr = obj.m_refCountPtr;
     m_provider = obj.m_provider;
 
-    if(ref_count_ptr)
-        ++(*ref_count_ptr);
+    if (m_refCountPtr)
+        ++(*m_refCountPtr);
 }
 
-SharedContainer::~SharedContainer() {
-    __detach();
-}
-
-bool SharedContainer::isValid() const {
-    return m_data != nullptr;
-}
-
-bool SharedContainer::isNull() const {
-    return m_data == nullptr;
-}
-
-SharedContainer::base_handle::~base_handle() {}
-
-
-}
+} // namespace e172

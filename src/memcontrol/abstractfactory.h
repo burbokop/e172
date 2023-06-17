@@ -1,13 +1,15 @@
-#ifndef ABSTRACTFACTORY_H
-#define ABSTRACTFACTORY_H
+// Copyright 2023 Borys Boiko
 
+#pragma once
+
+#include "../type.h"
+#include "src/meta.h"
 #include <functional>
 #include <list>
 #include <map>
 #include <optional>
 
-#include "../type.h"
-#include "src/meta.h"
+namespace e172 {
 
 /**
  * @brief The AbstractFactory class provides standart abstract factory
@@ -18,9 +20,6 @@
  *
  * @note AbstractFactory is available whithout Qt.
  */
-
-namespace e172 {
-
 template<typename KeyType, typename BaseClass>
 class AbstractFactory
 {
@@ -90,9 +89,10 @@ public:
         }
     }
 
-    std::list<std::string> typeNames() const {
-        std::list<std::string> result;
-        for(const auto& c : m_creaters) {
+    std::list<KeyType> typeNames() const
+    {
+        std::list<KeyType> result;
+        for (const auto &c : m_creaters) {
             result.push_back(c.first);
         }
         return result;
@@ -120,5 +120,3 @@ private:
 };
 
 } // namespace e172
-
-#endif // ABSTRACTFACTORY_H

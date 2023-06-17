@@ -1,11 +1,14 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
+#include "../math/line2d.h"
+#include "../math/vector.h"
+#include "../variant.h"
 #include "image.h"
 #include "shapeformat.h"
-#include "../math/vector.h"
 #include "textformat.h"
-#include "../variant.h"
-#include "../math/line2d.h"
+#include <string>
 
 namespace e172 {
 
@@ -67,43 +70,34 @@ Color randomColor(Random &&random);
 
 Color blendPixels(Color top, Color bottom);
 
+class GameApplication;
 class AbstractGraphicsProvider;
+
 class AbstractRenderer {
     friend AbstractGraphicsProvider;
-    bool m_isValid = false;
-    bool m_locked = true;
-    AbstractGraphicsProvider *m_provider = nullptr;
-    Vector<double> m_position;
-    bool m_cameraLocked = false;
-    bool m_autoClear = true;
 
     /**
      * Only GameApplication class cann call update function
      */
-    friend class GameApplication;
-protected:
-    virtual bool update() = 0;
+    friend GameApplication;
+
 public:
     class Camera : public SharedContainer {
         friend AbstractRenderer;
-        AbstractRenderer *m_renderer = nullptr;
-        typedef std::function<void(const Vector<double> &)> setter_t;
-        typedef std::function<Vector<double>()> getter_t;
+        using Setter = std::function<void(const Vector<double> &)>;
+        using Getter = std::function<Vector<double>()>;
 
-        setter_t m_setter;
-        getter_t m_getter;
     public:
-        AbstractRenderer *renderer() const;
+        AbstractRenderer *renderer() const { return m_renderer; }
         void setPosition(const Vector<double> &position);
         Vector<double> position() const;
-    };
-protected:
-    template<typename T>
-    static T imageData(const Image &image) { return image.casted_handle<T>()->c; }
-    static Image::ptr imageProvider(const Image &image);
-    AbstractGraphicsProvider *provider() const;
 
-public:
+    private:
+        AbstractRenderer *m_renderer = nullptr;
+        Setter m_setter;
+        Getter m_getter;
+    };
+
     void drawPixelShifted(const Vector<double> &point, Color color)
     {
         drawPixel(point + offset(), color);
@@ -171,9 +165,9 @@ public:
     Camera detachCamera();
     Vector<double> cameraPosition() const;
     bool isActive() const;
-    bool isValid() const;
-    bool autoClear() const;
-    void setAutoClear(bool autoClear);
+    bool isValid() const { return m_isValid; }
+    bool autoClear() const { return m_autoClear; }
+    void setAutoClear(bool autoClear) { m_autoClear = autoClear; }
 
     // Virtual methods
 public:
@@ -233,7 +227,27 @@ public:
     virtual Vector<double> resolution() const = 0;
     virtual Vector<double> screenSize() const = 0;
 
-    virtual ~AbstractRenderer();
+    virtual ~AbstractRenderer() = default;
+
+protected:
+    template<typename T>
+    static T imageData(const Image &image)
+    {
+        return image.handleAs<T>()->c;
+    }
+
+    static Image::Ptr imageProvider(const Image &image);
+    AbstractGraphicsProvider *provider() const { return m_provider; }
+
+    virtual bool update() = 0;
+
+private:
+    bool m_isValid = false;
+    bool m_locked = true;
+    AbstractGraphicsProvider *m_provider = nullptr;
+    Vector<double> m_position;
+    bool m_cameraLocked = false;
+    bool m_autoClear = true;
 };
 
 } // namespace e172

@@ -1,24 +1,49 @@
+// Copyright 2023 Borys Boiko
+
 #include "systeminfo.h"
 
 #ifdef __unix__
-#include <string.h>
-#include <stdio.h>
+#include <fstream>
 #endif
 
-bool e172::SystemInfo::memoryUsageKb(long *vmrss_kb, long *vmsize_kb) {
-#ifdef __unix__
-    FILE* procfile = fopen("/proc/self/status", "r");
+#include <iostream>
+#include <string>
 
-    long to_read = 8192;
-    char buffer[to_read];
-    fread(buffer, sizeof(char), to_read, procfile);
+namespace e172::sysinfo {
+
+Either<MemotyUsageError, MemotyUsage> memoryUsage()
+{
+#ifdef __unix__
+    std::ifstream stream("/proc/self/status");
+    if (!stream.is_open()) {
+        return Left(MemotyUsageError::FailedToReadProcInfo);
+    }
+
+    std::string line;
+    std::cout << "-----/proc/self/status:" << std::endl;
+    while (std::getline(stream, line)) {
+        std::cout << "  -: " << line << std::endl;
+        std::istringstream iss(line);
+        int a, b;
+        if (!(iss >> a >> b)) {
+            break;
+        } // error
+
+        // process pair (a,b)
+    }
+    return Right(MemotyUsage{.rss = 0, .vm = 0});
+/*
+    FILE *procfile = fopen("/proc/self/status", "r");
+
+    static constexpr std::size_t BufSize = 8192;
+    char buffer[BufSize];
+    fread(buffer, sizeof(char), BufSize, procfile);
     fclose(procfile);
 
     bool found_vmrss = false;
     bool found_vmsize = false;
     char* search_result;
 
-    /* Look through proc status contents line by line */
     char delims[] = "\n";
     char* line = strtok(buffer, delims);
 
@@ -37,6 +62,7 @@ bool e172::SystemInfo::memoryUsageKb(long *vmrss_kb, long *vmsize_kb) {
         line = strtok(NULL, delims);
     }
     return found_vmrss && found_vmsize;
+*/
 #else
     (void)vmrss_kb;
     (void)vmsize_kb;
@@ -44,8 +70,4 @@ bool e172::SystemInfo::memoryUsageKb(long *vmrss_kb, long *vmsize_kb) {
 #endif
 }
 
-e172::SystemInfo::MemotyUsageInfo e172::SystemInfo::memoryUsageKb() {
-    MemotyUsageInfo result;
-    result.isValid = memoryUsageKb(&result.rss, &result.vm);
-    return result;
-}
+} // namespace e172::sysinfo

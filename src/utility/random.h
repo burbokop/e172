@@ -1,8 +1,11 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "src/math/math.h"
 #include "src/todo.h"
 #include <cstdint>
+#include <limits>
 #include <math.h>
 #include <memory>
 
@@ -12,6 +15,7 @@ class Random
 {
 public:
     Random(std::uint64_t seed);
+    Random(Random &&);
     ~Random();
 
     static Random uniq();
@@ -42,6 +46,21 @@ public:
                       / static_cast<long double>(std::numeric_limits<std::uint64_t>::max()));
         } else {
             todo;
+        }
+    }
+
+    template<std::floating_point T>
+    T nextNormalized()
+    {
+        if constexpr (std::is_same<T, float>::value) {
+            return (static_cast<float>(nextU16())
+                    / static_cast<float>(std::numeric_limits<std::uint16_t>::max()));
+        } else if constexpr (std::is_same<T, double>::value) {
+            return (static_cast<double>(nextU32())
+                    / static_cast<double>(std::numeric_limits<std::uint32_t>::max()));
+        } else if constexpr (std::is_same<T, long double>::value) {
+            return (static_cast<long double>(nextU64())
+                    / static_cast<long double>(std::numeric_limits<std::uint64_t>::max()));
         }
     }
 

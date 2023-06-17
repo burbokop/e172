@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "object.h"
 
 #include <cstdint>
@@ -15,11 +17,16 @@ bool e172::Object::liveInSharedPtr() const
     }
 }
 
-int *heap_example = new int();
+namespace {
+
+int *heapExample = new int();
+
+}
 
 e172::Object::Object() {
-    int stack_example;
-    if(((void*)this < &stack_example) == ((void*)heap_example < (void*)&stack_example)) {
+    int stackExample;
+    if ((reinterpret_cast<void *>(this) < reinterpret_cast<void *>(&stackExample))
+        == (reinterpret_cast<void *>(heapExample) < reinterpret_cast<void *>(&stackExample))) {
         m_liveInHeap = true;
     } else {
         m_liveInHeap = false;

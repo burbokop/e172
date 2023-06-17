@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "dynamiclibrary.h"
 
 #ifdef __unix__
@@ -6,23 +8,10 @@
 
 #include <src/additional.h>
 
-std::string e172::DynamicLibrary::path() const {
-    return m_path;
-}
-
-e172::DynamicLibrary::DynamicLibrary(void *handle, const std::string &path, const std::shared_ptr<Defer> &destroySignal) {
-    m_handle = handle;
-    m_path = path;
-    m_destroySignal = destroySignal;
-}
-
-bool e172::DynamicLibrary::isValid() const {
-    return m_handle;
-}
-
-void *e172::DynamicLibrary::__symbol(const std::string &name) const {
+void *e172::DynamicLibrary::rawSymbol(const std::string &name) const
+{
 #ifdef __unix__
-    if(m_handle) {
+    if (m_handle) {
         const auto fn = dlsym(m_handle, name.c_str());
         if (dlerror() == NULL) {
             return fn;
@@ -35,12 +24,13 @@ void *e172::DynamicLibrary::__symbol(const std::string &name) const {
 
 std::list<std::string> e172::DynamicLibrary::polymorphicSymbols(const std::string &name) const {
 #ifdef __unix__
-
-    const auto objdumpStdout = e172::Additional::executeCommand(("objdump --syms " + m_path + " | grep \" _Z" + std::to_string(name.size()) + name + '"').c_str());
+    const auto objdumpStdout = e172::Additional::executeCommand(
+        ("objdump --syms " + m_path + " | grep \" _Z" + std::to_string(name.size()) + name + '"')
+            .c_str());
     std::list<std::string> result;
-    for(const auto& s : objdumpStdout) {
+    for (const auto &s : objdumpStdout) {
         const auto l = e172::Additional::split(s, ' ');
-        if(l.size() > 0) {
+        if (l.size() > 0) {
             result.push_back(e172::Additional::trim(l[l.size() - 1]));
         }
     }

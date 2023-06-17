@@ -1,27 +1,32 @@
-#ifndef INTERGRATOR_H
-#define INTERGRATOR_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include <vector>
 #include "../typedefs.h"
 
 namespace e172 {
 
-
-class Intergrator {
-    double m_alpha;
-
-    struct ChannelState {
-        double lastY;
-        Complex<double> lastComplexY;
-        bool frst = true;
-    };
-
-    std::vector<ChannelState> channelStateArray;
+class Intergrator
+{
 public:
-    Intergrator(double alpha = 0.9);
+    Intergrator(double alpha = 0.9)
+        : m_alpha(alpha)
+    {}
 
     double proceed(double value, size_t channel = 0);
     Complex<double> proceed(const Complex<double> &value, size_t channel = 0);
+
+private:
+    struct ChannelState
+    {
+        double lastY;
+        Complex<double> lastComplexY;
+        bool first = true;
+    };
+
+    double m_alpha;
+    std::vector<ChannelState> m_channelStateArray;
 };
 
 template<typename OriginalIt>
@@ -45,7 +50,7 @@ Container intergate(const Container& c, double alpha = 0.9) {
         result.reserve(c.size());
     }
     Intergrator intergrator(alpha);
-    for(auto it = c.begin(); it != c.end(); ++it) {
+    for (auto it = c.begin(); it != c.end(); ++it) {
         result.push_back(intergrator.proceed(*it, 0));
     }
     return result;
@@ -58,7 +63,4 @@ Container intergate(const Container& c, double alpha = 0.9) {
     return result;
 }
 
-
-}
-
-#endif // INTERGRATOR_H
+} // namespace e172

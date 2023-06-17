@@ -1,6 +1,10 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "socket.h"
+#include <memory>
+#include <queue>
 #include <src/net/server.h>
 
 namespace e172 {

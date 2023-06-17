@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "entity.h"
 
 #include "net/netsync.h"
@@ -9,7 +11,7 @@ namespace e172 {
 bool Entity::removeTag(const String &tag)
 {
     const auto it = m_tags.find(tag);
-    if(it != m_tags.end()) {
+    if (it != m_tags.end()) {
         m_tags.erase(it);
         return true;
     }
@@ -18,7 +20,6 @@ bool Entity::removeTag(const String &tag)
 
 void Entity::writePhysicsToNet(PhysicalObject &po, WriteBuffer &buf)
 {
-    //std::cout << "writePhysicsToNet: " << po.m_positionKinematics.value() << std::endl;
     buf.write(po.m_rotationKinematics);
     buf.write(po.m_positionKinematics);
     buf.write(po.m_mass);

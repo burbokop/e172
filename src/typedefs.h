@@ -1,11 +1,14 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
-#include <inttypes.h>
-#include <vector>
-#include <map>
-#include <list>
-#include <set>
 #include <complex>
+#include <inttypes.h>
+#include <list>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace e172 {
 

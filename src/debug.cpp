@@ -1,11 +1,13 @@
-#include "additional.h"
+// Copyright 2023 Borys Boiko
+
 #include "debug.h"
+
+#include "additional.h"
 #include "src/consolecolor.h"
 #include "type.h"
-
 #include <iostream>
-
-#include <signal.h>    // for signal
+#include <signal.h>
+#include <vector>
 
 #ifdef __unix__
 #include <execinfo.h>  // for backtrace
@@ -72,29 +74,29 @@ std::list<StackTraceInfo> Debug::stackTrace() {
     free(symbollist);
 #endif
     std::list<StackTraceInfo> result;
-    for(const auto &sti : st) {
+    for (const auto &sti : st) {
         StackTraceInfo info;
         const auto p0 = Additional::split(sti, '(');
-        if(p0.size() > 1) {
+        if (p0.size() > 1) {
             info.m_libPath = p0[0];
             info.m_libName = Additional::pathTopLevelItem(info.m_libPath);
             const auto p1 = Additional::split(p0[1], ')');
-            if(p1.size() > 1) {
+            if (p1.size() > 1) {
                 const auto p2 = Additional::split(p1[0], '+');
-                if(p2.size() > 0) {
+                if (p2.size() > 0) {
                     info.m_functionName = p2[0];
-                    if(info.m_functionName.size() > 0) {
+                    if (info.m_functionName.size() > 0) {
                         try {
                             info.m_functionName = TypeTools::demangle(info.m_functionName);
                         } catch (std::runtime_error) {}
                     }
-                    if(p2.size() > 1) {
+                    if (p2.size() > 1) {
                         size_t pos = 2;
                         info.m_offset = std::stoul(p2[1], &pos, 16);
                     }
                 }
                 auto address = Additional::fencedArea(p1[1], Additional::Fence::Brackets);
-                if(address.size() > 2) {
+                if (address.size() > 2) {
                     address = address.substr(1, address.size() - 2);
                 }
                 size_t pos = 2;
@@ -125,7 +127,7 @@ std::string Debug::makeVersion(int a, int b, int c)
 
 void Debug::handle(const std::string &ss, MessageType t)
 {
-    if(m_handler) {
+    if (m_handler) {
         m_handler(ss, t);
     }
 }
@@ -136,22 +138,6 @@ Debug::CompilerInfo Debug::compilerInfo() {
 
 void Debug::installHandler(const Handler &handler) {
     m_handler = handler;
-}
-
-std::string StackTraceInfo::libName() const {
-    return m_libName;
-}
-
-std::string StackTraceInfo::libPath() const {
-    return m_libPath;
-}
-
-uintptr_t StackTraceInfo::address() const {
-    return m_address;
-}
-
-uintptr_t StackTraceInfo::offset() const {
-    return m_offset;
 }
 
 std::ostream &operator<<(std::ostream &stream, const StackTraceInfo &info) {
@@ -169,21 +155,8 @@ std::string StackTraceInfo::functionName() const {
     return m_functionName;
 }
 
-std::string Debug::CompilerInfo::name() const {
-    return m_name;
-}
-
-std::string Debug::CompilerInfo::version() const {
-    return m_version;
-}
-
-std::ostream &operator<<(std::ostream &stream, const Debug::CompilerInfo &info) {
+std::ostream &operator<<(std::ostream &stream, const Debug::CompilerInfo &info)
+{
     return stream << info.m_name + "-" + info.m_version;
 }
-
-Debug::CompilerInfo::CompilerInfo(const std::string &name, const std::string &version)
-    : m_name(name), m_version(version) {}
-
-
-
-}
+} // namespace e172

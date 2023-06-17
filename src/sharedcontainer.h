@@ -1,59 +1,78 @@
-#ifndef SHAREDCONTAINER_H
-#define SHAREDCONTAINER_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include <functional>
 
 namespace e172 {
 
-
-
 class SharedContainer {
 public:
-    typedef const void* ptr;
-    struct base_handle { virtual ~base_handle(); };
-    template<typename T> struct handle : public base_handle { T c; handle(const T &v) { c = v; } handle() {} };
-    typedef const base_handle* data_ptr;
-    template<typename T>
-    static handle<T> *handle_cast(const base_handle *ptr) { return const_cast<handle<T>*>(dynamic_cast<const handle<T>*>(ptr)); }
+    struct BaseHandle
+    {
+        virtual ~BaseHandle() = default;
+    };
 
-    typedef handle<void*> void_handle;
-    typedef std::function<void(data_ptr)> Destructor;
+    template<typename T>
+    struct Handle : public BaseHandle
+    {
+        T c;
+
+        Handle(const T &v)
+            : c(v)
+        {}
+        Handle() = default;
+    };
+
+    using Ptr = const void *;
+    using DataPtr = const BaseHandle *;
+    using VoidHandle = Handle<void *>;
+    using Destructor = std::function<void(DataPtr)>;
+
+    template<typename T>
+    static Handle<T> *castHandle(const BaseHandle *ptr)
+    {
+        return const_cast<Handle<T> *>(dynamic_cast<const Handle<T> *>(ptr));
+    }
+
 protected:
     template<typename T>
-    handle<T> *casted_handle() const { return handle_cast<T>(m_data); }
-    ptr provider() const;
+    Handle<T> *handleAs() const
+    {
+        return castHandle<T>(m_data);
+    }
+
+    Ptr provider() const { return m_provider; }
 
     template<typename T>
-    static T newSharedContainer(data_ptr data, ptr provider, Destructor destructor) {
+    static T createSharedContainer(DataPtr data, Ptr provider, Destructor destructor)
+    {
         T i;
-        i.ref_count_ptr = new int(1);
+        i.m_refCountPtr = new int(1);
         i.m_data = data;
         i.m_provider = provider;
         i.m_destructor = destructor;
         return i;
     }
-    data_ptr data() const;
-    void setData(const data_ptr &data);
-private:
-    data_ptr m_data = nullptr;
-    ptr m_provider = nullptr;
+    DataPtr data() const { return m_data; }
+    void setData(const DataPtr &data) { m_data = data; }
 
-    Destructor m_destructor;
-
-    int *ref_count_ptr = nullptr;
-
-    void __detach();
 public:
-    SharedContainer();
+    SharedContainer() = default;
     SharedContainer(const SharedContainer &obj);
     void operator=(const SharedContainer &obj);
-    ~SharedContainer();
+    ~SharedContainer() { detach(); }
 
-    bool isValid() const;
-    bool isNull() const;
+    bool isValid() const { return m_data != nullptr; }
+    bool isNull() const { return m_data == nullptr; }
+
+private:
+    DataPtr m_data = nullptr;
+    Ptr m_provider = nullptr;
+    Destructor m_destructor;
+    int *m_refCountPtr = nullptr;
+
+    void detach();
 };
 
-}
-
-
-#endif // SharedContainer_H
+} // namespace e172
