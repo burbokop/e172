@@ -172,85 +172,85 @@ char ClientEventHandler::keySym(Scancode scancode, bool upper)
     case ScancodeM:
         return upper ? 'M' : 'm';
     case ScancodeN:
-        return 0;
+        return upper ? 'N' : 'n';
     case ScancodeO:
-        return 0;
+        return upper ? 'O' : 'o';
     case ScancodeP:
-        return 0;
+        return upper ? 'P' : 'p';
     case ScancodeQ:
-        return 0;
+        return upper ? 'Q' : 'q';
     case ScancodeR:
-        return 0;
+        return upper ? 'R' : 'r';
     case ScancodeS:
-        return 0;
+        return upper ? 'S' : 's';
     case ScancodeT:
-        return 0;
+        return upper ? 'T' : 't';
     case ScancodeU:
-        return 0;
+        return upper ? 'T' : 'u';
     case ScancodeV:
-        return 0;
+        return upper ? 'V' : 'v';
     case ScancodeW:
-        return 0;
+        return upper ? 'W' : 'w';
     case ScancodeX:
-        return 0;
+        return upper ? 'X' : 'x';
     case ScancodeY:
-        return 0;
+        return upper ? 'Y' : 'y';
     case ScancodeZ:
-        return 0;
+        return upper ? 'Z' : 'z';
     case Scancode1:
-        return 0;
+        return upper ? '!' : '1';
     case Scancode2:
-        return 0;
+        return upper ? '@' : '2';
     case Scancode3:
-        return 0;
+        return upper ? '#' : '3';
     case Scancode4:
-        return 0;
+        return upper ? '$' : '4';
     case Scancode5:
-        return 0;
+        return upper ? '%' : '5';
     case Scancode6:
-        return 0;
+        return upper ? '^' : '6';
     case Scancode7:
-        return 0;
+        return upper ? '&' : '7';
     case Scancode8:
-        return 0;
+        return upper ? '*' : '8';
     case Scancode9:
-        return 0;
+        return upper ? '(' : '9';
     case Scancode0:
-        return 0;
+        return upper ? ')' : '0';
     case ScancodeReturn:
-        return 0;
+        return '\n';
     case ScancodeEscape:
         return 0;
     case ScancodeBackSpace:
         return 0;
     case ScancodeTab:
-        return 0;
+        return '\t';
     case ScancodeSpace:
-        return 0;
+        return ' ';
     case ScancodeMinus:
-        return 0;
+        return upper ? '_' : '-';
     case ScancodeEquals:
-        return 0;
+        return upper ? '+' : '=';
     case ScancodeLeftBracket:
-        return 0;
+        return upper ? '{' : '[';
     case ScancodeRightBracket:
-        return 0;
+        return upper ? '}' : ']';
     case ScancodeBackslash:
-        return 0;
-    case ScancodeNonushash:
-        return 0;
+        return upper ? '|' : '\\';
+    case ScancodeNonUSHash:
+        return '#';
     case ScancodeSemicolon:
-        return 0;
+        return upper ? ':' : ';';
     case ScancodeApostrophe:
-        return 0;
+        return upper ? '"' : '\'';
     case ScancodeGrave:
-        return 0;
+        return upper ? '~' : '`';
     case ScancodeComma:
-        return 0;
+        return upper ? '<' : ',';
     case ScancodePeriod:
         return 0;
     case ScancodeSlash:
-        return 0;
+        return upper ? '?' : '/';
     case ScancodeCapsLock:
         return 0;
     case ScancodeF1:
@@ -306,45 +306,45 @@ char ClientEventHandler::keySym(Scancode scancode, bool upper)
     case ScancodeNumLockClear:
         return 0;
     case ScancodeKpDivide:
-        return 0;
+        return '/';
     case ScancodeKpMultiply:
-        return 0;
+        return '*';
     case ScancodeKpMinus:
-        return 0;
+        return '-';
     case ScancodeKpPlus:
-        return 0;
+        return '+';
     case ScancodeKpEnter:
-        return 0;
+        return '\n';
     case ScancodeKp1:
-        return 0;
+        return upper ? '!' : '1';
     case ScancodeKp2:
-        return 0;
+        return upper ? '@' : '2';
     case ScancodeKp3:
-        return 0;
+        return upper ? '#' : '3';
     case ScancodeKp4:
-        return 0;
+        return upper ? '$' : '4';
     case ScancodeKp5:
-        return 0;
+        return upper ? '%' : '5';
     case ScancodeKp6:
-        return 0;
+        return upper ? '^' : '6';
     case ScancodeKp7:
-        return 0;
+        return upper ? '&' : '7';
     case ScancodeKp8:
-        return 0;
+        return upper ? '*' : '8';
     case ScancodeKp9:
-        return 0;
+        return upper ? '(' : '9';
     case ScancodeKp0:
-        return 0;
+        return upper ? ')' : '0';
     case ScancodeKpPeriod:
         return 0;
-    case ScancodeNonUsBackSlash:
-        return 0;
+    case ScancodeNonUSBackSlash:
+        return upper ? '|' : '\\';
     case ScancodeApplication:
         return 0;
     case ScancodePower:
         return 0;
     case ScancodeKPEquals:
-        return 0;
+        return upper ? '+' : '=';
     case ScancodeF13:
         return 0;
     case ScancodeF14:
@@ -398,9 +398,9 @@ char ClientEventHandler::keySym(Scancode scancode, bool upper)
     case ScancodeVolumeDown:
         return 0;
     case ScancodeKPComma:
-        return 0;
+        return upper ? '<' : ',';
     case ScancodeKPEqualSas400:
-        return 0;
+        return upper ? '+' : '=';
     case ScancodeInternational1:
         return 0;
     case ScancodeInternational2:
@@ -437,9 +437,9 @@ char ClientEventHandler::keySym(Scancode scancode, bool upper)
         return 0;
     case ScancodeLang9:
         return 0;
-    case ScancodeAlterase:
+    case ScancodeAltErase:
         return 0;
-    case ScancodeSysREQ:
+    case ScancodeSysReq:
         return 0;
     case ScancodeCancel:
         return 0;
@@ -448,9 +448,9 @@ char ClientEventHandler::keySym(Scancode scancode, bool upper)
     case ScancodePrior:
         return 0;
     case ScancodeReturn2:
-        return 0;
+        return '\n';
     case ScancodeSeparator:
-        return 0;
+        return ' ';
     case ScancodeOut:
         return 0;
     case ScancodeOper:
@@ -474,53 +474,53 @@ char ClientEventHandler::keySym(Scancode scancode, bool upper)
     case ScancodeCurrencySubunit:
         return 0;
     case ScancodeKpLeftParen:
-        return 0;
+        return '(';
     case ScancodeKpRightParen:
-        return 0;
+        return ')';
     case ScancodeKpLeftBrace:
-        return 0;
+        return '{';
     case ScancodeKpRightBrace:
-        return 0;
+        return '}';
     case ScancodeKpTab:
-        return 0;
+        return '\t';
     case ScancodeKpBackspace:
         return 0;
     case ScancodeKpA:
-        return 0;
+        return upper ? 'A' : 'a';
     case ScancodeKpB:
-        return 0;
+        return upper ? 'B' : 'b';
     case ScancodeKpC:
-        return 0;
+        return upper ? 'C' : 'c';
     case ScancodeKpD:
-        return 0;
+        return upper ? 'D' : 'd';
     case ScancodeKpE:
-        return 0;
+        return upper ? 'E' : 'e';
     case ScancodeKpF:
-        return 0;
+        return upper ? 'F' : 'f';
     case ScancodeKpXor:
-        return 0;
+        return '^';
     case ScancodeKpPower:
-        return 0;
+        return '^';
     case ScancodeKpPercent:
-        return 0;
+        return '%';
     case ScancodeKpLess:
-        return 0;
+        return '<';
     case ScancodeKpGreater:
-        return 0;
+        return '>';
     case ScancodeKpAmpersand:
-        return 0;
+        return '&';
     case ScancodeKpDblAmpersand:
-        return 0;
+        return '&';
     case ScancodeKpVerticalBar:
-        return 0;
+        return '|';
     case ScancodeKpDblVerticalBar:
-        return 0;
+        return '|';
     case ScancodeKpColon:
-        return 0;
+        return ':';
     case ScancodeKpHash:
-        return 0;
+        return '#';
     case ScancodeKpSpace:
-        return 0;
+        return ' ';
     case ScancodeKpAt:
         return 0;
     case ScancodeKpExclam:
@@ -532,13 +532,13 @@ char ClientEventHandler::keySym(Scancode scancode, bool upper)
     case ScancodeKpMemClear:
         return 0;
     case ScancodeKpMemAdd:
-        return 0;
+        return '+';
     case ScancodeKpMemSubtract:
-        return 0;
+        return '-';
     case ScancodeKpMemMultiply:
-        return 0;
+        return '*';
     case ScancodeKpMemDivide:
-        return 0;
+        return '/';
     case ScancodeKpPlusMinus:
         return 0;
     case ScancodeKpClear:

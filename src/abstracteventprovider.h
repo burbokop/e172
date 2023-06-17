@@ -95,13 +95,13 @@ enum Scancode : std::uint16_t {
      * identically. So, as an implementor, unless
      * your keyboard generates both of those
      * codes and your OS treats them differently,
-     * you should generate ScancodeBACKSLASH
+     * you should generate ScancodeBackslash
      * instead of this code. As a user, you
      * should not rely on this code because SDL
      * will never generate it with most (all?)
      * keyboards.
      */
-    ScancodeNonushash = 50,
+    ScancodeNonUSHash = 50,
     ScancodeSemicolon = 51,
     ScancodeApostrophe = 52,
 
@@ -195,7 +195,7 @@ enum Scancode : std::uint16_t {
      * in a Swiss German, German, or French
      * layout.
      */
-    ScancodeNonUsBackSlash = 100,
+    ScancodeNonUSBackSlash = 100,
 
     /**
      * windows contextual menu, compose
@@ -240,9 +240,9 @@ enum Scancode : std::uint16_t {
     ScancodeVolumeUp = 128,
     ScancodeVolumeDown = 129,
     /* not sure whether there's a reason to enable these */
-    /*     ScancodeLOCKINGCAPSLOCK = 130,  */
-    /*     ScancodeLOCKINGNUMLOCK = 131, */
-    /*     ScancodeLOCKINGSCROLLLOCK = 132, */
+    /*     ScancodeLOCKINGCAPSLOCK = 130,                */
+    /*     ScancodeLOCKINGNUMLOCK = 131,                 */
+    /*     ScancodeLOCKINGSCROLLLOCK = 132,              */
     ScancodeKPComma = 133,
     ScancodeKPEqualSas400 = 134,
 
@@ -312,8 +312,8 @@ enum Scancode : std::uint16_t {
     /**
      * Erase-Eaze
      */
-    ScancodeAlterase = 153,
-    ScancodeSysREQ = 154,
+    ScancodeAltErase = 153,
+    ScancodeSysReq = 154,
     ScancodeCancel = 155,
     ScancodeClear = 156,
     ScancodePrior = 157,
