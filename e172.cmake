@@ -197,9 +197,9 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/utils.cmake)
 
-#if(ENABLE_E172_LINT)
-e172_lint_target(e172)
-#endif()
+if(ENABLE_E172_LINT)
+    e172_lint_target(e172)
+endif()
 
 enable_testing()
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/tests)
