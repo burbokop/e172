@@ -1,13 +1,17 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "debug.h"
+#include "type.h"
 #include <cassert>
+#include <functional>
+#include <list>
 #include <map>
 #include <optional>
-#include "type.h"
+#include <string>
 
-namespace e172 {
-namespace testing {
+namespace e172::testing {
 
 struct Test {
     std::string name;
@@ -39,8 +43,7 @@ private:
 
 int exec(int argc, const char **argv);
 
-}
-} // namespace e172
+} // namespace e172::testing
 
 #if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
 #define e172_pretty_function __FUNCSIG__
@@ -64,6 +67,17 @@ if ((actual) != (expected)) { \
                            "in test function:", \
                            e172_pretty_function); \
 }
+
+#define e172_shouldNotEqual(actual, expected) \
+    if ((actual) == (expected)) { \
+        e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
+                           "Assertion failed:", \
+                           actual, \
+                           "should not be equal to", \
+                           expected, \
+                           "in test function:", \
+                           e172_pretty_function); \
+    }
 
 #define e172_shouldBeDefined(option) \
 if ((option).isEmpty()) { \

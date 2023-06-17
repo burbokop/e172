@@ -12,7 +12,7 @@ Bullet::Bullet(e172::FactoryMeta &&meta)
 void Bullet::proceed(e172::Context *context, e172::EventHandler *eventHandler)
 {
     if (m_lifeTimer.check()) {
-        context->emitMessage(e172::Context::DESTROY_ENTITY, entityId());
+        context->emitMessage(e172::Context::DestroyEntity, entityId());
     }
     proceedPhysics(context->deltaTime());
 }

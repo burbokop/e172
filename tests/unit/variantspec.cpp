@@ -46,6 +46,44 @@ void e172::tests::VariantSpec::compareTest1()
     e172_shouldEqual(Variant::typeSafeCompare(v0, v1), true)
 }
 
+void e172::tests::VariantSpec::compareEnumTest()
+{
+    enum TestEnum : std::uint32_t {
+        Val0 = 0,
+        Val1 = 0x1000,
+    };
+
+    e172_shouldEqual(e172::Variant(Val0), e172::Variant(Val0));
+    e172_shouldEqual(e172::Variant(Val1), e172::Variant(Val1));
+    e172_shouldNotEqual(e172::Variant(Val0), e172::Variant(Val1));
+    e172_shouldEqual(e172::Variant(Val0) < e172::Variant(Val0), false);
+    e172_shouldEqual(e172::Variant(Val0) < e172::Variant(Val1), true);
+
+    e172_shouldEqual(e172::Variant(Val0), 0);
+    e172_shouldEqual(e172::Variant(Val1), 0x1000);
+
+    enum class TestEnumClass : std::underlying_type<TestEnum>::type {
+        Val0 = TestEnum::Val1,
+        Val1,
+    };
+
+    e172_shouldEqual(e172::Variant(TestEnum(TestEnumClass::Val0)),
+                     e172::Variant(TestEnum(TestEnumClass::Val0)));
+    e172_shouldEqual(e172::Variant(TestEnum(TestEnumClass::Val1)),
+                     e172::Variant(TestEnum(TestEnumClass::Val1)));
+    e172_shouldNotEqual(e172::Variant(TestEnum(TestEnumClass::Val0)),
+                        e172::Variant(TestEnum(TestEnumClass::Val1)));
+    e172_shouldEqual(e172::Variant(TestEnum(TestEnumClass::Val0))
+                         < e172::Variant(TestEnum(TestEnumClass::Val0)),
+                     false);
+    e172_shouldEqual(e172::Variant(TestEnum(TestEnumClass::Val0))
+                         < e172::Variant(TestEnum(TestEnumClass::Val1)),
+                     true);
+
+    e172_shouldEqual(e172::Variant(TestEnum(TestEnumClass::Val0)), 0x1000);
+    e172_shouldEqual(e172::Variant(TestEnum(TestEnumClass::Val1)), 0x1001);
+}
+
 void e172::tests::VariantSpec::fromJsonTest1()
 {
     const auto vec = Variant::fromJson("[\"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\"]").toVector();

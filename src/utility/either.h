@@ -1,14 +1,19 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
+#include "../concepts.h"
 #include <functional>
+#include <memory>
 #include <optional>
 #include <ostream>
 #include <sstream>
+#include <string>
 #include <variant>
 
 namespace e172 {
 
-template<typename L>
+template<Streamable L>
 class EitherUnwrapException : public std::exception
 {
 public:
@@ -57,6 +62,7 @@ public:
     inline auto right() const { return operator bool() ? Right(rightValue()) : Right<R>(); }
 
     auto unwrap() const
+        requires Streamable<L>
     {
         if (*this) {
             return rightValue();
@@ -101,9 +107,9 @@ public:
     Either<L, NR> flatMap(const std::function<Either<L, NR>(const R &)> &f)
     {
         if (*this) {
-            return f(right());
+            return f(rightValue());
         }
-        return *this;
+        return left();
     }
 
     template<typename NL>

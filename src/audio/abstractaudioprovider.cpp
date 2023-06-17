@@ -1,37 +1,31 @@
+// Copyright 2023 Borys Boiko
+
 #include "abstractaudioprovider.h"
 
 namespace e172 {
 
-
-double AbstractAudioProvider::generalVolume() const
+AudioSample AbstractAudioProvider::createAudioSample(AudioSample::DataPtr data,
+                                                     AudioSample::Ptr id,
+                                                     SharedContainer::Destructor destructor)
 {
-    return m_generalVolume;
+    return AudioSample::createAudioSample(data, id, destructor);
 }
 
-void AbstractAudioProvider::setGeneralVolume(double generalVolume)
+AudioChannel AbstractAudioProvider::createAudioChannel(AudioChannel::DataPtr data,
+                                                       AudioChannel::Ptr id,
+                                                       SharedContainer::Destructor destructor,
+                                                       AudioChannel::VolumeSetter volumeSetter,
+                                                       AudioChannel::Play play,
+                                                       AudioChannel::IsPlaying isPalying,
+                                                       AudioChannel::Pause pause)
 {
-    m_generalVolume = generalVolume;
+    return AudioChannel::createAudioChannel(data,
+                                            id,
+                                            destructor,
+                                            volumeSetter,
+                                            play,
+                                            isPalying,
+                                            pause);
 }
 
-AudioSample AbstractAudioProvider::__newAudioSample(AudioSample::data_ptr data, AudioSample::ptr id, SharedContainer::Destructor destructor) {
-    return AudioSample::newAudioSample(data, id, destructor);
-}
-
-AudioChannel AbstractAudioProvider::__newAudioChannel(AudioChannel::data_ptr data,
-        AudioChannel::ptr id,
-        SharedContainer::Destructor destructor,
-        AudioChannel::VolumeSetter volumeSetter,
-        AudioChannel::Play play,
-        AudioChannel::IsPlaying isPalying,
-        AudioChannel::Pause pause) {
-    return AudioChannel::newAudioChannel(data, id, destructor, volumeSetter, play, isPalying, pause);
-}
-
-AbstractAudioProvider::AbstractAudioProvider()
-{
-
-}
-
-AbstractAudioProvider::~AbstractAudioProvider() {}
-
-}
+} // namespace e172

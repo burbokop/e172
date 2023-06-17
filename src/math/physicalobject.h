@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include <src/math/kinematics.h>
@@ -89,8 +91,15 @@ public:
                                          double cryticalDistance,
                                          double coeficient = 1);
 
-    static void connectNodes(ConnectionNode node0, ConnectionNode node1, double coeficient = 1, double rotationCoeficient = 1);
-    static void dockNodes(ConnectionNode node0, ConnectionNode node1, double coeficient = 1, double rotationCoeficient = 1);
+    static void connectNodes(ConnectionNode node0,
+                             ConnectionNode node1,
+                             double coeficient = 1,
+                             double rotationCoeficient = 1);
+
+    static void dockNodes(ConnectionNode node0,
+                          ConnectionNode node1,
+                          double coeficient = 1,
+                          double rotationCoeficient = 1);
 
     struct Proximity {
         double distance = 0;

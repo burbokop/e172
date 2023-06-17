@@ -1,9 +1,17 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "type.h"
 #include <memory>
+#include <string>
 
 namespace e172 {
+
+class FactoryMeta;
+
+template<class T, class... Args>
+concept MetaType = std::constructible_from<T, FactoryMeta &&, Args...>;
 
 /**
  * @brief The Meta class contains meta information about some other type

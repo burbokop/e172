@@ -1,16 +1,19 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
+#include "../math/line2d.h"
+#include "../math/vector.h"
+#include "../variant.h"
 #include "image.h"
 #include "shapeformat.h"
-#include "../math/vector.h"
 #include "textformat.h"
-#include "../variant.h"
-#include "../math/line2d.h"
+#include <string>
 
 namespace e172 {
 
-using Color = uint32_t;
-using ColorComponent = uint8_t;
+using Color = std::uint32_t;
+using ColorComponent = std::uint8_t;
 
 /**
  * @brief argb
@@ -63,67 +66,59 @@ constexpr ColorComponent blue(Color color)
 }
 
 Color randomColor(Random &random);
+Color randomColor(Random &&random);
 
 Color blendPixels(Color top, Color bottom);
 
+class GameApplication;
 class AbstractGraphicsProvider;
+
 class AbstractRenderer {
     friend AbstractGraphicsProvider;
-    bool m_isValid = false;
-    bool m_locked = true;
-    AbstractGraphicsProvider *m_provider = nullptr;
-    Vector<double> m_position;
-    bool m_cameraLocked = false;
-    bool m_autoClear = true;
 
     /**
      * Only GameApplication class cann call update function
      */
-    friend class GameApplication;
-protected:
-    virtual bool update() = 0;
+    friend GameApplication;
+
 public:
     class Camera : public SharedContainer {
         friend AbstractRenderer;
-        AbstractRenderer *m_renderer = nullptr;
-        typedef std::function<void(const Vector<double> &)> setter_t;
-        typedef std::function<Vector<double>()> getter_t;
+        using Setter = std::function<void(const Vector<double> &)>;
+        using Getter = std::function<Vector<double>()>;
 
-        setter_t m_setter;
-        getter_t m_getter;
     public:
-        AbstractRenderer *renderer() const;
+        AbstractRenderer *renderer() const { return m_renderer; }
         void setPosition(const Vector<double> &position);
         Vector<double> position() const;
-    };
-protected:
-    template<typename T>
-    static T imageData(const Image &image) { return image.casted_handle<T>()->c; }
-    static Image::ptr imageProvider(const Image &image);
-    AbstractGraphicsProvider *provider() const;
 
-public:
-    void drawPixelShifted(const Vector<double> &point, uint32_t color)
+    private:
+        AbstractRenderer *m_renderer = nullptr;
+        Setter m_setter;
+        Getter m_getter;
+    };
+
+    void drawPixelShifted(const Vector<double> &point, Color color)
     {
         drawPixel(point + offset(), color);
     }
 
-    void drawLineShifted(const Vector<double> &point0, const Vector<double> &point1, uint32_t color)
+    void drawLineShifted(const Vector<double> &point0, const Vector<double> &point1, Color color)
     {
         drawLine(point0 + offset(), point1 + offset(), color);
     }
 
-    void drawRectShifted(const Vector<double> &point0, const Vector<double> &point1, uint32_t color)
+    void drawRectShifted(const Vector<double> &point0, const Vector<double> &point1, Color color)
     {
         drawRect(point0 + offset(), point1 + offset(), color);
     }
 
-    void drawSquareShifted(const Vector<double> &point, int radius, uint32_t color)
+    void drawSquareShifted(const Vector<double> &point, int radius, Color color)
     {
         drawSquare(point + offset(), radius, color);
     }
 
-    void drawCircleShifted(const Vector<double> &point, int radius, uint32_t color)
+    void drawCircleShifted(const Vector<double> &point, int radius, Color color)
     {
         drawCircle(point + offset(), radius, color);
     }
@@ -131,7 +126,7 @@ public:
     void drawDiagonalGridShifted(const Vector<double> &point0,
                                  const Vector<double> &point1,
                                  int interval,
-                                 uint32_t color)
+                                 Color color)
     {
         drawDiagonalGrid(point0 + offset(), point1 + offset(), interval, color);
     }
@@ -152,27 +147,27 @@ public:
         return drawString(string, position + offset(), color, format);
     }
 
-    void drawLine(const Line2d &line, uint32_t color);
-    void drawLineShifted(const Line2d &line, uint32_t color);
+    void drawLine(const Line2d &line, Color color);
+    void drawLineShifted(const Line2d &line, Color color);
 
-    void drawVector(const Vector<double> &position, const Vector<double> &vector, e172::Color color);
+    void drawVector(const Vector<double> &position, const Vector<double> &vector, Color color);
     void drawVectorShifted(const Vector<double> &position,
                            const Vector<double> &vector,
-                           e172::Color color);
+                           Color color);
 
     Vector<double> drawText(const std::string &text,
                             const Vector<double> &position,
                             int width,
-                            uint32_t color,
+                            Color color,
                             const TextFormat &format = TextFormat());
 
     Vector<double> offset() const;
     Camera detachCamera();
     Vector<double> cameraPosition() const;
     bool isActive() const;
-    bool isValid() const;
-    bool autoClear() const;
-    void setAutoClear(bool autoClear);
+    bool isValid() const { return m_isValid; }
+    bool autoClear() const { return m_autoClear; }
+    void setAutoClear(bool autoClear) { m_autoClear = autoClear; }
 
     // Virtual methods
 public:
@@ -183,7 +178,7 @@ public:
     virtual void setDepth(int64_t depth) = 0;
     virtual void fill(uint32_t color) = 0;
     virtual void drawPixel(const Vector<double> &point, uint32_t color) = 0;
-    virtual void drawLine(const Vector<double> &point0, const Vector<double> &point1, uint32_t color)
+    virtual void drawLine(const Vector<double> &point0, const Vector<double> &point1, Color color)
         = 0;
 
     virtual void drawRect(const Vector<double> &point0,
@@ -192,12 +187,12 @@ public:
                           const ShapeFormat &format = ShapeFormat(false))
         = 0;
 
-    virtual void drawSquare(const Vector<double> &point, int radius, uint32_t color) = 0;
-    virtual void drawCircle(const Vector<double> &point, int radius, uint32_t color) = 0;
+    virtual void drawSquare(const Vector<double> &point, int radius, Color color) = 0;
+    virtual void drawCircle(const Vector<double> &point, int radius, Color color) = 0;
     virtual void drawDiagonalGrid(const Vector<double> &point0,
                                   const Vector<double> &point1,
                                   int interval,
-                                  uint32_t color)
+                                  Color color)
         = 0;
 
     virtual void drawImage(const Image &image,
@@ -208,7 +203,7 @@ public:
 
     virtual Vector<double> drawString(const std::string &string,
                                       const Vector<double> &position,
-                                      uint32_t color,
+                                      Color color,
                                       const TextFormat &format = TextFormat())
         = 0;
 
@@ -224,15 +219,35 @@ public:
                              double coefficient)
         = 0;
 
-    virtual void enableEffect(uint64_t effect) = 0;
-    virtual void disableEffect(uint64_t effect) = 0;
+    virtual void enableEffect(std::uint64_t effect) = 0;
+    virtual void disableEffect(std::uint64_t effect) = 0;
 
     virtual void setFullscreen(bool value) = 0;
     virtual void setResolution(Vector<double> value) = 0;
     virtual Vector<double> resolution() const = 0;
     virtual Vector<double> screenSize() const = 0;
 
-    virtual ~AbstractRenderer();
+    virtual ~AbstractRenderer() = default;
+
+protected:
+    template<typename T>
+    static T imageData(const Image &image)
+    {
+        return image.handleAs<T>()->c;
+    }
+
+    static Image::Ptr imageProvider(const Image &image);
+    AbstractGraphicsProvider *provider() const { return m_provider; }
+
+    virtual bool update() = 0;
+
+private:
+    bool m_isValid = false;
+    bool m_locked = true;
+    AbstractGraphicsProvider *m_provider = nullptr;
+    Vector<double> m_position;
+    bool m_cameraLocked = false;
+    bool m_autoClear = true;
 };
 
 } // namespace e172

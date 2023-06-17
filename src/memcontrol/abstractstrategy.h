@@ -1,54 +1,59 @@
-#ifndef KMODULESWITCH_H
-#define KMODULESWITCH_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include "abstractfactory.h"
-
 #include <list>
 
 namespace e172 {
 
-
 template<typename KeyType, typename Base>
 class AbstractStrategy {
-    AbstractFactory<KeyType, Base> factory;
-    std::list<KeyType> m_moduleNames;
-    KeyType m_activeModuleName;
-    Base *m_activeModule = nullptr;
-
-    void addTypeName(const KeyType &name) {
-        const auto it = std::find(m_moduleNames.begin(), m_moduleNames.end(), name);
-        if(it == m_moduleNames.end()) {
-            m_moduleNames.push_back(name);
-        }
-    }
 public:
-    AbstractStrategy() {}
+    AbstractStrategy() = default;
 
     bool activate(const KeyType &moduleName);
     bool deactivateCurrent();
 
     template<typename T>
     void registerType() {
-        addTypeName(factory.template registerType<T>());
+        addTypeName(m_factory.template registerType<T>());
     }
 
     template<typename T>
     void registerType(KeyType moduleName) {
-        addTypeName(factory.template registerType<T>(moduleName));
+        addTypeName(m_factory.template registerType<T>(moduleName));
     }
+
     std::list<KeyType> moduleNames() const;
     KeyType activeModuleName() const;
     Base *activeModule() const;
+
+private:
+    void addTypeName(const KeyType &name)
+    {
+        const auto it = std::find(m_moduleNames.begin(), m_moduleNames.end(), name);
+        if (it == m_moduleNames.end()) {
+            m_moduleNames.push_back(name);
+        }
+    }
+
+private:
+    AbstractFactory<KeyType, Base> m_factory;
+    std::list<KeyType> m_moduleNames;
+    KeyType m_activeModuleName;
+    Base *m_activeModule = nullptr;
 };
 
 template<typename KeyType, typename Base>
-bool AbstractStrategy<KeyType, Base>::activate(const KeyType &moduleName) {
-    if(moduleName == m_activeModuleName) {
+bool AbstractStrategy<KeyType, Base>::activate(const KeyType &moduleName)
+{
+    if (moduleName == m_activeModuleName) {
         return false;
     }
 
-    if(auto newObject = factory.create(moduleName)) {
-        if(m_activeModule) {
+    if (auto newObject = m_factory.create(moduleName)) {
+        if (m_activeModule) {
             delete m_activeModule;
         }
 
@@ -60,8 +65,9 @@ bool AbstractStrategy<KeyType, Base>::activate(const KeyType &moduleName) {
 }
 
 template<typename KeyType, typename Base>
-bool AbstractStrategy<KeyType, Base>::deactivateCurrent() {
-    if(m_activeModule) {
+bool AbstractStrategy<KeyType, Base>::deactivateCurrent()
+{
+    if (m_activeModule) {
         delete m_activeModule;
         m_activeModule = nullptr;
         m_activeModuleName = KeyType();
@@ -85,6 +91,4 @@ Base *AbstractStrategy<KeyType, Base>::activeModule() const {
     return m_activeModule;
 }
 
-}
-
-#endif // KMODULESWITCH_H
+} // namespace e172

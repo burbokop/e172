@@ -1,4 +1,7 @@
+// Copyright 2023 Borys Boiko
+
 #include "physicalobject.h"
+
 #include "math.h"
 #include <src/math/math.h>
 
@@ -38,7 +41,11 @@ e172::PhysicalObject::ConnectionNode e172::PhysicalObject::connectionNode(
     return node;
 }
 
-void e172::PhysicalObject::resetPhysicsProperties(const e172::Vector<double> &position, double rotation, e172::Vector<double> velocity, double rotationVelocity) {
+void e172::PhysicalObject::resetPhysicsProperties(const e172::Vector<double> &position,
+                                                  double rotation,
+                                                  e172::Vector<double> velocity,
+                                                  double rotationVelocity)
+{
     m_positionKinematics.setValue(position);
     m_positionKinematics.setVelocity(velocity);
     m_rotationKinematics.setValue(rotation);
@@ -59,23 +66,28 @@ void e172::PhysicalObject::addRotationForce(double value) {
 
 void e172::PhysicalObject::addRotationGravityForce(double destiantionRotation, double coeficient) {
     const auto direction = Math::radiansDifference(destiantionRotation, rotation());
-    if(direction != Math::null) {
+    if (direction != Math::null) {
         addRotationForce(coeficient / direction);
     }
 }
 
-void e172::PhysicalObject::addRotationPursuitForce(const e172::PhysicalObject *object, double deltaTime) {
-    if(deltaTime != Math::null) {
+void e172::PhysicalObject::addRotationPursuitForce(const e172::PhysicalObject *object,
+                                                   double deltaTime)
+{
+    if (deltaTime != Math::null) {
         const auto direction = Math::radiansDifference(object->rotation(), rotation());
         addRotationForce((direction - rotationVelocity()) / deltaTime);
     }
 }
 
-void e172::PhysicalObject::addRotationFollowForce(double destiantionRotation, double maxAngleDistance, double coeficient) {
-    if(maxAngleDistance != Math::null) {
+void e172::PhysicalObject::addRotationFollowForce(double destiantionRotation,
+                                                  double maxAngleDistance,
+                                                  double coeficient)
+{
+    if (maxAngleDistance != Math::null) {
         const auto direction = Math::radiansDifference(destiantionRotation, rotation());
         const auto a = (1 - direction / maxAngleDistance);
-        if(a != Math::null) {
+        if (a != Math::null) {
             const auto x = (1 / a - 1);
             addRotationForce(std::abs(x) * coeficient);
         }
@@ -87,11 +99,20 @@ void e172::PhysicalObject::addRotationRestoringForce(double destiantionRotation,
     addRotationForce(direction * coeficient);
 }
 
-void e172::PhysicalObject::addTargetRotationForse(double destinationAngle, double rotationForceModule, double maxRotationVelocity) {
-    addLimitedRotationForce((static_cast<double>(Math::radiansDirection(destinationAngle, rotation())) * -2 + 1) * rotationForceModule, maxRotationVelocity);
+void e172::PhysicalObject::addTargetRotationForse(double destinationAngle,
+                                                  double rotationForceModule,
+                                                  double maxRotationVelocity)
+{
+    addLimitedRotationForce((static_cast<double>(
+                                 Math::radiansDirection(destinationAngle, rotation()))
+                                 * -2
+                             + 1)
+                                * rotationForceModule,
+                            maxRotationVelocity);
 }
 
-void e172::PhysicalObject::addForce(const e172::Vector<double> &value) {
+void e172::PhysicalObject::addForce(const e172::Vector<double> &value)
+{
     if (!Math::cmpf(m_mass, 0) && value != Vector<double>()) {
         m_positionKinematics.addAcceleration(value / m_mass);
         m_needSyncNet = true;
@@ -136,8 +157,9 @@ void e172::PhysicalObject::addLimitedRotationForce(double value, double maxAngle
     }
 }
 
-void e172::PhysicalObject::addPursuitForce(const e172::PhysicalObject *object, double deltaTime) {
-    if(deltaTime != Math::null) {
+void e172::PhysicalObject::addPursuitForce(const e172::PhysicalObject *object, double deltaTime)
+{
+    if (deltaTime != Math::null) {
         addForce((object->position() - position() - velocity()) / deltaTime);
     }
 }
@@ -148,11 +170,14 @@ void e172::PhysicalObject::addGravityForce(const e172::Vector<double> &gravityCe
     addForce(direction * coeficient / r2);
 }
 
-void e172::PhysicalObject::addFollowForce(const e172::Vector<double> &targetPoint, double maxDistance, double coeficient) {
-    if(maxDistance != Math::null) {
+void e172::PhysicalObject::addFollowForce(const e172::Vector<double> &targetPoint,
+                                          double maxDistance,
+                                          double coeficient)
+{
+    if (maxDistance != Math::null) {
         const auto direction = targetPoint - position();
         const auto a = (1 - direction.module() / maxDistance);
-        if(a != Math::null) {
+        if (a != Math::null) {
             const auto x = (1 / a - 1);
             addForce(direction.normalized() * std::pow(x, 2) * coeficient);
         }
@@ -163,23 +188,35 @@ void e172::PhysicalObject::addRestoringForce(const e172::Vector<double> &destian
     addForce((destiantionPosition - position()) * coeficient);
 }
 
-void e172::PhysicalObject::addDistanceRelatedForce(const e172::Vector<double> &destiantionPosition, double (*f)(double, double), double cryticalDistance, double coeficient) {
+void e172::PhysicalObject::addDistanceRelatedForce(const e172::Vector<double> &destiantionPosition,
+                                                   double (*f)(double, double),
+                                                   double cryticalDistance,
+                                                   double coeficient)
+{
     const auto direction = destiantionPosition - position();
     const auto module = direction.module();
-    if(module != Math::null && cryticalDistance >= 0) {
+    if (module != Math::null && cryticalDistance >= 0) {
         const auto force = f(module, cryticalDistance);
         addForce(direction / module * force * coeficient);
     }
 }
 
-void e172::PhysicalObject::addDistanceRelatedRotationForce(double destiantionAngle, double (*f)(double, double), double cryticalDistance, double coeficient) {
+void e172::PhysicalObject::addDistanceRelatedRotationForce(double destiantionAngle,
+                                                           double (*f)(double, double),
+                                                           double cryticalDistance,
+                                                           double coeficient)
+{
     const auto direction = Math::radiansDifference(destiantionAngle, rotation());
     const auto force = f(std::abs(direction), cryticalDistance);
     addRotationForce((direction >= 0 ? force : -force) * coeficient);
 }
 
-void e172::PhysicalObject::connectNodes(e172::PhysicalObject::ConnectionNode node0, e172::PhysicalObject::ConnectionNode node1, double coeficient, double rotationCoeficient) {
-    if(node0.m_object && node1.m_object) {
+void e172::PhysicalObject::connectNodes(e172::PhysicalObject::ConnectionNode node0,
+                                        e172::PhysicalObject::ConnectionNode node1,
+                                        double coeficient,
+                                        double rotationCoeficient)
+{
+    if (node0.m_object && node1.m_object) {
         const auto point0 = node0.m_object->m_rotationMatrix * node0.m_offset;
         const auto point1 = node1.m_object->m_rotationMatrix * node1.m_offset;
 
@@ -188,20 +225,34 @@ void e172::PhysicalObject::connectNodes(e172::PhysicalObject::ConnectionNode nod
         node0.m_object->addRestoringForce(node1.m_object->position() + point1 - point0, coeficient);
         node1.m_object->addRestoringForce(node0.m_object->position() + point0 - point1, coeficient);
 
-        node0.m_object->addRotationRestoringForce(Math::radiansDifference(Math::constrainRadians(node1.m_object->rotation() + node1.m_rotation), node0.m_rotation), rotationCoeficient);
-        node1.m_object->addRotationRestoringForce(Math::radiansDifference(Math::constrainRadians(node0.m_object->rotation() + node0.m_rotation), node1.m_rotation), rotationCoeficient);
+        node0.m_object
+            ->addRotationRestoringForce(Math::radiansDifference(Math::constrainRadians(
+                                                                    node1.m_object->rotation()
+                                                                    + node1.m_rotation),
+                                                                node0.m_rotation),
+                                        rotationCoeficient);
+        node1.m_object
+            ->addRotationRestoringForce(Math::radiansDifference(Math::constrainRadians(
+                                                                    node0.m_object->rotation()
+                                                                    + node0.m_rotation),
+                                                                node1.m_rotation),
+                                        rotationCoeficient);
     }
 }
 
-void e172::PhysicalObject::dockNodes(e172::PhysicalObject::ConnectionNode node0, e172::PhysicalObject::ConnectionNode node1, double coeficient, double rotationCoeficient) {
-    if(node0.m_object && node1.m_object) {
+void e172::PhysicalObject::dockNodes(e172::PhysicalObject::ConnectionNode node0,
+                                     e172::PhysicalObject::ConnectionNode node1,
+                                     double coeficient,
+                                     double rotationCoeficient)
+{
+    if (node0.m_object && node1.m_object) {
         const auto point0 = node0.m_object->m_rotationMatrix * node0.m_offset;
         const auto point1 = node1.m_object->m_rotationMatrix * node1.m_offset;
 
         node0.m_rotation = Math::constrainRadians(node0.m_rotation + Math::Pi);
 
-        const auto f = [](double x, double c) {
-            if(x > c) {
+        const auto &&f = [](double x, double c) {
+            if (x > c) {
                 return c / (x + 1 - c);
             } else {
                 return x;
@@ -209,24 +260,45 @@ void e172::PhysicalObject::dockNodes(e172::PhysicalObject::ConnectionNode node0,
         };
 
         node0.m_object->addDistanceRelatedForce(node1.m_object->position() + point1 - point0, f, 8, coeficient);
-        node1.m_object->addDistanceRelatedForce(node0.m_object->position() + point0 - point1, f, 8, coeficient);
+        node1.m_object->addDistanceRelatedForce(node0.m_object->position() + point0 - point1,
+                                                f,
+                                                8,
+                                                coeficient);
 
-        node0.m_object->addDistanceRelatedRotationForce(Math::radiansDifference(Math::constrainRadians(node1.m_object->rotation() + node1.m_rotation), node0.m_rotation), f, 1, rotationCoeficient);
-        node1.m_object->addDistanceRelatedRotationForce(Math::radiansDifference(Math::constrainRadians(node0.m_object->rotation() + node0.m_rotation), node1.m_rotation), f, 1, rotationCoeficient);
+        node0.m_object
+            ->addDistanceRelatedRotationForce(Math::radiansDifference(Math::constrainRadians(
+                                                                          node1.m_object->rotation()
+                                                                          + node1.m_rotation),
+                                                                      node0.m_rotation),
+                                              f,
+                                              1,
+                                              rotationCoeficient);
+        node1.m_object
+            ->addDistanceRelatedRotationForce(Math::radiansDifference(Math::constrainRadians(
+                                                                          node0.m_object->rotation()
+                                                                          + node0.m_rotation),
+                                                                      node1.m_rotation),
+                                              f,
+                                              1,
+                                              rotationCoeficient);
     }
 }
 
-e172::PhysicalObject::Proximity e172::PhysicalObject::nodesProximity(const e172::PhysicalObject::ConnectionNode &node0, const e172::PhysicalObject::ConnectionNode &node1) {
+e172::PhysicalObject::Proximity e172::PhysicalObject::nodesProximity(
+    const e172::PhysicalObject::ConnectionNode &node0,
+    const e172::PhysicalObject::ConnectionNode &node1)
+{
     return {
         (node0.position() - node1.position()).module(),
                 Math::radiansDistance(node0.globalInvertedRotation(), node1.globalRotation())
     };
 }
 
-void e172::PhysicalObject::proceedPhysics(double deltaTime) {
-    if(m_mass != Math::null) {
+void e172::PhysicalObject::proceedPhysics(double deltaTime)
+{
+    if (m_mass != Math::null) {
         m_rotationKinematics.addFriction(m_friction / m_mass);
-        if(!m_blockFrictionPerTick) {
+        if (!m_blockFrictionPerTick) {
             m_positionKinematics.addFriction(m_friction / m_mass);
         }
     }
@@ -246,39 +318,45 @@ void e172::PhysicalObject::proceedPhysics(double deltaTime) {
     m_positionKinematics.accept(deltaTime);
 }
 
-Vector<double> e172::PhysicalObject::ConnectionNode::position() const {
-    if(m_object)
+Vector<double> e172::PhysicalObject::ConnectionNode::position() const
+{
+    if (m_object)
         return m_object->position() + (m_object->m_rotationMatrix * m_offset);
 
     return {};
 }
 
-Vector<double> e172::PhysicalObject::ConnectionNode::center() const {
-    if(m_object)
+Vector<double> e172::PhysicalObject::ConnectionNode::center() const
+{
+    if (m_object)
         return m_object->position();
 
     return {};
 }
 
-Vector<double> e172::PhysicalObject::ConnectionNode::rotatedOffset() const {
-    if(m_object)
+Vector<double> e172::PhysicalObject::ConnectionNode::rotatedOffset() const
+{
+    if (m_object)
         return m_object->m_rotationMatrix * m_offset;
 
     return {};
 }
 
-double e172::PhysicalObject::ConnectionNode::globalRotation() const {
-    if(m_object) {
+double e172::PhysicalObject::ConnectionNode::globalRotation() const
+{
+    if (m_object) {
         return Math::constrainRadians(m_object->rotation() + m_rotation);
     }
     return m_rotation;
 }
 
-double e172::PhysicalObject::ConnectionNode::globalInvertedRotation() const {
+double e172::PhysicalObject::ConnectionNode::globalInvertedRotation() const
+{
     return Math::constrainRadians(globalRotation() + Math::Pi);
 }
 
-std::ostream &operator<<(std::ostream &stream, const e172::PhysicalObject::ConnectionNode &node) {
+std::ostream &operator<<(std::ostream &stream, const e172::PhysicalObject::ConnectionNode &node)
+{
     const auto ndr = Math::constrainRadians(node.m_rotation);
     const auto obr = (node.m_object ? node.m_object->rotation() : 0);
     return stream << "{ " << ndr << ", " << obr << ", " << Math::constrainRadians(ndr + obr) << " }";

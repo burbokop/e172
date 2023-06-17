@@ -1,17 +1,18 @@
-#ifndef SIGNALSTREAMBUFFER_H
-#define SIGNALSTREAMBUFFER_H
+// Copyright 2023 Borys Boiko
 
-#include <streambuf>
+#pragma once
+
 #include <functional>
 #include <list>
+#include <streambuf>
+#include <string>
 
 namespace e172 {
 
 class SignalStreamBuffer : public std::streambuf {
 public:
-    typedef std::function<void(const std::string &)> HandlerFunc;
-private:
-    std::list<HandlerFunc> m_handleFuncs;
+    using HandlerFunc = std::function<void(const std::string &)>;
+
 public:
     SignalStreamBuffer();
     void connect(const HandlerFunc& func);
@@ -20,10 +21,11 @@ public:
 
     // basic_streambuf interface
 protected:
-    virtual std::streamsize xsputn(const char_type *s, std::streamsize n) override;
-    virtual int_type overflow(int_type c) override;
+    std::streamsize xsputn(const char_type *s, std::streamsize n) override;
+    int_type overflow(int_type c) override;
+
+private:
+    std::list<HandlerFunc> m_handleFuncs;
 };
 
-}
-
-#endif // SIGNALSTREAMBUFFER_H
+} // namespace e172

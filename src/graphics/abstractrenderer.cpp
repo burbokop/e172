@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "abstractrenderer.h"
 
 #include <math.h>
@@ -7,35 +9,19 @@
 
 namespace e172 {
 
-
-bool AbstractRenderer::isValid() const {
-    return m_isValid;
-}
-
-bool AbstractRenderer::autoClear() const {
-    return m_autoClear;
-}
-
-void AbstractRenderer::setAutoClear(bool autoClear) {
-    m_autoClear = autoClear;
-}
-
-Image::ptr AbstractRenderer::imageProvider(const Image &image) {
+Image::Ptr AbstractRenderer::imageProvider(const Image &image)
+{
     return image.provider();
 }
 
-AbstractGraphicsProvider *AbstractRenderer::provider() const {
-    return m_provider;
-}
-
-AbstractRenderer::~AbstractRenderer() {}
-
-void AbstractRenderer::drawLine(const Line2d &line, uint32_t color) {
+void AbstractRenderer::drawLine(const Line2d &line, Color color)
+{
     const auto& points = line.rectIntersection(resolution());
     drawLine(points.first, points.second, color);
 }
 
-void AbstractRenderer::drawLineShifted(const Line2d &line, uint32_t color) {
+void AbstractRenderer::drawLineShifted(const Line2d &line, Color color)
+{
     drawLine(line.tanslated(offset()), color);
 }
 
@@ -49,8 +35,13 @@ void AbstractRenderer::drawVectorShifted(const Vector<double> &position, const V
     drawSquareShifted(position, 2, color);
 }
 
-Vector<double> AbstractRenderer::drawText(const std::string &text, const Vector<double> &position, int width, uint32_t color, const TextFormat &format) {
-    if(format.fontWidth() == 0)
+Vector<double> AbstractRenderer::drawText(const std::string &text,
+                                          const Vector<double> &position,
+                                          int width,
+                                          Color color,
+                                          const TextFormat &format)
+{
+    if (format.fontWidth() == 0)
         return Vector<double>();
 
     auto lines = Additional::split(text, '\n');
@@ -58,7 +49,7 @@ Vector<double> AbstractRenderer::drawText(const std::string &text, const Vector<
     size_t symWidth = width / format.fontWidth();
     auto it = lines.begin();
     while (it != lines.end()) {
-        if(it->size() > symWidth) {
+        if (it->size() > symWidth) {
             offsetY += drawString(it->substr(0, symWidth),
                                   position + Vector<double>(0, offsetY),
                                   color,
@@ -79,11 +70,13 @@ Vector<double> AbstractRenderer::offset() const
 }
 
 AbstractRenderer::Camera AbstractRenderer::detachCamera() {
-    if(!m_cameraLocked) {
-        Camera c = Camera::newSharedContainer<Camera>(new Camera::void_handle, this, [this](Camera::data_ptr d) {
-                m_cameraLocked = false;
-                delete Camera::handle_cast<void*>(d);
-    });
+    if (!m_cameraLocked) {
+        Camera c = Camera::createSharedContainer<Camera>(new Camera::VoidHandle,
+                                                         this,
+                                                         [this](Camera::DataPtr d) {
+                                                             m_cameraLocked = false;
+                                                             delete Camera::castHandle<void *>(d);
+                                                         });
         c.m_setter = [this](const Vector<double> &vector) { m_position = vector; };
         c.m_getter = [this](){ return m_position; };
         c.m_renderer = this;
@@ -101,17 +94,13 @@ bool AbstractRenderer::isActive() const {
     return m_isValid && !m_locked;
 }
 
-AbstractRenderer * AbstractRenderer::Camera::renderer() const {
-    return m_renderer;
-}
-
 void AbstractRenderer::Camera::setPosition(const Vector<double> &position) {
-    if(m_setter)
+    if (m_setter)
         m_setter(position);
 }
 
 Vector<double> AbstractRenderer::Camera::position() const {
-    if(m_getter)
+    if (m_getter)
         return m_getter();
     return Vector<double>();
 }
@@ -121,7 +110,13 @@ Color randomColor(Random &random)
     return random.next<Color>() % static_cast<Color>(std::pow(2, 24));
 }
 
-Color blendPixels(Color top, Color bottom) {
+Color randomColor(Random &&random)
+{
+    return random.next<Color>() % static_cast<Color>(std::pow(2, 24));
+}
+
+Color blendPixels(Color top, Color bottom)
+{
     const auto bA = uint8_t((top >>  0) & 0x000000ff);
     const auto gA = uint8_t((top >>  8) & 0x000000ff);
     const auto rA = uint8_t((top >> 16) & 0x000000ff);
@@ -140,4 +135,4 @@ Color blendPixels(Color top, Color bottom) {
     return aOut | rOut | gOut | bOut;
 }
 
-}
+} // namespace e172

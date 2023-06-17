@@ -1,15 +1,15 @@
-#ifndef MATH_H
-#define MATH_H
+// Copyright 2023 Borys Boiko
 
-#include <map>
+#pragma once
+
 #include <complex>
 #include <functional>
-#include <list>
-#include <queue>
-#include <type_traits>
+#include <limits>
+#include <map>
+#include <utility>
 
 namespace std {
-    class thread;
+class thread;
 }
 
 namespace e172 {
@@ -24,22 +24,7 @@ template<typename T>
 using MatrixFiller = std::function<void(size_t, size_t, T*)>;
 
 class Math {
-private:
-    static std::map<double, double> sinCache;
-    static std::map<double, double> cosCache;
-
-    static std::map<double, double> arccosCache;
-    static std::map<double, double> sqrtCache;
-
-    static const double ACOS_ROUND_LEVEL;
-    static const double ACOS_INV_ROUND_LEVEL;
-
-    static const double SQRT_ROUND_LEVEL;
-    static const double SQRT_INV_ROUND_LEVEL;
-
-
 public:
-
     static constexpr double Pi = 3.14159265358979323846;
 
     template<typename T>
@@ -56,6 +41,17 @@ public:
     static double cos(double angle);
     static double acos(double value);
     static double sqrt(double value);
+
+    template<typename T>
+    static T mod(T a, T b)
+        requires std::is_integral<T>::value
+    {
+        return a % b;
+    }
+
+    static float mod(float, float);
+    static double mod(double, double);
+    static long double mod(long double, long double);
 
     template<typename T>
     static T sqr(const T &x)
@@ -87,29 +83,30 @@ public:
     static double degreesDifference(double angle1, double angle2);
 #endif
 
-    static double map(double value, double inMin, double inMax, double outMin, double outMax);
-
     template<typename Container>
-    static typename Container::value_type average(const Container &c) {
-        if(c.size() <= 0)
+    static typename Container::value_type average(const Container &c)
+    {
+        if (c.size() <= 0)
             return 0;
 
         size_t i = 0;
         typename Container::value_type sum = 0;
-        for(const auto& cc : c) {
+        for (const auto &cc : c) {
             sum += cc;
             ++i;
         }
         return sum / i;
     }
 
-    struct null_float_t {};
-    static constexpr null_float_t null = null_float_t();
+    struct NullFloat
+    {};
 
-    friend bool operator ==(double value, const null_float_t&) { return Math::cmpf(value, 0); }
-    friend bool operator ==(const null_float_t&, double value) { return Math::cmpf(value, 0); }
-    friend bool operator !=(double value, const null_float_t&) { return !Math::cmpf(value, 0); }
-    friend bool operator !=(const null_float_t&, double value) { return !Math::cmpf(value, 0); }
+    static constexpr NullFloat null = NullFloat{};
+
+    friend bool operator==(double value, const NullFloat &) { return Math::cmpf(value, 0); }
+    friend bool operator==(const NullFloat &, double value) { return Math::cmpf(value, 0); }
+    friend bool operator!=(double value, const NullFloat &) { return !Math::cmpf(value, 0); }
+    friend bool operator!=(const NullFloat &, double value) { return !Math::cmpf(value, 0); }
 
     static double topLimitedFunction(double x);
 
@@ -136,9 +133,9 @@ public:
                           size_t limit = 256,
                           const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
     {
-        const auto real = (double(x) / double(w) - 0.5) * 4;
-        const auto imag = (double(y) / double(h) - 0.5) * 4;
-        return fractalLevel({real, imag}, limit, f) / double(limit);
+        const auto real = (static_cast<double>(x) / static_cast<double>(w) - 0.5) * 4;
+        const auto imag = (static_cast<double>(y) / static_cast<double>(h) - 0.5) * 4;
+        return fractalLevel({real, imag}, limit, f) / static_cast<double>(limit);
     }
 
     template<typename T>
@@ -149,29 +146,30 @@ public:
                              T *ptr,
                              const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
     {
-        if(maxLevel <= 0 || w <= 0 || h <= 0)
+        if (maxLevel <= 0 || w <= 0 || h <= 0)
             return;
-        for(size_t y = 0; y < h; ++y) {
-            for(size_t x = 0; x < w; ++x) {
+        for (size_t y = 0; y < h; ++y) {
+            for (size_t x = 0; x < w; ++x) {
                 ptr[(y * w) + x] = mask * fractalLevel(x, y, w, h, maxLevel, f);
             }
         }
     }
 
-    static void concurentInitMatrix(size_t w, size_t h, const std::function<void(const std::pair<size_t, size_t>&)>&function);
+    static void concurentInitMatrix(
+        size_t w, size_t h, const std::function<void(const std::pair<size_t, size_t> &)> &function);
 
     template<typename T>
-    inline static void concurentWriteFractal(size_t w,
-                                             size_t h,
-                                             size_t maxLevel,
-                                             T mask,
-                                             T *ptr,
-                                             const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
+    static void concurentWriteFractal(size_t w,
+                                      size_t h,
+                                      size_t maxLevel,
+                                      T mask,
+                                      T *ptr,
+                                      const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
     {
-        if(maxLevel <= 0 || w <= 0 || h <= 0)
+        if (maxLevel <= 0 || w <= 0 || h <= 0)
             return;
 
-        concurentInitMatrix(w, h, [w, h, maxLevel, mask, ptr, f](const std::pair<size_t, size_t>& p){
+        concurentInitMatrix(w, h, [w, h, maxLevel, mask, ptr, f](const std::pair<size_t, size_t> &p) {
             ptr[(p.second * w) + p.first] = mask * fractalLevel(p.first, p.second, w, h, maxLevel, f);
         });
     }
@@ -182,7 +180,7 @@ public:
                                    const ComplexFunction<T> &f = Math::sqr<Complex<T>>,
                                    bool concurent = true)
     {
-        if(concurent) {
+        if (concurent) {
             return [limit, mask, f](size_t w, size_t h, T *ptr) {
                 e172::Math::concurentWriteFractal<T>(w, h, limit, mask, ptr, f);
             };
@@ -195,9 +193,9 @@ public:
 
     template<typename T>
     static MatrixFiller<T> filler(const T& value) {
-        return [value](size_t w, size_t h, T* ptr) {
-            for(size_t y = 0; y < h; ++y) {
-                for(size_t x = 0; x < w; ++x) {
+        return [value](size_t w, size_t h, T *ptr) {
+            for (size_t y = 0; y < h; ++y) {
+                for (size_t x = 0; x < w; ++x) {
                     ptr[(y * w) + x] = value;
                 }
             }
@@ -207,8 +205,10 @@ public:
     template<typename T>
     static void randInit(T *array, size_t size, double coeficient, const T &value) {
         std::srand(clock());
-        for(size_t i = 0; i < size; ++i) {
-            const auto r = (double(std::rand()) / double(std::numeric_limits<decltype (std::rand())>::max()));
+        for (size_t i = 0; i < size; ++i) {
+            const auto r = (static_cast<double>(std::rand())
+                            / static_cast<double>(
+                                std::numeric_limits<decltype(std::rand())>::max()));
             if (r < coeficient) {
                 array[i] = value;
             }
@@ -216,21 +216,24 @@ public:
     }
 
     template<typename T>
-    static T wholePart(const T &value, const T &divider) {
-        if(std::is_integral<T>::value) {
+    static T wholePart(const T &value, const T &divider)
+    {
+        if (std::is_integral<T>::value) {
             return static_cast<T>(value / divider) * divider;
         } else {
             return std::floor(value / divider) * divider;
         }
     }
 
-    static inline double randDouble() {
-        return double(std::rand()) / double(std::numeric_limits<decltype (std::rand())>::max());
-    }
+private:
+    static std::map<double, double> s_sinCache;
+    static std::map<double, double> s_cosCache;
+    static std::map<double, double> s_arccosCache;
+    static std::map<double, double> s_sqrtCache;
+    static const double s_acosRoundLevel;
+    static const double s_acosInvRoundLevel;
+    static const double s_sqrtRoundLevel;
+    static const double s_sqrtInvRoundLevel;
 };
 
-
-
-}
-
-#endif // MATH_H
+} // namespace e172

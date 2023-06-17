@@ -1,6 +1,10 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "../networker.h"
+#include <memory>
+#include <string>
 
 namespace e172 {
 
@@ -14,9 +18,9 @@ public:
 
     // Networker interface
 public:
-    virtual e172::Either<Error, std::shared_ptr<Server>> listen(uint16_t port) override;
-    virtual e172::Either<Error, std::shared_ptr<Socket>> connect(
-        uint16_t port, const std::string &address) override;
+    e172::Either<Error, std::shared_ptr<Server>> listen(std::uint16_t port) override;
+    e172::Either<Error, std::shared_ptr<Socket>> connect(std::uint16_t port,
+                                                         const std::string &address) override;
 };
 
 } // namespace e172

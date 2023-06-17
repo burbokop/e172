@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "src/utility/package.h"
@@ -17,12 +19,13 @@ enum class GamePackageType : PackageType {
     RemoveEntity = 2,
     SyncEntity = 3,
     Event = 4,
+
     /**
      * UserType - for used defined packages
      * Example:
      * ```
-     * enum MyPackageType {
-     *     MyType0 = GamePackageType::UserType,
+     * enum MyPackageType : std::underlying_type<e172::GamePackageType>::type {
+     *     MyType0 = e172::GamePackageType::UserType,
      *     MyType1,
      *     ...
      * }

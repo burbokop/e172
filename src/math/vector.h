@@ -1,23 +1,31 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
+#include "math.h"
+#include <algorithm>
 #include <complex>
 #include <functional>
-#include <sstream>
-
-#include "math.h"
 #include <src/utility/buffer.h>
 #include <src/utility/random.h>
+#include <sstream>
 
 namespace e172 {
 
-constexpr double relativisticAdditionConstant = 0.7;
+constexpr double RelativisticAdditionConstant = 0.7;
 
 template<typename T>
     requires std::is_arithmetic_v<T>
 class Vector
 {
 public:
-    enum Quarter { QuarterRightDown = 0, QuarterLeftDown, QuarterLeftUp, QuarterRightUp };
+    enum class Quarter : std::uint8_t {
+        RightBottom = 0,
+        LeftBottom = 1,
+        LeftTop = 2,
+        RightTop = 3,
+        MaxValue = 4
+    };
 
     constexpr Vector() = default;
 
@@ -37,7 +45,12 @@ public:
 
     static Vector createRandom(Random &random, T max)
     {
-        return Vector::createByAngle(random.nextInRange(0, max), random.next<T>());
+        return Vector::createByAngle(random.nextInRange(static_cast<T>(0), max), random.next<T>());
+    }
+
+    static Vector createRandom(Random &&random, T max)
+    {
+        return Vector::createByAngle(random.nextInRange(static_cast<T>(0), max), random.next<T>());
     }
 
     constexpr Vector operator+(const Vector &term) const
@@ -105,8 +118,8 @@ public:
         return {};
     }
 
-    Vector leftNormal() const { return {m_y, -m_x}; }
-    Vector rightNormal() const { return {-m_y, m_x}; }
+    constexpr Vector leftNormal() const { return {m_y, -m_x}; }
+    constexpr Vector rightNormal() const { return {-m_y, m_x}; }
 
     auto angle() const
     {
@@ -119,16 +132,16 @@ public:
 
     Vector relativisticAddition(Vector term, double c) const
     {
-        double termModule = term.module();
+        const auto termModule = term.module();
         if (!e172::Math::cmpf(termModule, 0)) {
-            c *= relativisticAdditionConstant;
+            c *= RelativisticAdditionConstant;
             const Vector classicSum = *this + term;
 
-            double thisModule = this->module();
-            double classicSumModule = classicSum.module();
+            const auto thisModule = module();
+            const auto classicSumModule = classicSum.module();
 
-            double k = e172::Math::sqrt((1 + thisModule * termModule / (c * c)));
-            double u = classicSumModule / k;
+            const auto k = e172::Math::sqrt((1 + thisModule * termModule / (c * c)));
+            const auto u = classicSumModule / k;
 
             return Vector(u * classicSum.m_x / classicSumModule,
                           u * classicSum.m_y / classicSumModule);
@@ -143,19 +156,19 @@ public:
         return 0;
     }
 
-    Quarter quarter(Quarter offset = 0) const
+    Quarter quarter(Quarter offset = Quarter::RightBottom) const
     {
         if (this->m_y >= 0) {
             if (this->m_x >= 0) {
-                return (0 + offset) % 4;
+                return Quarter::RightBottom + offset;
             } else {
-                return (1 + offset) % 4;
+                return Quarter::LeftBottom + offset;
             }
         } else {
             if (this->m_x >= 0) {
-                return (3 + offset) % 4;
+                return Quarter::RightTop + offset;
             } else {
-                return (2 + offset) % 4;
+                return Quarter::LeftTop + offset;
             }
         }
     }
@@ -267,6 +280,13 @@ public:
     Vector<R> into() const
     {
         return {static_cast<R>(m_x), static_cast<R>(m_y)};
+    }
+
+private:
+    friend Quarter operator+(Quarter l, Quarter r)
+    {
+        using U = typename std::underlying_type<Quarter>::type;
+        return Quarter((U(l) + U(r)) % U(Quarter::MaxValue));
     }
 
 private:

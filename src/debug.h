@@ -1,46 +1,54 @@
-#ifndef DEBUG_H
-#define DEBUG_H
+// Copyright 2023 Borys Boiko
 
+#pragma once
 
-#include <sstream>
 #include <functional>
 #include <list>
+#include <sstream>
+#include <string>
 
 namespace e172 {
 
 
 struct StackTraceInfo {
     friend class Debug;
+public:
+    std::string functionName() const;
+    std::string libName() const { return m_libName; }
+    std::string libPath() const { return m_libPath; }
+    std::uintptr_t address() const { return m_address; }
+    std::uintptr_t offset() const { return m_offset; }
+    friend std::ostream &operator<<(std::ostream &stream, const StackTraceInfo &info);
+
+private:
     std::string m_functionName;
     std::string m_libName;
     std::string m_libPath;
-    uintptr_t m_address;
-    uintptr_t m_offset;
-public:
-    std::string functionName() const;
-    std::string libName() const;
-    std::string libPath() const;
-    uintptr_t address() const;
-    uintptr_t offset() const;
-    friend std::ostream &operator<<(std::ostream &stream, const StackTraceInfo &info);
+    std::uintptr_t m_address;
+    std::uintptr_t m_offset;
 };
 
-
-
-class Debug {
+class Debug
+{
 public:
     enum MessageType { PrintMessage, WarningMessage, FatalMessage };
 
     using Handler = std::function<void(const std::string &, MessageType)>;
 
     class CompilerInfo {
+    public:
+        CompilerInfo(const std::string &name, const std::string &version)
+            : m_name(name)
+            , m_version(version)
+        {}
+
+        std::string name() const { return m_name; }
+        std::string version() const { return m_version; }
+        friend std::ostream &operator<<(std::ostream &stream, const CompilerInfo &info);
+
+    private:
         std::string m_name;
         std::string m_version;
-    public:
-        CompilerInfo(const std::string& name, const std::string& version);
-        std::string name() const;
-        std::string version() const;
-        friend std::ostream &operator<<(std::ostream& stream, const CompilerInfo& info);
     };
 
     static Debug withSepar(const std::string &str) { return Debug(str); }
@@ -138,8 +146,4 @@ static void fatal(const Arg& arg, const Args& ...args) {
     Debug::fatal(arg, args...);
 }
 
-
-}
-
-
-#endif // DEBUG_H
+} // namespace e172

@@ -1,4 +1,9 @@
+// Copyright 2023 Borys Boiko
+
 #include "random.h"
+
+#include <atomic>
+#include <chrono>
 #include <cstdlib>
 #include <random>
 
@@ -26,6 +31,16 @@ struct Random::Impl {
 Random::Random(uint64_t seed)
     : m_impl(std::make_unique<Impl>(seed))
 {}
+
+Random::Random(Random &&) = default;
+
+std::atomic<std::size_t> Random::s_nextUniqSeedMultiplier = 0;
+
+Random Random::uniq()
+{
+    return Random(std::chrono::high_resolution_clock::now().time_since_epoch().count()
+                  * s_nextUniqSeedMultiplier++);
+}
 
 Random::~Random() = default;
 

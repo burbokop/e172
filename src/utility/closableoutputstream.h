@@ -1,50 +1,69 @@
-#ifndef CLOSABLEOUTPUTSTREAM_H
-#define CLOSABLEOUTPUTSTREAM_H
+// Copyright 2023 Borys Boiko
 
+#pragma once
+
+#include <functional>
 #include <ostream>
 #include <streambuf>
-#include <functional>
+#include <string>
 
 namespace e172 {
 
 class ClosableOutputStream : public std::ostream {
-    std::streambuf *m_buf = nullptr;
-    bool m_autoDestroyBuf = false;
 public:
     ClosableOutputStream(std::streambuf *buf, bool autoDestroyBuf = false);
-    virtual ~ClosableOutputStream() override;
+    ~ClosableOutputStream();
 
     virtual void close() = 0;
+
+private:
+    std::streambuf *m_buf = nullptr;
+    bool m_autoDestroyBuf = false;
 };
 
 class CallbackOutputStream : public ClosableOutputStream {
-    class Buffer : public std::streambuf {
-        std::function<void(const std::string&)> m_write;
-    public:
-        Buffer(const std::function<void(const std::string&)>& write);
-        // basic_streambuf interface
-    protected:
-        virtual std::streamsize xsputn(const char_type *s, std::streamsize n) override;
-        virtual int_type overflow(int_type c) override;
-    };
-    std::function<void()> m_close;
 public:
-    CallbackOutputStream(const std::function<void(const std::string&)>& write = nullptr, const std::function<void()>& close = nullptr);
+    class SingleElementPool
+    {
+    public:
+        SingleElementPool(const std::function<void(const std::string &)> &write = nullptr)
+            : m_write(write)
+        {}
 
-    virtual void close() override;
+        CallbackOutputStream *use();
+        bool available() const { return m_available; }
+        ~SingleElementPool();
 
-    class SingleElementPool {
+    private:
         CallbackOutputStream *m_stream = nullptr;
         bool m_available = true;
-        std::function<void(const std::string&)> m_write;
-    public:
-        SingleElementPool(const std::function<void(const std::string&)>& write = nullptr);
-        CallbackOutputStream *use();
-        bool available() const;
-        ~SingleElementPool();
+        std::function<void(const std::string &)> m_write;
     };
+
+    CallbackOutputStream(const std::function<void(const std::string &)> &write = nullptr,
+                         const std::function<void()> &close = nullptr);
+
+    void close() override;
+
+private:
+    class Buffer : public std::streambuf
+    {
+    public:
+        Buffer(const std::function<void(const std::string &)> &write)
+            : m_write(write)
+        {}
+
+        // basic_streambuf interface
+    protected:
+        std::streamsize xsputn(const char_type *s, std::streamsize n) override;
+        int_type overflow(int_type c) override;
+
+    private:
+        std::function<void(const std::string &)> m_write;
+    };
+
+private:
+    std::function<void()> m_close;
 };
 
-}
-
-#endif // CLOSABLEOUTPUTSTREAM_H
+} // namespace e172

@@ -1,5 +1,8 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <queue>
 #include <src/net/socket.h>

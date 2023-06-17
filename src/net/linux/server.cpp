@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "server.h"
 
 #include "socket.h"

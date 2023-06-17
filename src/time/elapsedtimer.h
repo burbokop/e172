@@ -1,28 +1,26 @@
-#ifndef ELAPSEDTIMER_H
-#define ELAPSEDTIMER_H
+// Copyright 2023 Borys Boiko
 
-#include <inttypes.h>
+#pragma once
+
+#include <cstdint>
 
 namespace e172 {
 
-
-
 class ElapsedTimer {
 public:
-    typedef int64_t time_t;
-private:
-    time_t m_interval;
-    time_t m_startPoint;
-    time_t m_checkPoint;
-public:
-    ElapsedTimer(time_t interval = 0);
+    using Time = std::int64_t;
+
+    ElapsedTimer(Time interval = 0);
     bool check(bool condition = true);
-    time_t elapsed() const;
+    Time elapsed() const;
     void reset();
     double progress() const;
+    Time interval() const { return m_interval; }
 
-    time_t interval() const;
+private:
+    Time m_interval;
+    Time m_startPoint;
+    Time m_checkPoint;
 };
 
-}
-#endif // ELAPSEDTIMER_H
+} // namespace e172

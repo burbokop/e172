@@ -1,36 +1,40 @@
-#ifndef KDISCRETIZER_H
-#define KDISCRETIZER_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include <vector>
 #include <tuple>
 
 namespace e172 {
 
-
 template<typename Container>
 class Discretizer {
-    typedef typename Container::value_type val_type;
-    std::size_t m_count;
-    val_type lastX;
-    bool frst = true;
 public:
+    using Item = typename Container::value_type;
     Discretizer(std::size_t count = 8) { m_count = count; }
-    inline Container proceed(const val_type &x) {
-        if (frst) {
-            frst = false;
-            lastX = x;
+    Container proceed(const Item &x)
+    {
+        if (m_first) {
+            m_first = false;
+            m_lastX = x;
             return { x };
         }
 
-        typename Container::value_type result[m_count];
-        auto dx = (x - lastX) / m_count;
+        Container result;
+        result.resize(m_count);
+        const auto dx = (x - m_lastX) / m_count;
         for (std::size_t i = 0; i < m_count; ++i) {
-            result[i] = lastX + i * dx;
+            result[i] = m_lastX + i * dx;
         }
 
-        lastX = x;
-        return Container(result, result + m_count);
+        m_lastX = x;
+        return result;
     }
+
+private:
+    std::size_t m_count;
+    Item m_lastX;
+    bool m_first = true;
 };
 
 template<typename Container>
@@ -40,9 +44,9 @@ Container discretize(const Container& c, double count = 8) {
         result.reserve(c.size() * count);
     }
     Discretizer<Container> discretizer(count);
-    for(auto it = c.begin(); it != c.end(); ++it) {
+    for (auto it = c.begin(); it != c.end(); ++it) {
         const auto part = discretizer.proceed(*it);
-        for(const auto& p : part) {
+        for (const auto &p : part) {
             result.push_back(p);
         }
     }
@@ -66,5 +70,3 @@ Container discretize(Container c, double count = 8)
 }
 
 } // namespace e172
-
-#endif // KDISCRETIZER_H

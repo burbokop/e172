@@ -1,8 +1,11 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "common.h"
 #include "server.h"
 #include <list>
+#include <memory>
 #include <queue>
 #include <src/abstracteventprovider.h>
 #include <src/entitylifetimeobserver.h>

@@ -1,7 +1,11 @@
-#ifndef CONVERSION_H
-#define CONVERSION_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include "variant.h"
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace e172 {
 
@@ -42,7 +46,7 @@ template<typename T, typename V>
 T convert_to(const std::vector<V> &vec) {
     if constexpr (std::is_same<T, Variant>::value) {
         VariantList result;
-        for(const auto& v : vec) {
+        for (const auto &v : vec) {
             result.push_back(convert_to<Variant>(v));
         }
         return result;
@@ -81,12 +85,12 @@ T convert_to(It begin, size_t size) {
     if constexpr(is_vector || is_list) {
         typedef typename T::value_type value_type;
         T result;
-        if(is_vector)
+        if (is_vector)
             result.reserve(size);
 
         auto it = begin;
         size_t i = 0;
-        while(i < size) {
+        while (i < size) {
             result.push_back(convert_to<value_type>(*it));
             ++i;
             ++it;
@@ -106,7 +110,7 @@ T convert_to(const VariantMap &map) {
         };
     } else if constexpr(sfinae::is_specialization<T, std::map>::value) {
         T result;
-        for(const auto& p : map) {
+        for (const auto &p : map) {
             result.insert(result.end(), {
                 convert_to<typename T::key_type>(p.first),
                 convert_to<typename T::mapped_type>(p.second)
@@ -118,24 +122,23 @@ T convert_to(const VariantMap &map) {
     }
 }
 
-template <typename T>
-T convert_to(const Variant &variant) {
-    if constexpr(Variant::isNumberType<T>()) {
+template<typename T>
+T convert_to(const Variant &variant)
+{
+    if constexpr (Variant::isNumberType<T>()) {
         return variant.toNumber<T>();
-    } else if constexpr(std::is_same<T, std::string>::value) {
+    } else if constexpr (std::is_same<T, std::string>::value) {
         return variant.toString();
-    } else if constexpr(sfinae::is_specialization<T, std::vector>::value) {
+    } else if constexpr (sfinae::is_specialization<T, std::vector>::value) {
         return convert_to<T>(variant.toVector());
-    } else if constexpr(sfinae::is_specialization<T, std::list>::value) {
+    } else if constexpr (sfinae::is_specialization<T, std::list>::value) {
         return convert_to<T>(variant.toList());
-    } else if constexpr(sfinae::is_specialization<T, std::pair>::value || sfinae::is_specialization<T, std::map>::value) {
+    } else if constexpr (sfinae::is_specialization<T, std::pair>::value
+                         || sfinae::is_specialization<T, std::map>::value) {
         return convert_to<T>(variant.toMap());
     } else {
         return {};
     }
 }
 
-
-}
-
-#endif // CONVERSION_H
+} // namespace e172

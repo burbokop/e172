@@ -1,17 +1,14 @@
+// Copyright 2023 Borys Boiko
+
 #include "audiosample.h"
 
 namespace e172 {
 
-
-AudioSample AudioSample::newAudioSample(e172::SharedContainer::data_ptr data, e172::SharedContainer::ptr id, Destructor destructor)
+AudioSample AudioSample::createAudioSample(e172::SharedContainer::DataPtr data,
+                                           e172::SharedContainer::Ptr id,
+                                           Destructor destructor)
 {
-
-    return newSharedContainer<AudioSample>(data,id,destructor);
+    return createSharedContainer<AudioSample>(data, id, destructor);
 }
 
-AudioSample::AudioSample()
-{
-
-}
-
-}
+} // namespace e172

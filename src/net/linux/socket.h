@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "../socket.h"
@@ -31,7 +33,7 @@ private:
     std::size_t bufferizeChunk();
 
 private:
-    static constexpr std::size_t s_chunkSize = 256;
+    static constexpr std::size_t ChunkSize = 256;
 
     int m_fd;
     bool m_isConnected = true;

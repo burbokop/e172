@@ -1,51 +1,63 @@
+// Copyright 2023 Borys Boiko
+
 #include "systeminfo.h"
 
 #ifdef __unix__
-#include <string.h>
-#include <stdio.h>
-#endif
-
-bool e172::SystemInfo::memoryUsageKb(long *vmrss_kb, long *vmsize_kb) {
-#ifdef __unix__
-    FILE* procfile = fopen("/proc/self/status", "r");
-
-    long to_read = 8192;
-    char buffer[to_read];
-    fread(buffer, sizeof(char), to_read, procfile);
-    fclose(procfile);
-
-    bool found_vmrss = false;
-    bool found_vmsize = false;
-    char* search_result;
-
-    /* Look through proc status contents line by line */
-    char delims[] = "\n";
-    char* line = strtok(buffer, delims);
-
-    while (line != NULL && (found_vmrss == false || found_vmsize == false)) {
-        search_result = strstr(line, "VmRSS:");
-        if (search_result != NULL) {
-            sscanf(line, "%*s %ld", vmrss_kb);
-            found_vmrss = true;
-        }
-
-        search_result = strstr(line, "VmSize:");
-        if (search_result != NULL) {
-            sscanf(line, "%*s %ld", vmsize_kb);
-            found_vmsize = true;
-        }
-        line = strtok(NULL, delims);
-    }
-    return found_vmrss && found_vmsize;
+#include <fstream>
 #else
-    (void)vmrss_kb;
-    (void)vmsize_kb;
-    return false;
+#include "../todo.h"
+#endif
+
+#include <string>
+
+namespace e172::sysinfo {
+
+Either<MemotyUsageError, MemotyUsage> memoryUsage()
+{
+#ifdef __unix__
+    static constexpr const char *UnixProcFile = "/proc/self/status";
+
+    const auto &&parseField = [](const std::string &key,
+                                 const std::string &str) -> std::optional<std::int64_t> {
+        if (str.starts_with(key)) {
+            return std::stoll(str.substr(key.size(), str.size() - key.size()));
+        }
+        return std::nullopt;
+    };
+
+    std::ifstream stream(UnixProcFile);
+    if (!stream.is_open()) {
+        return Left(MemotyUsageError::FailedToReadProcInfo);
+    }
+
+    std::optional<std::int64_t> rss;
+    std::optional<std::int64_t> vm;
+    std::string line;
+    try {
+        while (std::getline(stream, line)) {
+            if (const auto val = parseField("VmRSS:", line)) {
+                rss = val;
+            }
+            if (const auto val = parseField("VmSize:", line)) {
+                vm = val;
+            }
+            if (rss && vm)
+                break;
+        }
+    } catch (std::invalid_argument) {
+        return Left(MemotyUsageError::FailedToParseProcInfo);
+    } catch (std::out_of_range) {
+        return Left(MemotyUsageError::FailedToParseProcInfo);
+    }
+
+    if (rss && vm) {
+        return Right(MemotyUsage{.rss = *rss, .vm = *vm});
+    } else {
+        return Left(MemotyUsageError::MemUsageDataNotFound);
+    }
+#else
+    todo;
 #endif
 }
 
-e172::SystemInfo::MemotyUsageInfo e172::SystemInfo::memoryUsageKb() {
-    MemotyUsageInfo result;
-    result.isValid = memoryUsageKb(&result.rss, &result.vm);
-    return result;
-}
+} // namespace e172::sysinfo

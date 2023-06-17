@@ -1,11 +1,15 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include "gameclient.h"
 #include "gameserver.h"
 #include <list>
+#include <memory>
 #include <src/memcontrol/abstractfactory.h>
 #include <src/meta.h>
 #include <src/utility/either.h>
+#include <string>
 #include <vector>
 
 namespace e172 {
@@ -27,7 +31,7 @@ public:
         ListenFailed
     };
 
-    static constexpr const char *localhost = "127.0.0.1";
+    static constexpr const char *Localhost = "127.0.0.1";
 
     Networker() = default;
 
@@ -54,7 +58,7 @@ public:
 
     Either<Error, std::shared_ptr<GameClient>> connect(GameApplication &app,
                                                        std::uint16_t port,
-                                                       const std::string &address = localhost)
+                                                       const std::string &address = Localhost)
     {
         return connect(port, address).map<std::shared_ptr<GameClient>>([&app, this](auto s) {
             return std::make_shared<GameClient>(app, this, s, GameClient::Private{});
@@ -74,7 +78,7 @@ public:
 
     virtual Either<Error, std::shared_ptr<Server>> listen(std::uint16_t port) = 0;
     virtual Either<Error, std::shared_ptr<Socket>> connect(std::uint16_t port,
-                                                           const std::string &address = localhost)
+                                                           const std::string &address = Localhost)
         = 0;
 
     virtual ~Networker() = default;

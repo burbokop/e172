@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
 #include <optional>
@@ -9,18 +11,16 @@
 namespace e172 {
 
 /**
- *  \brief These values are taken from SDL library
- *
+ * @brief Scancode - keyboard codes
+ * 
  */
 enum Scancode : std::uint16_t {
     ScancodeUnknown = 0,
 
     /**
-     *  \name Usage page 0x07
-     *
-     *  These values are from usage page 0x07 (USB keyboard page).
+     * @name Usage page 0x07
+     * Values below are from usage page 0x07 (USB keyboard page).
      */
-    /* @{ */
 
     ScancodeA = 4,
     ScancodeB = 5,
@@ -70,51 +70,60 @@ enum Scancode : std::uint16_t {
     ScancodeEquals = 46,
     ScancodeLeftBracket = 47,
     ScancodeRightBracket = 48,
-    ScancodeBackslash = 49, /**< Located at the lower left of the return
-                                  *   key on ISO keyboards and at the right end
-                                  *   of the QWERTY row on ANSI keyboards.
-                                  *   Produces REVERSE SOLIDUS (backslash) and
-                                  *   VERTICAL LINE in a US layout, REVERSE
-                                  *   SOLIDUS and VERTICAL LINE in a UK Mac
-                                  *   layout, NUMBER SIGN and TILDE in a UK
-                                  *   Windows layout, DOLLAR SIGN and POUND SIGN
-                                  *   in a Swiss German layout, NUMBER SIGN and
-                                  *   APOSTROPHE in a German layout, GRAVE
-                                  *   ACCENT and POUND SIGN in a French Mac
-                                  *   layout, and ASTERISK and MICRO SIGN in a
-                                  *   French Windows layout.
-                                  */
-    ScancodeNonushash = 50, /**< ISO USB keyboards actually use this code
-                                  *   instead of 49 for the same key, but all
-                                  *   OSes I've seen treat the two codes
-                                  *   identically. So, as an implementor, unless
-                                  *   your keyboard generates both of those
-                                  *   codes and your OS treats them differently,
-                                  *   you should generate ScancodeBACKSLASH
-                                  *   instead of this code. As a user, you
-                                  *   should not rely on this code because SDL
-                                  *   will never generate it with most (all?)
-                                  *   keyboards.
-                                  */
+
+    /** 
+     * Located at the lower left of the return
+     * key on ISO keyboards and at the right end
+     * of the QWERTY row on ANSI keyboards.
+     * Produces REVERSE SOLIDUS (backslash) and
+     * VERTICAL LINE in a US layout, REVERSE
+     * SOLIDUS and VERTICAL LINE in a UK Mac
+     * layout, NUMBER SIGN and TILDE in a UK
+     * Windows layout, DOLLAR SIGN and POUND SIGN
+     * in a Swiss German layout, NUMBER SIGN and
+     * APOSTROPHE in a German layout, GRAVE
+     * ACCENT and POUND SIGN in a French Mac
+     * layout, and ASTERISK and MICRO SIGN in a
+     * French Windows layout.
+     */
+    ScancodeBackslash = 49,
+
+    /** 
+     * ISO USB keyboards actually use this code
+     * instead of 49 for the same key, but all
+     * OSes I've seen treat the two codes
+     * identically. So, as an implementor, unless
+     * your keyboard generates both of those
+     * codes and your OS treats them differently,
+     * you should generate ScancodeBackslash
+     * instead of this code. As a user, you
+     * should not rely on this code because SDL
+     * will never generate it with most (all?)
+     * keyboards.
+     */
+    ScancodeNonUSHash = 50,
     ScancodeSemicolon = 51,
     ScancodeApostrophe = 52,
-    ScancodeGrave = 53, /**< Located in the top left corner (on both ANSI
-                              *   and ISO keyboards). Produces GRAVE ACCENT and
-                              *   TILDE in a US Windows layout and in US and UK
-                              *   Mac layouts on ANSI keyboards, GRAVE ACCENT
-                              *   and NOT SIGN in a UK Windows layout, SECTION
-                              *   SIGN and PLUS-MINUS SIGN in US and UK Mac
-                              *   layouts on ISO keyboards, SECTION SIGN and
-                              *   DEGREE SIGN in a Swiss German layout (Mac:
-                              *   only on ISO keyboards), CIRCUMFLEX ACCENT and
-                              *   DEGREE SIGN in a German layout (Mac: only on
-                              *   ISO keyboards), SUPERSCRIPT TWO and TILDE in a
-                              *   French Windows layout, COMMERCIAL AT and
-                              *   NUMBER SIGN in a French Mac layout on ISO
-                              *   keyboards, and LESS-THAN SIGN and GREATER-THAN
-                              *   SIGN in a Swiss German, German, or French Mac
-                              *   layout on ANSI keyboards.
-                              */
+
+    /**
+     * Located in the top left corner (on both ANSI
+     * and ISO keyboards). Produces GRAVE ACCENT and
+     * TILDE in a US Windows layout and in US and UK
+     * Mac layouts on ANSI keyboards, GRAVE ACCENT
+     * and NOT SIGN in a UK Windows layout, SECTION
+     * SIGN and PLUS-MINUS SIGN in US and UK Mac
+     * layouts on ISO keyboards, SECTION SIGN and
+     * DEGREE SIGN in a Swiss German layout (Mac:
+     * only on ISO keyboards), CIRCUMFLEX ACCENT and
+     * DEGREE SIGN in a German layout (Mac: only on
+     * ISO keyboards), SUPERSCRIPT TWO and TILDE in a
+     * French Windows layout, COMMERCIAL AT and
+     * NUMBER SIGN in a French Mac layout on ISO
+     * keyboards, and LESS-THAN SIGN and GREATER-THAN
+     * SIGN in a Swiss German, German, or French Mac
+     * layout on ANSI keyboards.
+     */
+    ScancodeGrave = 53,
     ScancodeComma = 54,
     ScancodePeriod = 55,
     ScancodeSlash = 56,
@@ -137,8 +146,12 @@ enum Scancode : std::uint16_t {
     ScancodePrintScreen = 70,
     ScancodeScrollLock = 71,
     ScancodePause = 72,
-    ScancodeInsert = 73, /**< insert on PC, help on some Mac keyboards (but
-                                   does send code 73, not 117) */
+
+    /**
+     * insert on PC, help on some Mac keyboards (but
+     * does send code 73, not 117)
+     */
+    ScancodeInsert = 73,
     ScancodeHome = 74,
     ScancodePageUp = 75,
     ScancodeDelete = 76,
@@ -149,8 +162,10 @@ enum Scancode : std::uint16_t {
     ScancodeDown = 81,
     ScancodeUp = 82,
 
-    ScancodeNumLockClear = 83, /**< num lock on PC, clear on Mac keyboards
-                                     */
+    /**
+     * num lock on PC, clear on Mac keyboards
+     */
+    ScancodeNumLockClear = 83,
     ScancodeKpDivide = 84,
     ScancodeKpMultiply = 85,
     ScancodeKpMinus = 86,
@@ -168,20 +183,31 @@ enum Scancode : std::uint16_t {
     ScancodeKp0 = 98,
     ScancodeKpPeriod = 99,
 
-    ScancodeNonUsBackSlash = 100, /**< This is the additional key that ISO
-                                        *   keyboards have over ANSI ones,
-                                        *   located between left shift and Y.
-                                        *   Produces GRAVE ACCENT and TILDE in a
-                                        *   US or UK Mac layout, REVERSE SOLIDUS
-                                        *   (backslash) and VERTICAL LINE in a
-                                        *   US or UK Windows layout, and
-                                        *   LESS-THAN SIGN and GREATER-THAN SIGN
-                                        *   in a Swiss German, German, or French
-                                        *   layout. */
-    ScancodeApplication = 101,    /**< windows contextual menu, compose */
-    ScancodePower = 102,          /**< The USB document says this is a status flag,
-                               *   not a physical key - but some Mac keyboards
-                               *   do have a power key. */
+    /** 
+     * This is the additional key that ISO
+     * keyboards have over ANSI ones,
+     * located between left shift and Y.
+     * Produces GRAVE ACCENT and TILDE in a
+     * US or UK Mac layout, REVERSE SOLIDUS
+     * (backslash) and VERTICAL LINE in a
+     * US or UK Windows layout, and
+     * LESS-THAN SIGN and GREATER-THAN SIGN
+     * in a Swiss German, German, or French
+     * layout.
+     */
+    ScancodeNonUSBackSlash = 100,
+
+    /**
+     * windows contextual menu, compose
+     */
+    ScancodeApplication = 101,
+
+    /**
+     * The USB document says this is a status flag,
+     * not a physical key - but some Mac keyboards
+     * do have a power key.
+     */
+    ScancodePower = 102,
     ScancodeKPEquals = 103,
     ScancodeF13 = 104,
     ScancodeF14 = 105,
@@ -200,7 +226,11 @@ enum Scancode : std::uint16_t {
     ScancodeMenu = 118,
     ScancodeSelect = 119,
     ScancodeStop = 120,
-    ScancodeAgain = 121, /**< redo */
+
+    /**
+     * redo
+     */
+    ScancodeAgain = 121,
     ScancodeUndo = 122,
     ScancodeCut = 123,
     ScancodeCopy = 124,
@@ -210,34 +240,80 @@ enum Scancode : std::uint16_t {
     ScancodeVolumeUp = 128,
     ScancodeVolumeDown = 129,
     /* not sure whether there's a reason to enable these */
-    /*     ScancodeLOCKINGCAPSLOCK = 130,  */
-    /*     ScancodeLOCKINGNUMLOCK = 131, */
-    /*     ScancodeLOCKINGSCROLLLOCK = 132, */
+    /*     ScancodeLOCKINGCAPSLOCK = 130,                */
+    /*     ScancodeLOCKINGNUMLOCK = 131,                 */
+    /*     ScancodeLOCKINGSCROLLLOCK = 132,              */
     ScancodeKPComma = 133,
     ScancodeKPEqualSas400 = 134,
 
-    ScancodeInternational1 = 135, /**< used on Asian keyboards, see
-                                            footnotes in USB doc */
+    /**
+     * used on Asian keyboards, see
+     * footnotes in USB doc
+     */
+    ScancodeInternational1 = 135,
     ScancodeInternational2 = 136,
-    ScancodeInternational3 = 137, /**< Yen */
+
+    /**
+     * Yen
+     */
+    ScancodeInternational3 = 137,
     ScancodeInternational4 = 138,
     ScancodeInternational5 = 139,
     ScancodeInternational6 = 140,
     ScancodeInternational7 = 141,
     ScancodeInternational8 = 142,
     ScancodeInternational9 = 143,
-    ScancodeLang1 = 144, /**< Hangul/English toggle */
-    ScancodeLang2 = 145, /**< Hanja conversion */
-    ScancodeLang3 = 146, /**< Katakana */
-    ScancodeLang4 = 147, /**< Hiragana */
-    ScancodeLang5 = 148, /**< Zenkaku/Hankaku */
-    ScancodeLang6 = 149, /**< reserved */
-    ScancodeLang7 = 150, /**< reserved */
-    ScancodeLang8 = 151, /**< reserved */
-    ScancodeLang9 = 152, /**< reserved */
 
-    ScancodeAlterase = 153, /**< Erase-Eaze */
-    ScancodeSysREQ = 154,
+    /**
+     * Hangul/English toggle
+     */
+    ScancodeLang1 = 144,
+
+    /**
+     * Hanja conversion
+     */
+    ScancodeLang2 = 145,
+
+    /**
+     * Katakana
+     */
+    ScancodeLang3 = 146,
+
+    /**
+     * Hiragana
+     */
+    ScancodeLang4 = 147,
+
+    /**
+     * Zenkaku/Hankaku
+     */
+    ScancodeLang5 = 148,
+
+    /**
+     * reserved
+     */
+    ScancodeLang6 = 149,
+
+    /**
+     * reserved
+     */
+    ScancodeLang7 = 150,
+
+    /**
+     * reserved
+     */
+    ScancodeLang8 = 151,
+
+    /**
+     * reserved
+     */
+    ScancodeLang9 = 152,
+
+    /**
+     * Erase-Eaze
+     */
+    ScancodeAltErase = 153,
+    ScancodeSysReq = 154,
     ScancodeCancel = 155,
     ScancodeClear = 156,
     ScancodePrior = 157,
@@ -298,26 +374,40 @@ enum Scancode : std::uint16_t {
 
     ScancodeLCtrl = 224,
     ScancodeLShift = 225,
-    ScancodeLAlt = 226, /**< alt, option */
-    ScancodeLGui = 227, /**< windows, command (apple), meta */
-    ScancodeRCtrl = 228,
-    ScancodeRShift = 229,
-    ScancodeRAlt = 230, /**< alt gr, option */
-    ScancodeRGui = 231, /**< windows, command (apple), meta */
-
-    ScancodeMode = 257, /**< I'm not sure if this is really not covered
-                                 *   by any of the above, but since there's a
-                                 *   special KMOD_MODE for it I'm adding it here
-                                 */
-
-    /* @} */ /* Usage page 0x07 */
 
     /**
-     *  \name Usage page 0x0C
-     *
-     *  These values are mapped from usage page 0x0C (USB consumer page).
+     * alt, option
      */
-    /* @{ */
+    ScancodeLAlt = 226,
+
+    /**
+     * windows, command (apple), meta
+     */
+    ScancodeLGui = 227,
+    ScancodeRCtrl = 228,
+    ScancodeRShift = 229,
+
+    /**   
+     * alt gr, option
+     */
+    ScancodeRAlt = 230,
+
+    /**
+     * windows, command (apple), meta
+     */
+    ScancodeRGui = 231,
+
+    /**
+     * I'm not sure if this is really not covered
+     * by any of the above, but since there's a
+     * special KMOD_MODE for it I'm adding it here
+     */
+    ScancodeMode = 257,
+
+    /**
+     * @name Usage page 0x0C
+     * Values below are mapped from usage page 0x0C (USB consumer page).
+     */
 
     ScancodeAudioNext = 258,
     ScancodeAudioPrev = 259,
@@ -337,19 +427,19 @@ enum Scancode : std::uint16_t {
     ScancodeAcRefresh = 273,
     ScancodeAcBookmarks = 274,
 
-    /* @} */ /* Usage page 0x0C */
-
     /**
-     *  \name Walther keys
-     *
-     *  These are values that Christian Walther added (for mac keyboard?).
+     * @name Walther keys
+     * Values below that Christian Walther added (for mac keyboard?).
      */
-    /* @{ */
 
     ScancodeBrightnessDown = 275,
     ScancodeBrightnessUp = 276,
-    ScancodeDisplaySwitch = 277, /**< display mirroring/dual display
-                                           switch, video mode switch */
+
+    /**
+     * display mirroring/dual display
+     * switch, video mode switch
+     */
+    ScancodeDisplaySwitch = 277,
     ScancodeKbDillumToggle = 278,
     ScancodeKbDillumDown = 279,
     ScancodeKbDillumUp = 280,
@@ -359,24 +449,23 @@ enum Scancode : std::uint16_t {
     ScancodeApp1 = 283,
     ScancodeApp2 = 284,
 
-    /* @} */ /* Walther keys */
-
     /**
-     *  \name Usage page 0x0C (additional media keys)
-     *
-     *  These values are mapped from usage page 0x0C (USB consumer page).
+     * @name Usage page 0x0C (additional media keys)
+     * Values below are mapped from usage page 0x0C (USB consumer page).
      */
-    /* @{ */
 
     ScancodeAudioRewind = 285,
     ScancodeAudioFastForward = 286,
 
-    /* @} */ /* Usage page 0x0C (additional media keys) */
+    /**
+     * Values below are utility
+     */
 
-    /* Add any other keys here. */
-
-    ScancodesCount = 512 /**< not a key, just marks the number of scancodes
-                                 for array bounds */
+    /**
+     * not a key, just marks the number of scancodes
+     * for array bounds
+     */
+    ScancodesCount = 512
 };
 
 class Event

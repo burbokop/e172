@@ -1,30 +1,32 @@
-#ifndef DIFFERENTIATOR_H
-#define DIFFERENTIATOR_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include <src/time/deltatimecalculator.h>
-#include <vector>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 namespace e172 {
 
 class Differentiator {
-    e172::DeltaTimeCalculator c;
-    double last;
-    bool hasLast = false;
+public:
+    enum XMode { Time, Natural };
 
 public:
-    enum {
-        Time,
-        Natural
-    } typedef XMode;
-private:
-    XMode m_xMode;
-public:
-    Differentiator(XMode xMode = Time);
+    Differentiator(XMode xMode = Time)
+        : m_xMode(xMode)
+    {}
+
     double proceed(double value);
     void reset();
-};
 
+private:
+    XMode m_xMode;
+    e172::DeltaTimeCalculator<std::chrono::high_resolution_clock> m_c;
+    double m_last;
+    bool m_hasLast = false;
+};
 
 template<typename Container>
 Container differentiate(const Container& c, Differentiator::XMode xMode = Differentiator::XMode::Time) {
@@ -33,7 +35,7 @@ Container differentiate(const Container& c, Differentiator::XMode xMode = Differ
         result.reserve(c.size());
     }
     Differentiator differentiator(xMode);
-    for(auto it = c.begin(); it != c.end(); ++it) {
+    for (auto it = c.begin(); it != c.end(); ++it) {
         result.push_back(differentiator.proceed(*it));
     }
     return result;
@@ -46,11 +48,7 @@ Container differentiate(const Container& c, Differentiator::XMode xMode = Differ
     return result;
 }
 
+std::vector<double> differentiateVec(
+    const std::pair<std::vector<double>, std::vector<double>> &cpair);
 
-std::vector<double> differentiate_vec(const std::pair<std::vector<double>, std::vector<double>>& cpair);
-
-
-
-}
-
-#endif // DIFFERENTIATOR_H
+} // namespace e172

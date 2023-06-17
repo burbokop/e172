@@ -1,13 +1,12 @@
-#ifndef ARGS_H
-#define ARGS_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include "variant.h"
-
 
 namespace e172 {
 
 class Args {
-    VariantVector m_v;
 public:
     template<typename ...T>
     Args(const T& ...args) : m_v(VariantVector { args... }) {}
@@ -22,8 +21,8 @@ public:
         return args;
     }
 
+private:
+    VariantVector m_v;
 };
 
-
-}
-#endif // ARGS_H
+} // namespace e172

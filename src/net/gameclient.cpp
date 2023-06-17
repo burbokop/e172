@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "gameclient.h"
 
 #include "../abstracteventprovider.h"
@@ -8,6 +10,8 @@
 #include "src/context.h"
 #include "src/debug.h"
 #include "src/utility/package.h"
+#include <string>
+#include <utility>
 
 void e172::GameClient::sync()
 {
@@ -114,7 +118,7 @@ bool e172::GameClient::processRemoveEntityPackage(ReadPackage &&package)
     const auto id = package.read<PackedEntityId>();
     if (!id)
         return false;
-    m_app.context()->emitMessage(e172::Context::DESTROY_ENTITY, *id);
+    m_app.context()->emitMessage(e172::Context::DestroyEntity, *id);
     return true;
 }
 

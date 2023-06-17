@@ -1,30 +1,14 @@
-#include "loadable.h"
+// Copyright 2023 Borys Boiko
 
+#include "loadable.h"
 
 namespace e172 {
 
-std::string Loadable::className() const {
-    return m_className;
-}
-
-std::string Loadable::loadableId() const
+void Loadable::registerInitFunction(const std::function<void()> &function)
 {
-    return m_loadableId;
-}
-
-AssetProvider *Loadable::assetProvider() const {
-    return m_assetProvider;
-}
-
-void Loadable::registerInitFunction(const std::function<void ()> &function) {
-    if(released) {
-
-    } else {
-        initialize_functions.push_back(function);
+    if (!m_released) {
+        m_initFunctions.push_back(function);
     }
 }
 
-Loadable::Loadable() {}
-
-Loadable::~Loadable() {}
-}
+} // namespace e172

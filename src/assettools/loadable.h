@@ -1,48 +1,58 @@
-#ifndef LOADABLE_H
-#define LOADABLE_H
+// Copyright 2023 Borys Boiko
 
+#pragma once
 
+#include <map>
 #include <src/variant.h>
+#include <string>
+#include <vector>
 
 namespace e172 {
 
-
 class AssetProvider;
+
 class Loadable {
     friend AssetProvider;
-    std::map<std::string, e172::Variant> m_assets;
-    std::string m_className;
-    std::string m_loadableId;
-    AssetProvider *m_assetProvider = nullptr;
 
-    std::vector<std::function<void(void)>> initialize_functions;
-    bool released = false;
-protected:
-    void registerInitFunction(const std::function<void(void)> &function);
-    template<typename C>
-    void registerInitFunction(C *obj, void(C::*f)()) { registerInitFunction([obj, f]() { (obj->*f)(); }); }
 public:
-    Loadable();
+    Loadable() = default;
+    virtual ~Loadable() = default;
 
     template<typename T>
-    T asset(const std::string &name, const T &defaultValue = T(), bool *ok = nullptr) const {
+    T asset(const std::string &name, const T &defaultValue = T(), bool *ok = nullptr) const
+    {
         const auto it = m_assets.find(name);
-        if(it != m_assets.end() && it->second.containsType<T>()) {
-            if(ok)
+        if (it != m_assets.end() && it->second.containsType<T>()) {
+            if (ok)
                 *ok = true;
             return it->second.value<T>();
         }
-        if(ok)
+        if (ok)
             *ok = false;
         return defaultValue;
     }
 
-    virtual ~Loadable();
-    std::string className() const;
-    std::string loadableId() const;
-    AssetProvider *assetProvider() const;
+    const std::string &className() const { return m_className; }
+    const std::string &templateId() const { return m_templateId; }
+    AssetProvider *assetProvider() { return m_assetProvider; }
+    const AssetProvider *assetProvider() const { return m_assetProvider; }
+
+protected:
+    void registerInitFunction(const std::function<void(void)> &function);
+
+    template<typename C>
+    void registerInitFunction(C *obj, void (C::*f)())
+    {
+        registerInitFunction([obj, f]() { (obj->*f)(); });
+    }
+
+private:
+    std::map<std::string, e172::Variant> m_assets;
+    std::string m_className;
+    std::string m_templateId;
+    AssetProvider *m_assetProvider = nullptr;
+    std::vector<std::function<void(void)>> m_initFunctions;
+    bool m_released = false;
 };
 
-}
-
-#endif // LOADABLE_H
+} // namespace e172

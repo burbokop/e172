@@ -1,7 +1,8 @@
-#include "line2d.h"
-#include "math.h"
+// Copyright 2023 Borys Boiko
 
-e172::Line2d::Line2d(double a, double b, double c) : m_a(a), m_b(b), m_c(c) {}
+#include "line2d.h"
+
+#include "math.h"
 
 double e172::Line2d::distanceToPoint(const Vector<double> &point) const
 {
@@ -13,13 +14,8 @@ double e172::Line2d::distanceToPoint(const Vector<double> &point) const
     }
 }
 
-e172::Line2d::Line2d() {}
-
-double e172::Line2d::c() const {
-    return m_c;
-}
-
-bool e172::Line2d::isValid() const {
+bool e172::Line2d::isValid() const
+{
     return !(m_a == Math::null && m_b == Math::null);
 }
 
@@ -47,16 +43,18 @@ e172::Line2d e172::Line2d::fromVector(const Vector<double> &vector, const Vector
     }
 }
 
-double e172::Line2d::x(double y) const {
-    if(m_a != Math::null) {
+double e172::Line2d::x(double y) const
+{
+    if (m_a != Math::null) {
         return -(m_b * y + m_c) / m_a;
     } else {
         return 0;
     }
 }
 
-double e172::Line2d::y(double x) const {
-    if(m_b != Math::null) {
+double e172::Line2d::y(double x) const
+{
+    if (m_b != Math::null) {
         return -(m_a * x + m_c) / m_b;
     } else {
         return 0;
@@ -66,7 +64,7 @@ double e172::Line2d::y(double x) const {
 std::pair<e172::Vector<double>, e172::Vector<double>> e172::Line2d::rectIntersection(
     const Vector<double> &size) const
 {
-    if(m_b != Math::null) {
+    if (m_b != Math::null) {
         const auto& x0 = 0;
         const auto& x1 = size.x();
         const auto& y0 = y(x0);
@@ -84,12 +82,4 @@ std::pair<e172::Vector<double>, e172::Vector<double>> e172::Line2d::rectIntersec
 e172::Line2d e172::Line2d::tanslated(const Vector<double> &offset) const
 {
     return Line2d(m_a, m_b, m_c - (m_a * offset.x() + m_b * offset.y()));
-}
-
-double e172::Line2d::b() const {
-    return m_b;
-}
-
-double e172::Line2d::a() const {
-    return m_a;
 }
