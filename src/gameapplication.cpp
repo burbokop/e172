@@ -281,6 +281,10 @@ int GameApplication::exec()
             for (const auto &e : m_entities) {
                 proceed(e, m_context.get(), m_eventHandler.get());
             }
+            for (const auto &m : m_applicationExtensions) {
+                if (m.second->extensionType() == GameApplicationExtension::PostProceedExtension)
+                    m.second->proceed(this);
+            }
             m_proceedDelay = measureTimer.elapsed();
         }
         if (!!(m_mode & Mode::Render) && m_graphicsProvider && m_renderTimer.check()) {
@@ -298,6 +302,10 @@ int GameApplication::exec()
                 }
                 for (const auto &e : m_entities) {
                     render(e, r);
+                }
+                for (const auto &m : m_applicationExtensions) {
+                    if (m.second->extensionType() == GameApplicationExtension::PostRenderExtension)
+                        m.second->proceed(this);
                 }
                 r->m_locked = true;
                 if (!r->update()) {

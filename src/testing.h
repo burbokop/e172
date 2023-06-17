@@ -68,6 +68,17 @@ if ((actual) != (expected)) { \
                            e172_pretty_function); \
 }
 
+#define e172_shouldNotEqual(actual, expected) \
+    if ((actual) == (expected)) { \
+        e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
+                           "Assertion failed:", \
+                           actual, \
+                           "should not be equal to", \
+                           expected, \
+                           "in test function:", \
+                           e172_pretty_function); \
+    }
+
 #define e172_shouldBeDefined(option) \
 if ((option).isEmpty()) { \
         e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \

@@ -13,6 +13,7 @@ class VariantSpec
     static void rttiTableTest() e172_test(VariantSpec, rttiTableTest);
     static void compareTest0() e172_test(VariantSpec, compareTest0);
     static void compareTest1() e172_test(VariantSpec, compareTest1);
+    static void compareEnumTest() e172_test(VariantSpec, compareEnumTest);
 
     static void fromJsonTest0() e172_test(VariantSpec, fromJsonTest0);
     static void fromJsonTest1() e172_test(VariantSpec, fromJsonTest1);

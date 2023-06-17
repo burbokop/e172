@@ -34,7 +34,9 @@ public:
         UndefinedExtension,
         InitExtension,
         PreProceedExtension,
-        PreRenderExtension
+        PreRenderExtension,
+        PostProceedExtension,
+        PostRenderExtension
     };
 
     GameApplicationExtension(ExtensionType extensionType)

@@ -89,7 +89,7 @@ public:
     std::shared_ptr<Promice> emitMessage(const IdType &id, const ValueType &value)
     {
         const auto p = std::make_shared<MessageQueuePromice>();
-        m_data[id].queue.push_back(MessageType { value, m_messageLifeTime, p });
+        m_data[id].queue.push_back(MessageType{value, m_messageLifeTime, p});
         return p;
     }
 
