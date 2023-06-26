@@ -102,7 +102,6 @@ struct Additional {
     static std::string defaultFontDirectory();
     static std::string defaultFont(const std::string &suffix = ".ttf");
 
-    static std::vector<std::string> coverArgs(int argc, const char *argv[]);
 
     static Option<double> parseRadians(const std::string& string);
 

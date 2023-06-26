@@ -62,7 +62,7 @@ int exec(int argc, const char **argv)
                 return 2;
             }
         } else if (command == "spec") {
-            todo;
+            todo();
         } else {
             e172::Debug::withSepar("").emitMessage(Debug::WarningMessage,
                                                    command,
@@ -75,7 +75,7 @@ int exec(int argc, const char **argv)
         for (const auto &t : s.second.tests) {
             e172::Debug::print("test: ", t.name);
             t.testFunc();
-            e172::Debug::print("      ", t.name, Green.wrap("OK"));
+            e172::Debug::print("      ", t.name, cc::Green.wrap("OK"));
         }
     }
     return 0;

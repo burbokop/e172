@@ -2,110 +2,193 @@
 
 #include "flagparser.h"
 
-#include "../additional.h"
-#include "../variant.h"
+#include "src/consolecolor.h"
 #include <algorithm>
+#include <filesystem>
 
-e172::FlagParser::FlagParser(int argc, const char *argv[])
-    : FlagParser(Additional::coverArgs(argc, argv))
-{}
+namespace e172 {
 
-e172::FlagParser::FlagParser(const std::vector<std::string> &args)
-    : m_arguments(args)
+std::optional<std::string> FlagParser::appname() const
 {
-    registerBoolFlag("-h", "--help", "Display help");
-}
-
-void e172::FlagParser::registerValueFlag(const std::string &shortName,
-                                         const std::string &fullName,
-                                         const std::string &description)
-{
-    m_flagsDescription.push_back({ shortName, fullName, description, true });
-
-    const auto short_flag = nextArg(shortName);
-    if (short_flag.size() > 0) {
-        m_flags[shortName] = short_flag;
-        return;
-    } else if (fullName.size() > 0) {
-        const auto full_flag = nextArg(fullName);
-        if (full_flag.size() > 0) {
-            m_flags[shortName] = full_flag;
-            return;
-        }
-    }
-}
-
-void e172::FlagParser::registerBoolFlag(const std::string &shortName,
-                                        const std::string &fullName,
-                                        const std::string &description)
-{
-    m_flagsDescription.push_back({shortName, fullName, description, false});
-
-    if (containsArg(shortName)) {
-        m_flags[shortName] = true;
-        return;
-    } else if (fullName.size() > 0) {
-        if (containsArg(fullName)) {
-            m_flags[shortName] = true;
-            return;
-        }
-    }
-}
-
-void e172::FlagParser::displayHelp(std::ostream &stream) {
-    constexpr const char *tab = "  ";
-
     if (m_arguments.size() > 0) {
-        stream << "Usage: " + m_arguments[0] + " [options]\n";
+        return std::filesystem::path(m_arguments.front()).filename().string();
     }
-
-    if (m_flagsDescription.size() <= 1) {
-        stream << "No options specified\n";
-        return;
-    }
-
-    size_t maxSnSize = 0;
-    size_t maxFnSize = 0;
-    for (const auto &d : m_flagsDescription) {
-        maxSnSize = std::max(maxSnSize, d.shortName.size());
-        maxFnSize = std::max(maxFnSize, d.fullName.size());
-    }
-
-    stream << "Options:\n";
-    for (const auto &d : m_flagsDescription) {
-        stream << tab << d.shortName << std::string(maxSnSize - d.shortName.size(), ' ');
-        stream << (d.isValueFlag ? " <>" : "   ");
-        stream << tab << d.fullName << std::string(maxFnSize - d.fullName.size(), ' ');
-        stream << tab << d.description << '\n';
-    }
+    return std::nullopt;
 }
 
-bool e172::FlagParser::containsFlag(const std::string &shortName) const {
-    return m_flags.contains(shortName);
-}
-
-e172::Variant e172::FlagParser::flag(const std::string &shortName) const {
-    const auto it = m_flags.find(shortName);
-    if (it == m_flags.end()) {
-        return Variant();
-    } else {
-        return it->second;
-    }
-}
-
-bool e172::FlagParser::containsArg(const std::string &arg) const {
+bool e172::FlagParser::popBoolArg(const std::string &arg)
+{
     auto it = std::find(m_arguments.begin(), m_arguments.end(), arg);
-    return it != m_arguments.end();
+    if (it != m_arguments.end()) {
+        m_arguments.erase(it);
+        return true;
+    }
+    return false;
 }
 
-std::string e172::FlagParser::nextArg(const std::string &arg) const {
+bool FlagParser::popBoolArg(const std::string &shortName, const std::string &longName)
+{
+    return popBoolArg("-" + shortName) || popBoolArg("--" + longName);
+}
+
+Either<FlagParseError, std::string> FlagParser::popArgAfter(const std::string &arg)
+{
     auto it = std::find(m_arguments.begin(), m_arguments.end(), arg);
     if (it != m_arguments.end()) {
         it++;
         if (it != m_arguments.end()) {
-            return *it;
+            const auto result = *it;
+            m_arguments.erase(it - 1, it + 1);
+            return Right(result);
         }
+        return Left(FlagParseError::ValueAfterFlagMissing);
     }
-    return {};
+    return Left(FlagParseError::MandatoryFlagNotFound);
 }
 
+std::pair<Either<FlagParseError, std::string>, bool> FlagParser::popArgAfter(
+    const std::string &shortName, const std::string &longName)
+{
+    const auto &shortVal = popArgAfter("-" + shortName);
+    if (!shortVal && shortVal.left().value() == FlagParseError::MandatoryFlagNotFound) {
+        return {popArgAfter("--" + longName), true};
+    }
+    return {shortVal, false};
+}
+
+std::vector<std::string> FlagParser::coverArgs(int argc, const char **argv)
+{
+    std::vector<std::string> result;
+    for (int i = 0; i < argc; i++) {
+        result.push_back(argv[i]);
+    }
+    return result;
+}
+
+bool FlagParser::finish(const HandleErrorFunc &handleErrorFunc,
+                        const HandleHelpFunc &handleHelpFunc,
+                        const HandleVersionFunc &handleVersionFunc)
+{
+    const auto help = handleHelpFunc ? flag<bool>(
+                          Flag{.shortName = "h", .longName = "help", .description = "Display help"})
+                                     : false;
+
+    const auto v = handleVersionFunc ? flag<bool>(Flag{.shortName = "v",
+                                                       .longName = "version",
+                                                       .description = "Display version"})
+                                     : false;
+    if (hasErrors()) {
+        handleErrorFunc(*this);
+        return false;
+    }
+    if (help) {
+        handleHelpFunc(*this);
+        return true;
+    }
+    if (v) {
+        handleVersionFunc(*this);
+    }
+    return true;
+}
+
+bool FlagParser::hasErrors() const
+{
+    if (m_arguments.size() > 1)
+        return true;
+    for (const auto &f : m_parsedFlags) {
+        if (f.err) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void FlagParser::displayErr(std::ostream &stream) const
+{
+    for (const auto &f : m_parsedFlags) {
+        if (f.err) {
+            const auto &app = appname();
+            stream << (app ? cc::Default.wrap(*app + ": ", true) : "")
+                   << cc::Red.wrap("error:", true) << " ";
+
+            switch (*f.err) {
+            case FlagParseError::MandatoryFlagNotFound:
+                stream << "mandatory flag " << cc::Default.wrap("`" + f.longName + "`", true)
+                       << " missing";
+                break;
+            case FlagParseError::ValueAfterFlagMissing:
+                stream << "missing value after "
+                       << cc::Default.wrap("`"
+                                               + (f.isLongProvided ? "--" + f.longName
+                                                                   : "-" + f.shortName)
+                                               + "`",
+                                           true);
+                break;
+            case FlagParseError::NumberParsingFailed:
+                stream << "value after "
+                       << cc::Default.wrap("`"
+                                               + (f.isLongProvided ? "--" + f.longName
+                                                                   : "-" + f.shortName)
+                                               + "`",
+                                           true)
+                       << " must be a number";
+                break;
+            case FlagParseError::EnumValueNotFound:
+                stream << cc::Default.wrap("`" + f.raw + "`", true)
+                              + " is invalid enum value after "
+                       << cc::Default.wrap("`"
+                                               + (f.isLongProvided ? "--" + f.longName
+                                                                   : "-" + f.shortName)
+                                               + "`",
+                                           true);
+                break;
+            default:
+                stream << "unknown error";
+            }
+
+            stream << std::endl;
+        }
+    }
+
+    for (size_t i = 1; i < m_arguments.size(); ++i) {
+        stream << "unrecognized command-line option "
+               << cc::Default.wrap("`" + m_arguments[i] + "`", true) << std::endl;
+    }
+}
+
+void FlagParser::displayHelp(std::ostream &stream) const
+{
+    constexpr const char *tab = "  ";
+
+    if (const auto &app = appname()) {
+        stream << "Usage: " + *app + " [options]" << std::endl;
+    }
+
+    size_t maxShortSize = 0;
+    size_t maxLongSize = 0;
+    for (const auto &d : m_parsedFlags) {
+        maxShortSize = std::max(maxShortSize, d.shortName.size() + 1 /* "-" */);
+        maxLongSize = std::max(maxLongSize, d.longName.size() + 2 /* "--" */);
+    }
+
+    stream << "Options:" << std::endl;
+    for (const auto &d : m_parsedFlags) {
+        stream << tab << "-" << d.shortName
+               << std::string(maxShortSize - d.shortName.size() - 1 /* "-" */, ' ');
+        stream << (d.isBool ? "   " : " <>");
+        stream << tab << "--" << d.longName
+               << std::string(maxLongSize - d.longName.size() - 2 /* "--" */, ' ');
+        stream << tab << d.description << std::endl;
+    }
+}
+
+void FlagParser::displayVersion(std::ostream &stream, const std::string &version) const
+{
+    if (const auto &app = appname()) {
+        stream << *app << " " << version << std::endl;
+    } else {
+        stream << version << std::endl;
+    }
+}
+
+} // namespace e172

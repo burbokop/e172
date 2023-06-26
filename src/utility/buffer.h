@@ -235,7 +235,7 @@ public:
                 if constexpr (IsOptional<T>::value) {
                     return T(std::nullopt);
                 } else {
-                    todo;
+                    todo();
                 }
             } else {
                 return T(*v - 1);

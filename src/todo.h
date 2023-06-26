@@ -23,7 +23,7 @@ private:
 } // namespace e172
 
 #if !defined(__PRETTY_FUNCTION__) && !defined(__GNUC__)
-#define todo throw e172::UnimplementedException(__FUNCSIG__)
+#define todo() throw e172::UnimplementedException(__FUNCSIG__)
 #else
-#define todo throw e172::UnimplementedException(__PRETTY_FUNCTION__)
+#define todo() throw e172::UnimplementedException(__PRETTY_FUNCTION__)
 #endif

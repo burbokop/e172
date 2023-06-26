@@ -24,4 +24,10 @@ struct Overloaded : T...
 template<class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
+template<typename T>
+struct TypeTag
+{
+    using Type = T;
+};
+
 } // namespace e172
