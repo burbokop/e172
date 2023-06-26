@@ -4,7 +4,6 @@
 
 #include "../traits.h"
 #include "either.h"
-#include "src/todo.h"
 #include <functional>
 #include <list>
 #include <optional>
@@ -94,7 +93,7 @@ template<std::integral T>
 Either<FlagParseError, T> operator>>(RawFlagValue &raw, TypeTag<T>)
 {
     try {
-        return Right<T>(std::stoll(raw.str));
+        return Right<T>(static_cast<T>(std::stoll(raw.str)));
     } catch (...) {
         return Left(FlagParseError::NumberParsingFailed);
     }

@@ -38,7 +38,7 @@ Debug::Handler Debug::m_handler =
             std::cerr << cc::Yellow.wrap(data) << std::endl;
         } else if (type == Debug::FatalMessage) {
 #if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
-            std::cerr << Red.wrap(data) << std::endl;
+            std::cerr << cc::Red.wrap(data) << std::endl;
             abort();
 #else
             throw FatalException(data);

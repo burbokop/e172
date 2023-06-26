@@ -375,7 +375,7 @@ std::vector<std::string> e172::Additional::directoryContent(std::string path) {
         return std::vector<std::string>();
     }
 #else
-    todo;
+    todo();
 #endif
 }
 
@@ -389,7 +389,7 @@ bool e172::Additional::isDirectory(std::string path) {
         return false;
     }
 #else
-    todo;
+    todo();
 #endif
 }
 
@@ -547,7 +547,7 @@ std::vector<std::string> e172::Additional::executeCommand(const std::string &com
     }
     return result;
 #else
-    todo;
+    todo();
 #endif
 }
 

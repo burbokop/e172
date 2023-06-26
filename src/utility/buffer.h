@@ -164,7 +164,7 @@ public:
                          const std::function<void(std::size_t i, WriteBuffer &)> &each)
     {
         const auto s = size();
-        write<std::uint32_t>(count);
+        write<std::uint32_t>(static_cast<std::uint32_t>(count));
         for (std::size_t i = 0; i < count; ++i) {
             WriteBuffer tmp;
             each(i, tmp);

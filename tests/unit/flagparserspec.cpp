@@ -195,6 +195,7 @@ std::ostream &operator<<(std::ostream &stream, TestEnum e)
     case TestEnum::Val2:
         return stream << "Val2";
     }
+    return stream << "Unknown Val";
 }
 
 /**

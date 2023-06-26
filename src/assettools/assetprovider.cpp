@@ -50,9 +50,9 @@ void AssetProvider::processFile(const std::filesystem::path &file)
     const auto path = file.parent_path().string();
 
     // TODO(burbokop): rewrite with std::filesystem
-    std::string sufix = Additional::fileSufix(file);
+    std::string sufix = Additional::fileSufix(file.string());
     if (sufix == ".json") {
-        const auto root = Variant::fromJson(Additional::readFile(file)).toMap();
+        const auto root = Variant::fromJson(Additional::readFile(file.string())).toMap();
         if (root.size() == 0) {
             Debug::warning("Empty json object detected or parsing error. file:", file);
             return;
