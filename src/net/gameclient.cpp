@@ -3,6 +3,7 @@
 #include "gameclient.h"
 
 #include "../abstracteventprovider.h"
+#include "../assettools/assetprovider.h"
 #include "../entity.h"
 #include "../gameapplication.h"
 #include "common.h"
@@ -54,6 +55,11 @@ void e172::GameClient::sync()
                         Debug::warning("AddEntity package processing failed");
                     }
                     break;
+                case GamePackageType::AddLoadableEntity:
+                    if (!processAddLoadableEntityPackage(std::move(package))) {
+                        Debug::warning("AddEntity package processing failed");
+                    }
+                    break;
                 case GamePackageType::RemoveEntity:
                     if (!processRemoveEntityPackage(std::move(package))) {
                         Debug::warning("RemoveEntity package processing failed");
@@ -65,7 +71,11 @@ void e172::GameClient::sync()
                     }
                     break;
                 default:
-                    Debug::warning("Unknown package type:", package.type());
+                    if (package.type() >= ~GamePackageType::UserType) {
+                        m_unknownPackageReceived(std::move(package), Private{});
+                    } else {
+                        Debug::warning("Unknown package type:", package.type());
+                    }
                 }
             });
 
@@ -112,6 +122,28 @@ bool e172::GameClient::processAddEntityPackage(ReadPackage &&package)
     return true;
 }
 
+bool e172::GameClient::processAddLoadableEntityPackage(ReadPackage &&package)
+{
+    assert(m_app.assetProvider());
+    const auto templateId = package.readDyn<std::string>();
+    if (!templateId)
+        return false;
+    const auto id = package.read<PackedEntityId>();
+    if (!id)
+        return false;
+
+    if (const auto &entityOrError = m_app.assetProvider()->createLoadable<Entity>(*templateId)) {
+        const auto e = entityOrError.right().value();
+        e->m_entityId = *id;
+        m_app.addEntity(e);
+    } else {
+        Debug::warning("GameClient::processAddLoadableEntityPackage:", entityOrError.left().value());
+        return false;
+    }
+
+    return true;
+}
+
 bool e172::GameClient::processRemoveEntityPackage(ReadPackage &&package)
 {
     assert(m_app.context());
@@ -132,6 +164,8 @@ bool e172::GameClient::processSyncEntityPackage(ReadPackage &&package)
         if (!entity->readNet(ReadPackage::readAll<ReadBuffer>(std::move(package)))) {
             return false;
         }
+    } else {
+        Debug::warning("GameClient::processSyncEntityPackage: entity with id", *id, "not found");
     }
     return true;
 }
