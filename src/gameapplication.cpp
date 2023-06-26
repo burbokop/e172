@@ -263,6 +263,12 @@ int GameApplication::exec()
         if (m.second->extensionType() == GameApplicationExtension::InitExtension)
             m.second->proceed(this);
     }
+
+    /// asset search must be after extensions initialization because thouse may register asset executors
+    for (const auto &d : m_assetProvider->m_dirsToSearch) {
+        m_assetProvider->searchInFolder(d);
+    }
+
     while (true) {
         if (!!(m_mode & Mode::Proceed) && m_proceedTimer.check()) {
             m_deltaTimeCalculator.update();

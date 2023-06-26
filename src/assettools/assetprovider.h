@@ -5,6 +5,8 @@
 #include "../type.h"
 #include "loadable.h"
 #include "loadabletemplate.h"
+#include <filesystem>
+#include <list>
 #include <map>
 #include <memory>
 #include <src/memcontrol/abstractfactory.h>
@@ -116,7 +118,7 @@ public:
                     if (const auto res = e172::smart_cast<T>(obj)) {
                         return Right(res);
                     } else {
-                        const auto n = obj->className();
+                        const auto n = obj->m_loadableClassName;
                         delete obj;
                         return Left(
                             LoadableCastFailed{.fromTypeName = n, .toTypeName = Type<T>::name()}
@@ -128,7 +130,7 @@ public:
                 if (const auto res = dynamic_cast<T *>(obj)) {
                     return Right(res);
                 } else {
-                    const auto n = obj->className();
+                    const auto n = obj->m_loadableClassName;
                     obj.destroy();
                     return Left(LoadableCastFailed{.fromTypeName = n, .toTypeName = Type<T>::name()}
                                     .toErr());
@@ -151,7 +153,7 @@ public:
                 if (const auto res = e172::smart_cast<T>(obj)) {
                     return Right(res);
                 } else {
-                    const auto n = obj->className();
+                    const auto n = obj->m_loadableClassName;
                     delete obj;
                     return Left(LoadableCastFailed{.fromTypeName = n, .toTypeName = Type<T>::name()}
                                     .toErr());
@@ -162,7 +164,7 @@ public:
                 if (const auto res = dynamic_cast<T *>(obj)) {
                     return Right(res);
                 } else {
-                    const auto n = obj->className();
+                    const auto n = obj->m_loadableClassName;
                     obj.destroy();
                     return Left(LoadableCastFailed{.fromTypeName = n, .toTypeName = Type<T>::name()}
                                     .toErr());
@@ -171,10 +173,15 @@ public:
         }
     }
 
-    void searchInFolder(std::string path);
     std::vector<std::string> loadableNames();
 
-    void addTemplate(const LoadableTemplate& tmpl);
+    void addTemplate(const LoadableTemplate &tmpl);
+
+    /**
+     * @brief addDirToSearch - add directory to search assets
+     * @param dir
+     */
+    void addDirToSearch(const std::filesystem::path &path) { m_dirsToSearch.push_back(path); }
 
     template<typename T>
     void registerType()
@@ -187,8 +194,9 @@ public:
                          const std::shared_ptr<AbstractAssetExecutor> &executor);
 
 private:
-    void processFile(std::string file, std::string path);
+    void processFile(const std::filesystem::path &file);
     LoadableTemplate parseTemplate(const e172::VariantMap &root, const std::string &path);
+    void searchInFolder(const std::filesystem::path &path);
 
 private:
     std::shared_ptr<AbstractGraphicsProvider> m_graphicsProvider;
@@ -197,6 +205,7 @@ private:
     AbstractFactory<std::string, Loadable> m_factory;
     std::map<std::string, LoadableTemplate> m_templates;
     std::map<std::string, std::shared_ptr<AbstractAssetExecutor>> m_executors;
+    std::list<std::filesystem::path> m_dirsToSearch;
 };
 
 } // namespace e172

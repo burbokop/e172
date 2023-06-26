@@ -32,7 +32,6 @@ public:
         return defaultValue;
     }
 
-    const std::string &className() const { return m_className; }
     const std::string &templateId() const { return m_templateId; }
     AssetProvider *assetProvider() { return m_assetProvider; }
     const AssetProvider *assetProvider() const { return m_assetProvider; }
@@ -48,7 +47,7 @@ protected:
 
 private:
     std::map<std::string, e172::Variant> m_assets;
-    std::string m_className;
+    std::string m_loadableClassName;
     std::string m_templateId;
     AssetProvider *m_assetProvider = nullptr;
     std::vector<std::function<void(void)>> m_initFunctions;

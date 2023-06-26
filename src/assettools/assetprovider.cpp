@@ -10,18 +10,11 @@
 
 namespace e172 {
 
-void AssetProvider::searchInFolder(std::string path)
+void AssetProvider::searchInFolder(const std::filesystem::path &dir)
 {
-    if (path[path.length() - 1] == '/')
-        path.pop_back();
-    std::vector<std::string> items = Additional::directoryContent(path);
-    for (std::size_t i = 0; i < items.size(); ++i) {
-        std::string item = items[i];
-        std::string file = path + '/' + item;
-        if (Additional::isDirectory(file)) {
-            searchInFolder(file);
-        } else {
-            processFile(file, path);
+    for (auto const &entry : std::filesystem::recursive_directory_iterator(dir)) {
+        if (entry.is_regular_file()) {
+            processFile(entry.path().string());
         }
     }
 }
@@ -51,7 +44,12 @@ void AssetProvider::installExecutor(const std::string &id, const std::shared_ptr
     m_executors[id] = executor;
 }
 
-void AssetProvider::processFile(std::string file, std::string path) {
+void AssetProvider::processFile(const std::filesystem::path &file)
+{
+    assert(std::filesystem::is_regular_file(file));
+    const auto path = file.parent_path().string();
+
+    // TODO(burbokop): rewrite with std::filesystem
     std::string sufix = Additional::fileSufix(file);
     if (sufix == ".json") {
         const auto root = Variant::fromJson(Additional::readFile(file)).toMap();
@@ -115,7 +113,7 @@ Either<e172::AssetProvider::Error, Loadable *> AssetProvider::createLoadable(
     }
 
     result->m_assets = loadableTemplate.assets();
-    result->m_className = loadableTemplate.className();
+    result->m_loadableClassName = loadableTemplate.className();
     result->m_templateId = loadableTemplate.id();
     result->m_assetProvider = this;
 
