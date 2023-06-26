@@ -45,7 +45,7 @@ public:
                    + (static_cast<long double>(nextU64())
                       / static_cast<long double>(std::numeric_limits<std::uint64_t>::max()));
         } else {
-            todo;
+            todo();
         }
     }
 

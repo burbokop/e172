@@ -57,7 +57,7 @@ public:
      * @brief operator () - invoke signal
      * @param args
      */
-    void operator()(Args... args, P)
+    void operator()(const Args &...args, P)
     {
         for (auto &f : m_f) {
             f.second(args...);
@@ -104,9 +104,12 @@ public:
     }
 
 private:
+    using ContextedFunc = std::pair<ptr<const Object>, Func>;
+
+private:
     std::size_t m_nextHandle = 1;
     std::map<Handle, Func> m_f;
-    std::map<Handle, std::pair<ptr<const Object>, Func>> m_cf;
+    std::map<Handle, ContextedFunc> m_cf;
 };
 
 } // namespace e172

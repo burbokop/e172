@@ -10,7 +10,8 @@ template<std::size_t I = 0>
 struct Ubiq
 {
     template<typename T>
-    constexpr operator T &() const;
+    constexpr operator T &() const
+    {}
 };
 
 template<typename T, std::size_t I0, std::size_t... I>
