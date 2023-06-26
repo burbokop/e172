@@ -38,7 +38,7 @@ public:
     virtual ~Entity() = default;
 
     virtual void proceed(e172::Context *context, EventHandler *eventHandler) = 0;
-    virtual void render(AbstractRenderer *renderer) = 0;
+    virtual void render(e172::Context *context, AbstractRenderer *renderer) = 0;
     virtual void writeNet(WriteBuffer &buf);
     virtual bool readNet(ReadBuffer &&buf);
     virtual bool needSyncNet() const;
@@ -77,7 +77,7 @@ private:
     //[EXPERIMENTAL] extended update functions
 private:
     typedef std::pair<void (*)(Entity *, Context *, EventHandler *),
-                      void (*)(Entity *, AbstractRenderer *)>
+                      void (*)(Entity *, Context *, AbstractRenderer *)>
         __euf_t;
     std::list<__euf_t> __euf;
 

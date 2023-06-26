@@ -5,6 +5,7 @@
 #include "type.h"
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace e172 {
 
@@ -65,6 +66,14 @@ private:
         : m_data(data)
     {}
 
+    inline friend std::ostream &operator<<(std::ostream &stream, const Meta &meta)
+    {
+        if (meta.m_data) {
+            return stream << "Meta(" << meta.m_data->typeName << ")";
+        }
+        return stream << "Meta(invalid)";
+    }
+
 private:
     const Data *m_data = nullptr;
 };
@@ -96,9 +105,9 @@ public:
      * @return 
      */
     template<typename T, typename... Args>
-    static T *make(Args... args)
+    static T *make(Args &&...args)
     {
-        return new T(FactoryMeta(Meta::fromType<T>()), args...);
+        return new T(FactoryMeta(Meta::fromType<T>()), std::forward<Args>(args)...);
     }
 
     /**
@@ -107,9 +116,9 @@ public:
      * @return 
      */
     template<typename T, typename... Args>
-    static std::shared_ptr<T> makeShared(Args... args)
+    static std::shared_ptr<T> makeShared(Args &&...args)
     {
-        return std::make_shared<T>(FactoryMeta(Meta::fromType<T>()), args...);
+        return std::make_shared<T>(FactoryMeta(Meta::fromType<T>()), std::forward<Args>(args)...);
     }
 
     /**
@@ -118,9 +127,9 @@ public:
      * @return
      */
     template<typename T, typename... Args>
-    static std::unique_ptr<T> makeUniq(Args... args)
+    static std::unique_ptr<T> makeUniq(Args &&...args)
     {
-        return std::make_unique<T>(FactoryMeta(Meta::fromType<T>()), args...);
+        return std::make_unique<T>(FactoryMeta(Meta::fromType<T>()), std::forward<Args>(args)...);
     }
 
     const Meta &meta() const { return m_meta; };

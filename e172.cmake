@@ -132,6 +132,8 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/imageview.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/textformat.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/shapeformat.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/color.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/color.cpp
 
     ${CMAKE_CURRENT_LIST_DIR}/src/math/math.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/kinematics.cpp

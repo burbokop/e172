@@ -28,7 +28,7 @@ public:
     // Entity interface
 public:
     void proceed(Context *, EventHandler *) override;
-    void render(AbstractRenderer *renderer) override;
+    void render(e172::Context *context, AbstractRenderer *renderer) override;
 
 private:
     Image m_image;

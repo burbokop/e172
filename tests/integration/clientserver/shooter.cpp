@@ -41,6 +41,4 @@ void Shooter::proceed(e172::Context *context, e172::EventHandler *eventHandler)
     proceedPhysics(context->deltaTime());
 }
 
-void Shooter::render(e172::AbstractRenderer *renderer) {}
-
 } // namespace e172::integration

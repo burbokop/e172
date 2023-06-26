@@ -1,9 +1,9 @@
 // Copyright 2023 Borys Boiko
 
 #include "gameapplication.h"
+
 #include "additional.h"
 #include "debug.h"
-
 #include "entitylifetimeobserver.h"
 #include <iostream>
 #include <limits>
@@ -14,6 +14,7 @@
 #include <src/graphics/abstractgraphicsprovider.h>
 #include <src/graphics/abstractrenderer.h>
 #include <src/time/time.h>
+#include <src/utility/flagparser.h>
 
 namespace e172 {
 
@@ -28,6 +29,54 @@ void handleSigsegv(int s)
         Debug::print('\t', s);
     }
     exit(s);
+}
+
+template<typename C>
+void destroyAllEntities(C &container, std::function<void(Entity::Id)> &&removed)
+{
+    auto it = container.begin();
+    while (it != container.end()) {
+        if ((*it)->liveInHeap() && !(*it)->liveInSharedPtr()) {
+            const auto id = (*it)->entityId();
+            destroy(*it);
+            it = container.erase(it);
+            removed(id);
+        } else {
+            ++it;
+        }
+    }
+}
+
+template<typename C>
+bool destroyEntity(C &container, const Entity::Id id, std::function<void(Entity::Id)> &&removed)
+{
+    for (auto it = container.begin(); it != container.end(); ++it) {
+        if ((*it)->entityId() == id) {
+            destroy(*it);
+            container.erase(it);
+            removed(id);
+            return true;
+        }
+    }
+    return false;
+}
+
+template<typename C>
+void destroyEntitiesWithTag(C &container,
+                            const std::string &tag,
+                            std::function<void(Entity::Id)> &&removed)
+{
+    auto it = container.begin();
+    while (it != container.end()) {
+        if ((*it)->liveInHeap() && (*it)->containsTag(tag)) {
+            const auto id = (*it)->entityId();
+            destroy(*it);
+            it = container.erase(it);
+            removed(id);
+        } else {
+            ++it;
+        }
+    }
 }
 
 } // namespace
@@ -59,52 +108,14 @@ void GameApplication::scheduleRepeated(Time::Value duration, const std::function
     m_scheduledTasks.push_back({.repeat = true, .timer = duration, .proceed = function});
 }
 
-void GameApplication::destroyAllEntities(Context *, const Variant &) {
-    auto it = m_entities.begin();
-    while (it != m_entities.end()) {
-        if ((*it)->liveInHeap() && !(*it)->liveInSharedPtr()) {
-            destroy(*it);
-            it = m_entities.erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
-
-void GameApplication::destroyEntity(Context*, const Variant &value) {
-    const auto id = value.toNumber<Entity::Id>();
-    for (auto it = m_entities.begin(); it != m_entities.end(); ++it) {
-        if ((*it)->entityId() == id) {
-            destroy(*it);
-            m_entities.erase(it);
-            emitEntityRemoved(id);
-            return;
-        }
-    }
-}
-
-void GameApplication::destroyEntitiesWithTag(Context *, const Variant &value) {
-    const auto tag = value.toString();
-
-    auto it = m_entities.begin();
-    while (it != m_entities.end()) {
-        if ((*it)->liveInHeap() && (*it)->containsTag(tag)) {
-            destroy(*it);
-            it = m_entities.erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
-
-void GameApplication::render(const ptr<Entity> &entity, AbstractRenderer *renderer)
+void GameApplication::render(const ptr<Entity> &entity, Context *context, AbstractRenderer *renderer)
 {
     if (entity) {
         if (entity->enabled()) {
             renderer->setDepth(entity->depth());
-            entity->render(renderer);
+            entity->render(context, renderer);
             for (auto euf : entity->__euf) {
-                euf.second(entity.data(), renderer);
+                euf.second(entity.data(), context, renderer);
             }
         }
     }
@@ -196,36 +207,6 @@ void GameApplication::setAudioProvider(const std::shared_ptr<AbstractAudioProvid
     m_assetProvider->m_audioProvider = audioProvider;
 }
 
-void GameApplication::registerValueFlag(const std::string &shortName,
-                                        const std::string &fullName,
-                                        const std::string &description)
-{
-    m_flagParser.registerValueFlag(shortName, fullName, description);
-}
-
-void GameApplication::registerBoolFlag(const std::string &shortName,
-                                       const std::string &fullName,
-                                       const std::string &description)
-{
-    m_flagParser.registerBoolFlag(shortName, fullName, description);
-}
-
-void GameApplication::displayHelp(std::ostream &stream) {
-    m_flagParser.displayHelp(stream);
-}
-
-VariantMap GameApplication::flags() const {
-    return m_flagParser.flags();
-}
-
-bool GameApplication::containsFlag(const std::string &shortName) const {
-    return m_flagParser.containsFlag(shortName);
-}
-
-Variant GameApplication::flag(const std::string &shortName) const {
-    return m_flagParser.flag(shortName);
-}
-
 void GameApplication::addEntity(const ptr<Entity> &entity)
 {
     if (entity) {
@@ -240,13 +221,17 @@ void GameApplication::removeApplicationExtension(size_t hash) {
         m_applicationExtensions.erase(it);
 }
 
-GameApplication::GameApplication(int argc, const char *argv[]) {
-    m_arguments = Additional::coverArgs(argc, argv);
-    m_flagParser  = m_arguments;
-    m_assetProvider = std::make_shared<AssetProvider>();
-    m_context = std::make_unique<Context>(this);
+GameApplication::GameApplication(const std::vector<std::string> &args)
+    : m_arguments(args)
+    , m_context(std::make_unique<Context>(this))
+    , m_assetProvider(std::make_shared<AssetProvider>())
+{
     m_assetProvider->m_context = m_context.get();
 }
+
+GameApplication::GameApplication(int argc, const char *argv[])
+    : GameApplication(FlagParser::coverArgs(argc, argv))
+{}
 
 void GameApplication::quitLater() {
     m_mustQuit = true;
@@ -254,11 +239,6 @@ void GameApplication::quitLater() {
 
 int GameApplication::exec()
 {
-    if (m_flagParser.containsFlag("-h")) {
-        displayHelp(std::cout);
-        return 0;
-    }
-
     for (auto m : m_applicationExtensions) {
         if (m.second->extensionType() == GameApplicationExtension::InitExtension)
             m.second->proceed(this);
@@ -307,7 +287,7 @@ int GameApplication::exec()
                         m.second->proceed(this);
                 }
                 for (const auto &e : m_entities) {
-                    render(e, r);
+                    render(e, m_context.get(), r);
                 }
                 for (const auto &m : m_applicationExtensions) {
                     if (m.second->extensionType() == GameApplicationExtension::PostRenderExtension)
@@ -328,13 +308,26 @@ int GameApplication::exec()
         m_entities.nextCycle();
 
         if (m_context) {
-            m_context->popMessage(Context::DestroyEntity, this, &GameApplication::destroyEntity);
+            m_context->popMessage(Context::DestroyEntity, [this](Context *, const Variant &value) {
+                const auto id = value.toNumber<Entity::Id>();
+                destroyEntity(m_entities, id, [this](auto id) { emitEntityRemoved(id); });
+            });
+
             m_context->popMessage(Context::DestroyAllEntities,
-                                  this,
-                                  &GameApplication::destroyAllEntities);
+                                  [this](Context *, const Variant &value) {
+                                      const auto id = value.toNumber<Entity::Id>();
+                                      destroyAllEntities(m_entities, [this](auto id) {
+                                          emitEntityRemoved(id);
+                                      });
+                                  });
+
             m_context->popMessage(Context::DestroyEntitiesWithTag,
-                                  this,
-                                  &GameApplication::destroyEntitiesWithTag);
+                                  [this](Context *, const Variant &value) {
+                                      const auto tag = value.toString();
+                                      destroyEntitiesWithTag(m_entities, tag, [this](auto id) {
+                                          emitEntityRemoved(id);
+                                      });
+                                  });
 
             m_context->m_messageQueue.invokeInternalFunctions();
             m_context->m_messageQueue.flushMessages();

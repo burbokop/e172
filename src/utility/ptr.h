@@ -2,10 +2,11 @@
 
 #pragma once
 
+#include <functional>
+#include <memory>
+#include <set>
 #include <src/object.h>
 #include <src/sfinae.h>
-#include <functional>
-#include <set>
 
 namespace e172 {
 
@@ -39,6 +40,16 @@ public:
     {
         operator=(p);
     }
+
+    template<typename TT>
+    ptr(const std::weak_ptr<TT> &w)
+        : ptr(w.lock().get())
+    {}
+
+    template<typename TT>
+    ptr(const std::shared_ptr<TT> &s)
+        : ptr(s.get())
+    {}
 
     template<typename O>
     void operator=(const ptr<O> &p)
