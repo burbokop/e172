@@ -458,6 +458,37 @@ enum Scancode : std::uint16_t {
     ScancodeAudioFastForward = 286,
 
     /**
+     * @name Mobile keys
+     * values below that are often used on mobile phones.
+     */
+
+    /** 
+     * Usually situated below the display on phones and
+     * used as a multi-function feature key for selecting
+     * a software defined function shown on the bottom left
+     * of the display.
+     */
+    ScancodeSoftLeft = 287,
+
+    /**
+     * Usually situated below the display on phones and
+     * used as a multi-function feature key for selecting
+     * a software defined function shown on the bottom right
+     * of the display.
+     */
+    ScancodeSoftRight = 288,
+
+    /**
+     * Used for accepting phone calls.
+     */
+    ScancodeCall = 289,
+
+    /**
+     * Used for rejecting phone calls.
+     */
+    ScancodeEndCall = 290,
+
+    /**
      * Values below are utility
      */
 

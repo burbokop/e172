@@ -629,6 +629,14 @@ char ClientEventHandler::keySym(Scancode scancode, bool upper)
         return 0;
     case ScancodeAudioFastForward:
         return 0;
+    case ScancodeSoftLeft:
+        return 0;
+    case ScancodeSoftRight:
+        return 0;
+    case ScancodeCall:
+        return 0;
+    case ScancodeEndCall:
+        return 0;
     case ScancodesCount:
         return 0;
     }
