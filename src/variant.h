@@ -25,11 +25,6 @@
 
 namespace e172 {
 
-template<typename T>
-struct TypeTag {
-    using Type = T;
-};
-
 struct VariantBaseHandle { virtual ~VariantBaseHandle() {}; };
 template<typename T>
 struct VariantHandle : public VariantBaseHandle { T value; };

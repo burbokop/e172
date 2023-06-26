@@ -86,6 +86,7 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/package.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/ringbuf.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/signal.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/callback.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/random.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/functional/metafunction.h
@@ -131,6 +132,8 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/imageview.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/textformat.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/graphics/shapeformat.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/color.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphics/color.cpp
 
     ${CMAKE_CURRENT_LIST_DIR}/src/math/math.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/math/kinematics.cpp

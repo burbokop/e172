@@ -80,14 +80,31 @@ if ((actual) != (expected)) { \
     }
 
 #define e172_shouldBeDefined(option) \
-if ((option).isEmpty()) { \
+    if ((option).isEmpty()) { \
         e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
-                           "Option is not defined in test function:", \
+                           "Assertion failed:", \
+                           "Option is not defined", \
+                           "in test function:", \
                            e172_pretty_function); \
-}
+    }
+
+#define e172_shouldNoBeExecuted() \
+    e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
+                       "Assertion failed:", \
+                       "Whis line should not be executed", \
+                       "in test function:", \
+                       e172_pretty_function);
+
+#define e172_shouldNoBeExecutedBut(COMMENT) \
+    e172::Debug::fatal(e172::Debug::codeLocation(__FILE__, __LINE__), \
+                       "Assertion failed:", \
+                       "Whis line should not be executed but", \
+                       (COMMENT), \
+                       "in test function:", \
+                       e172_pretty_function);
 
 #define e172_test(SPEC, TEST) \
     ; \
     static int inline __##TEST##_test_registration = e172::testing::Registry::registerTest(#TEST, \
-                                                                                 #SPEC, \
-                                                                                 &TEST)
+                                                                                           #SPEC, \
+                                                                                           &TEST)

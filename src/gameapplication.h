@@ -12,7 +12,6 @@
 #include <src/time/time.h>
 #include <src/type.h>
 #include <src/utility/cycliciterator.h>
-#include <src/utility/flagparser.h>
 #include <string>
 #include <vector>
 
@@ -69,25 +68,14 @@ public:
         return Mode(static_cast<int>(l) & static_cast<int>(r));
     }
 
+    GameApplication(const GameApplication &) = delete;
+    GameApplication(const std::vector<std::string> &args);
     GameApplication(int argc, const char *argv[]);
 
     void quitLater();
     int exec();
 
     std::vector<std::string> arguments() const { return m_arguments; }
-
-    void registerValueFlag(const std::string &shortName,
-                           const std::string &fullName = std::string(),
-                           const std::string &description = std::string());
-
-    void registerBoolFlag(const std::string &shortName,
-                          const std::string &fullName = std::string(),
-                          const std::string &description = std::string());
-
-    void displayHelp(std::ostream &stream);
-    VariantMap flags() const;
-    bool containsFlag(const std::string &shortName) const;
-    Variant flag(const std::string &shortName) const;
 
     void setRenderInterval(ElapsedTimer::Time interval) { m_renderTimer = interval; }
     void setProccedInterval(ElapsedTimer::Time interval) { m_proceedTimer = interval; }
@@ -133,6 +121,7 @@ public:
     void setGraphicsProvider(const std::shared_ptr<AbstractGraphicsProvider> &graphicsProvider);
 
     const std::list<ptr<Entity>> &entities() const { return m_entities; }
+
     ptr<Entity> autoIteratingEntity() const;
 
     ElapsedTimer::Time proceedDelay() const { return m_proceedDelay; }
@@ -152,7 +141,10 @@ public:
     ptr<Entity> entityInFocus() const { return m_entityInFocus; }
     void setEntityInFocus(const ptr<Entity> &entityInFocus) { m_entityInFocus = entityInFocus; }
 
-    static void render(const ptr<Entity>& entity, AbstractRenderer* renderer);
+    static void render(const ptr<Entity> &entity,
+                       e172::Context *context,
+                       AbstractRenderer *renderer);
+
     static void proceed(const ptr<Entity> &entity,
                         e172::Context *context,
                         EventHandler *eventHandler);
@@ -174,10 +166,6 @@ private:
     void emitEntityRemoved(Entity::Id id);
 
     static size_t staticConstructor();
-    void destroyAllEntities(Context *, const Variant &);
-    void destroyEntity(Context *, const Variant &value);
-    void destroyEntitiesWithTag(Context *, const Variant &value);
-
 private:
     static const inline size_t s_staticCall = staticConstructor();
 
@@ -203,8 +191,6 @@ private:
     bool m_mustQuit = false;
 
     //std::list<Entity*>::iterator m_autoIterator = m_entities.begin();
-
-    FlagParser m_flagParser;
 
     ptr<Entity> m_entityInFocus;
 

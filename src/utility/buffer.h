@@ -144,11 +144,32 @@ public:
         return size() - s;
     }
 
+    std::size_t writeDyn(WriteBuffer &&b) { return writeDyn(b.m_data); }
+
     std::size_t writeDyn(const std::string &str)
     {
         const auto s = size();
         write(std::uint32_t(str.size()));
         write(reinterpret_cast<const Byte *>(str.data()), str.size());
+        return size() - s;
+    }
+
+    /**
+     * @brief writeDyn - write `count` of serializable elements with different sizes
+     * @param count - count of elements to serialize
+     * @param each - called `count` times to serialize each element 
+     * @return 
+     */
+    std::size_t writeDyn(std::size_t count,
+                         const std::function<void(std::size_t i, WriteBuffer &)> &each)
+    {
+        const auto s = size();
+        write<std::uint32_t>(static_cast<std::uint32_t>(count));
+        for (std::size_t i = 0; i < count; ++i) {
+            WriteBuffer tmp;
+            each(i, tmp);
+            writeDyn(std::move(tmp));
+        }
         return size() - s;
     }
 
@@ -235,7 +256,7 @@ public:
                 if constexpr (IsOptional<T>::value) {
                     return T(std::nullopt);
                 } else {
-                    todo;
+                    todo();
                 }
             } else {
                 return T(*v - 1);
@@ -244,20 +265,52 @@ public:
         return std::nullopt;
     }
 
+    /**
+     * @brief readDyn - read dynamic sized value (bytes, string, or another buffer)
+     * @note value by this index MUST be written by writeDyn<T>()
+     */
     template<typename T>
     std::optional<T> readDyn()
-        requires std::is_same<T, Bytes>::value || std::is_same<T, std::string>::value
+        requires std::is_same<T, Bytes>::value || std::is_same<T, ReadBuffer>::value
+                 || std::is_same<T, std::string>::value
     {
         if (const auto size = read<std::uint32_t>()) {
-            if (const auto dynData = read(*size)) {
+            if (auto dynData = read(*size)) {
                 if constexpr (std::is_same<T, Bytes>::value) {
                     return dynData;
+                } else if constexpr (std::is_same<T, ReadBuffer>::value) {
+                    return ReadBuffer(std::move(*dynData));
                 } else {
                     return std::string(dynData->begin(), dynData->end());
                 }
             }
         }
         return std::nullopt;
+    }
+
+    /**
+     * @brief readDyn - reads dynamic list of deserializable values with variadic sizes
+     * @note value by this index MUST be written by writeDyn(std::size_t, std::function<void(std::size_t, WriteBuffer&)>)
+     * @param each - will be called for each value to deserialize
+     * @return number of elements read or nullopt on error
+     */
+    std::optional<std::size_t> readDyn(const std::function<bool(std::size_t i, ReadBuffer &&)> &each)
+    {
+        const auto &count = read<std::uint32_t>();
+        if (!count) {
+            return std::nullopt;
+        }
+        std::size_t i = 0;
+        for (; i < static_cast<std::size_t>(*count); ++i) {
+            auto dynData = readDyn<ReadBuffer>();
+            if (!dynData) {
+                return std::nullopt;
+            }
+            if (!each(i, std::move(*dynData))) {
+                return std::nullopt;
+            }
+        }
+        return i;
     }
 
     static Bytes readAll(ReadBuffer &&p)

@@ -14,7 +14,7 @@ public:
         , m_background(background)
     {}
 
-    std::string foreground() const;
+    std::string foreground(bool bold = false) const;
     std::string background() const;
     inline operator std::string() const { return foreground(); }
 
@@ -23,7 +23,7 @@ public:
         return stream << color.foreground();
     }
 
-    std::string wrap(const std::string &string) const;
+    std::string wrap(const std::string &string, bool bold = false) const;
     std::string wrapBackground(const std::string &string) const;
     std::string operator()(const std::string &string) const { return wrap(string); }
 
@@ -53,7 +53,12 @@ private:
     std::uint8_t m_background = 0;
 };
 
-constexpr const char *Reset = "\033[0m";
+/**
+ * Console colors 
+ */
+namespace cc {
+
+constexpr ConsoleColor Default = {0, 0};
 
 constexpr ConsoleColor Black = {30, 40};
 constexpr ConsoleColor Red = {31, 41};
@@ -71,5 +76,7 @@ constexpr ConsoleColor BrightBlue = {94, 104};
 constexpr ConsoleColor BrightMagenta = {95, 105};
 constexpr ConsoleColor BrightCyan = {96, 106};
 constexpr ConsoleColor BrightWhite = {97, 107};
+
+} // namespace cc
 
 } // namespace e172

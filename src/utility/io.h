@@ -11,6 +11,7 @@ namespace e172 {
 
 /**
  * @brief The Read class - abstract read device (file, socket, pipe, ...)
+ * A.K.A non blocking input stream
  */
 class Read
 {

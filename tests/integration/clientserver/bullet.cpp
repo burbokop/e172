@@ -17,6 +17,4 @@ void Bullet::proceed(e172::Context *context, e172::EventHandler *eventHandler)
     proceedPhysics(context->deltaTime());
 }
 
-void Bullet::render(e172::AbstractRenderer *renderer) {}
-
 } // namespace e172::integration

@@ -43,14 +43,14 @@ public:
         return Vector(module * Math::cos(angle), module * Math::sin(angle));
     }
 
-    static Vector createRandom(Random &random, T max)
+    static Vector createRandom(Random &random, T from, T to)
     {
-        return Vector::createByAngle(random.nextInRange(static_cast<T>(0), max), random.next<T>());
+        return Vector::createByAngle(random.nextInRange(from, to), random.next<T>());
     }
 
-    static Vector createRandom(Random &&random, T max)
+    static Vector createRandom(Random &&random, T from, T to)
     {
-        return Vector::createByAngle(random.nextInRange(static_cast<T>(0), max), random.next<T>());
+        return Vector::createByAngle(random.nextInRange(from, to), random.next<T>());
     }
 
     constexpr Vector operator+(const Vector &term) const

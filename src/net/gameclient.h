@@ -4,6 +4,8 @@
 
 #include "common.h"
 #include "socket.h"
+#include "src/utility/callback.h"
+#include "src/utility/signal.h"
 #include <memory>
 #include <src/time/elapsedtimer.h>
 
@@ -52,9 +54,14 @@ public:
 
     Statistics statistics() const { return m_statistics; }
 
+    auto &unknownPackageReceived() { return m_unknownPackageReceived; }
+
+    GameApplication &app() { return m_app; };
+
 private:
     bool processInitPackage(ReadPackage &&package);
     bool processAddEntityPackage(ReadPackage &&package);
+    bool processAddLoadableEntityPackage(ReadPackage &&package);
     bool processRemoveEntityPackage(ReadPackage &&package);
     bool processSyncEntityPackage(ReadPackage &&package);
 
@@ -67,6 +74,7 @@ private:
     Statistics m_statistics;
     Statistics m_incompleatedStatistics;
     ElapsedTimer m_statisticsTimer = 1000;
+    Callback<void(ReadPackage), Private> m_unknownPackageReceived;
 };
 
 } // namespace e172

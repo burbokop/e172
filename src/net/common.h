@@ -15,10 +15,11 @@ using PackedClientId = std::uint16_t;
  */
 enum class GamePackageType : PackageType {
     Init = 0,
-    AddEntity = 1,
-    RemoveEntity = 2,
-    SyncEntity = 3,
-    Event = 4,
+    AddEntity,
+    AddLoadableEntity,
+    RemoveEntity,
+    SyncEntity,
+    Event,
 
     /**
      * UserType - for used defined packages
@@ -33,6 +34,11 @@ enum class GamePackageType : PackageType {
      */
     UserType = 0x1000
 };
+
+inline PackageType operator~(GamePackageType type)
+{
+    return PackageType(type);
+}
 
 /**
  * @brief The Statistics class provides information about bytes received and transmitted per second

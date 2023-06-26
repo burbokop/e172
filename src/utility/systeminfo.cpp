@@ -56,7 +56,7 @@ Either<MemotyUsageError, MemotyUsage> memoryUsage()
         return Left(MemotyUsageError::MemUsageDataNotFound);
     }
 #else
-    todo;
+    todo();
 #endif
 }
 

@@ -33,7 +33,9 @@ public:
                             const std::function<void(WritePackage)> &writeFn)
     {
         WriteBuffer tmp;
-        writeFn(WritePackage(tmp));
+        if (writeFn) {
+            writeFn(WritePackage(tmp));
+        }
 
         WriteBuffer result;
         result.write(PackageLen(tmp.size()));
@@ -72,6 +74,12 @@ public:
 
     PackageType type() const { return m_type; };
 
+    /**
+     * @brief pull - read next package from `Read` stream
+     * @param r - `Read` stream to read
+     * @param readFn - function to retrieve result. is nullptr then package is read but result is ignored
+     * @return  bytes read
+     */
     static std::size_t pull(Read &r, const std::function<void(ReadPackage)> &readFn)
     {
         r.bufferize();
@@ -84,7 +92,9 @@ public:
                 assert(type);
                 auto result = r.read<ReadBuffer>(*len);
                 assert(result.bytesAvailable() == *len);
-                readFn(ReadPackage(type.right().value(), std::move(result)));
+                if (readFn) {
+                    readFn(ReadPackage(type.right().value(), std::move(result)));
+                }
                 return packageSize;
             }
         }

@@ -57,7 +57,22 @@ public:
      */
     auto &clientDisconnected() { return m_clientDisconnected; }
 
+    /**
+     * @brief sendCustomPackage - send custom package to client with provided id
+     * Signature of this function is identical to `WritePackage::push` except `clientId`
+     * @param clientId - clinet to send package
+     * @param type
+     * @param writeFn
+     * @return num of bytes writen or 0 if client not found or not valid
+     */
+    std::size_t sendCustomPackage(PackedClientId clientId,
+                                  PackageType type,
+                                  const std::function<void(WritePackage)> &writeFn);
+
+    void broadcastCustomPackage(PackageType type, const std::function<void(WritePackage)> &writeFn);
+
     Statistics statistics() const { return m_statistics; }
+    GameApplication &app() { return m_app; };
 
     // AbstractEventHandler interface
 public:
@@ -69,7 +84,11 @@ protected:
     void entityRemoved(const Entity::Id &) override;
 
 private:
-    void refreshSockets();
+    /**
+     * @brief refreshSockets
+     * @return num connected after refresh
+     */
+    std::size_t refreshSockets();
     bool processEventPackage(ReadPackage &&package);
 
     void broadcastEntityAddedPackage(const ptr<Entity> &entity);

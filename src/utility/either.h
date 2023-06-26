@@ -93,7 +93,7 @@ public:
     }
 
     template<typename NR>
-    Either<L, NR> map(const std::function<NR(const R &)> &f)
+    Either<L, NR> map(const std::function<NR(const R &)> &f) const
     {
         if (*this) {
             return Either<L, NR>::fromStdVariant(
@@ -104,7 +104,7 @@ public:
     }
 
     template<typename NR>
-    Either<L, NR> flatMap(const std::function<Either<L, NR>(const R &)> &f)
+    Either<L, NR> flatMap(const std::function<Either<L, NR>(const R &)> &f) const
     {
         if (*this) {
             return f(rightValue());
@@ -113,7 +113,7 @@ public:
     }
 
     template<typename NL>
-    Either<NL, R> mapLeft(const std::function<NL(const L &)> &f)
+    Either<NL, R> mapLeft(const std::function<NL(const L &)> &f) const
     {
         if (!*this) {
             return f(left());
@@ -122,7 +122,7 @@ public:
     }
 
     template<typename NL>
-    Either<NL, R> flatMapLeft(const std::function<Either<NL, R>(const L &)> &f)
+    Either<NL, R> flatMapLeft(const std::function<Either<NL, R>(const L &)> &f) const
     {
         if (!*this) {
             return f(left());
@@ -130,7 +130,7 @@ public:
         return *this;
     }
 
-    std::optional<R> option()
+    std::optional<R> option() const
     {
         if (*this) {
             return rightValue();
@@ -139,12 +139,27 @@ public:
         }
     }
 
-    R getOr(const R &defaultValue = {})
+    R getOr(const R &defaultValue = {}) const
     {
         if (*this) {
             return rightValue();
         } else {
             return defaultValue;
+        }
+    }
+
+    /**
+     * @brief getOrUninit - return right or uninitialized value
+     * @note unsafe. think when you use it
+     * @return 
+     */
+    R getOrUninit() const
+    {
+        if (*this) {
+            return rightValue();
+        } else {
+            std::uint8_t bytes[sizeof(R)];
+            return *reinterpret_cast<R *>(bytes);
         }
     }
 
@@ -156,8 +171,11 @@ private:
         : m_data(var)
     {}
 
-    L leftValue() const { return std::get<0>(m_data); }
-    R rightValue() const { return std::get<1>(m_data); }
+    const L &leftValue() const { return std::get<0>(m_data); }
+    const R &rightValue() const { return std::get<1>(m_data); }
+
+    L &leftValue() { return std::get<0>(m_data); }
+    R &rightValue() { return std::get<1>(m_data); }
 
 private:
     std::variant<L, R> m_data;
@@ -176,13 +194,20 @@ public:
 
     Left(const L &value) { m_value = value; }
 
+    std::optional<L> option() const
+    {
+        return *this ? std::optional<L>(value()) : std::optional<L>(std::nullopt);
+    }
+
     template<typename R>
     operator Either<L, R>() const
     {
         return std::variant<L, R>(std::in_place_type<L>, *m_value);
     }
     operator bool() const { return m_value.has_value(); }
-    const L value() const { return *m_value; };
+
+    const L &value() const { return *m_value; };
+    L &value() { return *m_value; };
 
     bool operator==(const Left<L> &other) const { return this->m_value == other.m_value; }
 };
@@ -206,7 +231,9 @@ public:
         return std::variant<L, R>(std::in_place_type<R>, *m_value);
     }
     operator bool() const { return m_value.has_value(); }
-    const R value() const { return m_value.value(); };
+
+    const R &value() const { return m_value.value(); };
+    R &value() { return m_value.value(); };
 
     bool operator==(const Right<R> &other) const { return this->m_value == other.m_value; }
 };

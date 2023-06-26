@@ -5,70 +5,13 @@
 #include "../math/line2d.h"
 #include "../math/vector.h"
 #include "../variant.h"
+#include "color.h"
 #include "image.h"
 #include "shapeformat.h"
 #include "textformat.h"
 #include <string>
 
 namespace e172 {
-
-using Color = std::uint32_t;
-using ColorComponent = std::uint8_t;
-
-/**
- * @brief argb
- * @param alpha
- * @param r
- * @param g
- * @param b
- * @return color
- * @note all arguments from 0 to 255
- */
-constexpr Color argb(ColorComponent alpha, ColorComponent r, ColorComponent g, ColorComponent b)
-{
-    return (static_cast<Color>(alpha) << 24)
-            | (static_cast<Color>(r) << 16)
-            | (static_cast<Color>(g) << 8)
-            | static_cast<Color>(b);
-}
-
-/**
- * @brief rgb
- * @param r
- * @param g
- * @param b
- * @return
- * @note all arguments from 0 to 255
- */
-constexpr Color rgb(ColorComponent r, ColorComponent g, ColorComponent b)
-{
-    return argb(0xff, r, g, b);
-}
-
-constexpr ColorComponent alpha(Color color)
-{
-    return color >> 24;
-}
-
-constexpr ColorComponent red(Color color)
-{
-    return color >> 16;
-}
-
-constexpr ColorComponent green(Color color)
-{
-    return color >> 8;
-}
-
-constexpr ColorComponent blue(Color color)
-{
-    return color >> 0;
-}
-
-Color randomColor(Random &random);
-Color randomColor(Random &&random);
-
-Color blendPixels(Color top, Color bottom);
 
 class GameApplication;
 class AbstractGraphicsProvider;
@@ -163,7 +106,7 @@ public:
 
     Vector<double> offset() const;
     Camera detachCamera();
-    Vector<double> cameraPosition() const;
+    Vector<double> cameraPosition() const { return m_position; }
     bool isActive() const;
     bool isValid() const { return m_isValid; }
     bool autoClear() const { return m_autoClear; }

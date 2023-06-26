@@ -14,8 +14,8 @@ public:
 
     // Entity interface
 public:
-    virtual void proceed(e172::Context *context, e172::EventHandler *eventHandler) override;
-    virtual void render(e172::AbstractRenderer *renderer) override;
+    void proceed(e172::Context *context, e172::EventHandler *eventHandler) override;
+    void render(e172::Context *, e172::AbstractRenderer *) override {}
 
 private:
     e172::PackedClientId m_id;

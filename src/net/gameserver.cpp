@@ -5,6 +5,7 @@
 #include "../gameapplication.h"
 #include "common.h"
 #include "networker.h"
+#include "src/assettools/loadable.h"
 #include "src/utility/package.h"
 #include <src/debug.h>
 #include <utility>
@@ -23,7 +24,8 @@ e172::GameServer::GameServer(GameApplication &app,
 void e172::GameServer::sync()
 {
     assert(m_networker);
-    refreshSockets();
+    if (refreshSockets() == 0)
+        return;
 
     while (!m_entityAddEventQueue.empty()) {
         const auto &entity = m_entityAddEventQueue.front();
@@ -96,6 +98,28 @@ void e172::GameServer::sync()
     }
 }
 
+std::size_t e172::GameServer::sendCustomPackage(PackedClientId clientId,
+                                                PackageType type,
+                                                const std::function<void(WritePackage)> &writeFn)
+{
+    const auto it = std::find_if(m_clients.begin(), m_clients.end(), [clientId](const auto &c) {
+        return c.id == clientId;
+    });
+    if (it != m_clients.end()) {
+        assert(it->socket);
+        if (it->socket) {
+            return WritePackage::push(*it->socket, type, writeFn);
+        }
+    }
+    return 0;
+}
+
+void e172::GameServer::broadcastCustomPackage(PackageType type,
+                                              const std::function<void(WritePackage)> &writeFn)
+{
+    todo();
+}
+
 std::optional<e172::Event> e172::GameServer::pullEvent()
 {
     if (!m_eventQueue.empty()) {
@@ -116,7 +140,7 @@ void e172::GameServer::entityRemoved(const Entity::Id &id)
     m_entityRemoveEventQueue.push(id);
 }
 
-void e172::GameServer::refreshSockets()
+std::size_t e172::GameServer::refreshSockets()
 {
     auto it = m_clients.begin();
     while (it != m_clients.end()) {
@@ -145,6 +169,7 @@ void e172::GameServer::refreshSockets()
         m_clients.push_back(Client{.id = clientId, .socket = conn});
         m_clientConnected(clientId, Private{});
     }
+    return m_clients.size();
 }
 
 bool e172::GameServer::processEventPackage(ReadPackage &&package)
@@ -159,19 +184,36 @@ bool e172::GameServer::processEventPackage(ReadPackage &&package)
 
 void e172::GameServer::broadcastEntityAddedPackage(const ptr<Entity> &entity)
 {
-    assert(entity);
-    const auto type = entity->meta().typeName();
-    const auto id = entity->entityId();
+    assert(entity.data());
+    if (!entity)
+        return;
 
-    for (const auto &client : m_clients) {
-        if (client.socket->isConnected()) {
-            m_incompleatedStatistics.bytesWritenPerSecond
-                += WritePackage::push(*client.socket,
-                                      PackageType(GamePackageType::AddEntity),
-                                      [type, id](WritePackage p) {
-                                          p.writeDyn(type);
-                                          p.write(PackedEntityId(id));
-                                      });
+    const auto id = entity->entityId();
+    if (const auto loadable = smart_cast<Loadable>(entity)) {
+        const auto templateId = loadable->templateId();
+        for (const auto &client : m_clients) {
+            if (client.socket->isConnected()) {
+                m_incompleatedStatistics.bytesWritenPerSecond
+                    += WritePackage::push(*client.socket,
+                                          PackageType(GamePackageType::AddLoadableEntity),
+                                          [&templateId, id](WritePackage p) {
+                                              p.writeDyn(templateId);
+                                              p.write(PackedEntityId(id));
+                                          });
+            }
+        }
+    } else {
+        const auto type = entity->meta().typeName();
+        for (const auto &client : m_clients) {
+            if (client.socket->isConnected()) {
+                m_incompleatedStatistics.bytesWritenPerSecond
+                    += WritePackage::push(*client.socket,
+                                          PackageType(GamePackageType::AddEntity),
+                                          [&type, id](WritePackage p) {
+                                              p.writeDyn(type);
+                                              p.write(PackedEntityId(id));
+                                          });
+            }
         }
     }
 }
@@ -179,15 +221,26 @@ void e172::GameServer::broadcastEntityAddedPackage(const ptr<Entity> &entity)
 void e172::GameServer::sendEntityAddedPackage(Socket &s, const ptr<Entity> &entity)
 {
     assert(entity);
-    const auto type = entity->meta().typeName();
-    const auto id = entity->entityId();
-    if (s.isConnected()) {
-        m_incompleatedStatistics.bytesWritenPerSecond
-            += WritePackage::push(s,
-                                  PackageType(GamePackageType::AddEntity),
-                                  [type, id](WritePackage p) {
-                                      p.writeDyn(type);
-                                      p.write(PackedEntityId(id));
-                                  });
+    if (s.isConnected() && entity) {
+        const auto id = entity->entityId();
+        if (const auto loadable = smart_cast<Loadable>(entity)) {
+            const auto templateId = loadable->templateId();
+            m_incompleatedStatistics.bytesWritenPerSecond
+                += WritePackage::push(s,
+                                      PackageType(GamePackageType::AddLoadableEntity),
+                                      [&templateId, id](WritePackage p) {
+                                          p.writeDyn(templateId);
+                                          p.write(PackedEntityId(id));
+                                      });
+        } else {
+            const auto type = entity->meta().typeName();
+            m_incompleatedStatistics.bytesWritenPerSecond
+                += WritePackage::push(s,
+                                      PackageType(GamePackageType::AddEntity),
+                                      [&type, id](WritePackage p) {
+                                          p.writeDyn(type);
+                                          p.write(PackedEntityId(id));
+                                      });
+        }
     }
 }

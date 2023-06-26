@@ -375,7 +375,7 @@ std::vector<std::string> e172::Additional::directoryContent(std::string path) {
         return std::vector<std::string>();
     }
 #else
-    todo;
+    todo();
 #endif
 }
 
@@ -389,7 +389,7 @@ bool e172::Additional::isDirectory(std::string path) {
         return false;
     }
 #else
-    todo;
+    todo();
 #endif
 }
 
@@ -547,7 +547,7 @@ std::vector<std::string> e172::Additional::executeCommand(const std::string &com
     }
     return result;
 #else
-    todo;
+    todo();
 #endif
 }
 
@@ -590,15 +590,6 @@ std::string e172::Additional::defaultFont(const std::string &suffix) {
         ++it;
     }
     return {};
-}
-
-std::vector<std::string> e172::Additional::coverArgs(int argc, const char *argv[])
-{
-    std::vector<std::string> result;
-    for (int i = 0; i < argc; i++) {
-        result.push_back(argv[i]);
-    }
-    return result;
 }
 
 e172::Option<double> e172::Additional::parseRadians(const std::string &string)

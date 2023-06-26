@@ -35,10 +35,10 @@ Debug::Handler Debug::m_handler =
         if (type == Debug::PrintMessage) {
             std::cout << data << std::endl;
         } else if (type == Debug::WarningMessage) {
-            std::cerr << Yellow.wrap(data) << std::endl;
+            std::cerr << cc::Yellow.wrap(data) << std::endl;
         } else if (type == Debug::FatalMessage) {
 #if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
-            std::cerr << Red.wrap(data) << std::endl;
+            std::cerr << cc::Red.wrap(data) << std::endl;
             abort();
 #else
             throw FatalException(data);
