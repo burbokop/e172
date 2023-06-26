@@ -86,6 +86,7 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/package.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/ringbuf.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/signal.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/utility/callback.h
     ${CMAKE_CURRENT_LIST_DIR}/src/utility/random.h
 
     ${CMAKE_CURRENT_LIST_DIR}/src/functional/metafunction.h
