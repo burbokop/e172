@@ -33,7 +33,9 @@ jobs:
       
     - name: Lint
       working-directory: ${{github.workspace}}
-      run: cpplint --recursive .
+      run: |
+        cpplint --recursive ./src
+        cpplint --recursive ./tests
 
     - name: Pack
       working-directory: ${{github.workspace}}/build
