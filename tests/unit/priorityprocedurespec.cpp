@@ -1,9 +1,11 @@
+// Copyright 2023 Borys Boiko
+
 #include "priorityprocedurespec.h"
 
-#include <src/utility/priorityprocedure.h>
-
+#include "../../src/testing.h"
+#include "../../src/utility/priorityprocedure.h"
 #include <map>
-#include <src/testing.h>
+#include <vector>
 
 void e172::tests::PriorityProcedureSpec::execTest0()
 {

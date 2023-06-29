@@ -2,10 +2,10 @@
 
 #include "colider.h"
 
+#include "../utility/vectorproxy.h"
 #include "math.h"
 #include <limits>
 #include <list>
-#include <src/utility/vectorproxy.h>
 
 std::vector<e172::Colider::PositionalVector> e172::Colider::makeEdges(
     const std::vector<Vector<double>> &vertices)

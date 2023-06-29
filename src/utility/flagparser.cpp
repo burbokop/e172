@@ -2,7 +2,7 @@
 
 #include "flagparser.h"
 
-#include "src/consolecolor.h"
+#include "../consolecolor.h"
 #include <algorithm>
 #include <filesystem>
 

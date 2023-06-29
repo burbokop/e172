@@ -2,16 +2,15 @@
 
 #pragma once
 
-#include "../type.h"
+#include "../memcontrol/abstractfactory.h"
+#include "../utility/either.h"
+#include "../utility/ptr.h"
 #include "loadable.h"
 #include "loadabletemplate.h"
 #include <filesystem>
 #include <list>
 #include <map>
 #include <memory>
-#include <src/memcontrol/abstractfactory.h>
-#include <src/utility/either.h>
-#include <src/utility/ptr.h>
 #include <string>
 #include <vector>
 

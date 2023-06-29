@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <src/graphics/image.h>
-#include <src/math/vector.h>
-#include <src/time/elapsedtimer.h>
+#include "../graphics/image.h"
+#include "../math/vector.h"
+#include "../time/elapsedtimer.h"
 #include <vector>
 
 namespace e172 {

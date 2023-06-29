@@ -4,13 +4,13 @@
 
 #include "entity.h"
 #include "messagequeue.h"
+#include "time/elapsedtimer.h"
+#include "utility/observer.h"
 #include "utility/ptr.h"
 #include <list>
 #include <map>
 #include <memory>
 #include <queue>
-#include <src/time/elapsedtimer.h>
-#include <src/utility/observer.h>
 #include <string>
 #include <vector>
 

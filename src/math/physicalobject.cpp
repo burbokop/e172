@@ -2,8 +2,8 @@
 
 #include "physicalobject.h"
 
+#include "../math/math.h"
 #include "math.h"
-#include <src/math/math.h>
 
 namespace e172 {
 

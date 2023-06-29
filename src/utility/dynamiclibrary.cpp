@@ -6,7 +6,7 @@
 #include <dlfcn.h>
 #endif
 
-#include <src/additional.h>
+#include "../additional.h"
 
 void *e172::DynamicLibrary::rawSymbol(const std::string &name) const
 {

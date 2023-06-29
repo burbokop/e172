@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "../../utility/ringbuf.h"
 #include "../socket.h"
-#include "src/utility/ringbuf.h"
 
 namespace e172 {
 

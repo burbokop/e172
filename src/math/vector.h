@@ -2,12 +2,12 @@
 
 #pragma once
 
+#include "../utility/buffer.h"
+#include "../utility/random.h"
 #include "math.h"
 #include <algorithm>
 #include <complex>
 #include <functional>
-#include <src/utility/buffer.h>
-#include <src/utility/random.h>
 #include <sstream>
 
 namespace e172 {

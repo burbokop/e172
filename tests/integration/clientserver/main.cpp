@@ -1,10 +1,12 @@
+// Copyright 2023 Borys Boiko
+
+#include "../../../src/gameapplication.h"
+#include "../../../src/net/linux/networker.h"
+#include "../../../src/testing.h"
+#include "../../../src/utility/defer.h"
 #include "bullet.h"
 #include "shooter.h"
-#include "src/net/linux/networker.h"
 #include <signal.h>
-#include <src/gameapplication.h>
-#include <src/testing.h>
-#include <src/utility/defer.h>
 
 namespace e172::integration {
 

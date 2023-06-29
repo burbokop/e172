@@ -2,12 +2,10 @@
 
 #pragma once
 
+#include "../utility/io.h"
 #include <cstdint>
 #include <optional>
 #include <vector>
-
-#include <src/utility/buffer.h>
-#include <src/utility/io.h>
 
 namespace e172 {
 

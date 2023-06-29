@@ -2,8 +2,8 @@
 
 #include "imageview.h"
 
+#include "../math/math.h"
 #include "abstractrenderer.h"
-#include <src/math/math.h>
 
 void e172::ImageView::proceed(e172::Context *, e172::EventHandler *) {}
 

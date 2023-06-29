@@ -2,11 +2,11 @@
 
 #include "assetprovider.h"
 
+#include "../additional.h"
+#include "../context.h"
+#include "../debug.h"
+#include "../graphics/abstractgraphicsprovider.h"
 #include "abstractassetexecutor.h"
-#include <src/additional.h>
-#include <src/context.h>
-#include <src/debug.h>
-#include <src/graphics/abstractgraphicsprovider.h>
 
 namespace e172 {
 

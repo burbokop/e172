@@ -23,6 +23,10 @@ add_executable(e172_unit_tests
 target_link_libraries(e172_unit_tests
     e172)
 
+if(ENABLE_LINT)
+    e172_lint_target(e172_unit_tests)
+endif()
+
 enable_testing()
 include(CTest)
 e172_target_discover_tests(e172_unit_tests)

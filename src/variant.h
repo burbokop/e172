@@ -16,8 +16,8 @@
 #include <vector>
 
 #include "math/vector.h"
-#include "type.h"
 #include "sfinae.h"
+#include "type.h"
 #include "typedefs.h"
 
 #define E172_VARIANT_NUM_CONVERTER(NAME, TYPE) \

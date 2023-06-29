@@ -3,8 +3,8 @@
 #pragma once
 
 #include "../entity.h"
+#include "../math/vector.h"
 #include "image.h"
-#include <src/math/vector.h>
 #include <utility>
 
 namespace e172 {

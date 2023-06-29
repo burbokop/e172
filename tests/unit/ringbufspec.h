@@ -1,6 +1,8 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
-#include <src/testing.h>
+#include "../../src/testing.h"
 
 namespace e172::tests {
 

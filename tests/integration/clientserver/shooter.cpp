@@ -1,9 +1,11 @@
+// Copyright 2023 Borys Boiko
+
 #include "shooter.h"
 
+#include "../../../src/context.h"
+#include "../../../src/eventhandler.h"
 #include "bullet.h"
-#include <src/graphics/abstractrenderer.h>
-#include <src/context.h>
-#include <src/eventhandler.h>
+#include <utility>
 
 namespace e172::integration {
 

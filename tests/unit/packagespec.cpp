@@ -1,6 +1,9 @@
+// Copyright 2023 Borys Boiko
+
 #include "packagespec.h"
 
-#include <src/utility/package.h>
+#include "../../src/utility/package.h"
+#include <algorithm>
 
 namespace e172::tests {
 

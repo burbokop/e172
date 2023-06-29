@@ -1,20 +1,19 @@
 // Copyright 2023 Borys Boiko
 
 #include "additional.h"
-#include "src/todo.h"
 
+#include "math/math.h"
+#include "todo.h"
+#include <algorithm>
 #include <codecvt>
+#include <filesystem>
+#include <fstream>
 #include <list>
+#include <memory>
+#include <regex>
 #include <sstream>
-
 #include <string.h>
 #include <sys/stat.h>
-#include <fstream>
-#include <algorithm>
-#include <memory>
-#include <filesystem>
-#include <src/math/math.h>
-#include <regex>
 #include <sys/types.h>
 
 #ifdef __unix__
@@ -54,6 +53,21 @@ std::string ucs2ToUtf8(const std::wstring &wstr)
 }
 #endif
 } // namespace
+
+std::string Additional::stripMargins(const std::string &str, char prefix)
+{
+    std::string result;
+    for (auto line : split(str, '\n')) {
+        const auto idx = line.find_first_of(prefix);
+        if (idx != std::string::npos) {
+            line.erase(0, idx + 1);
+        }
+        if (!line.empty()) {
+            result += line + '\n';
+        }
+    }
+    return result;
+}
 
 std::string e172::Additional::constrainPath(const std::string &path)
 {

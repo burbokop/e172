@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "../variant.h"
 #include <map>
-#include <src/variant.h>
 #include <string>
 #include <vector>
 

@@ -3,7 +3,7 @@
 #include "debug.h"
 
 #include "additional.h"
-#include "src/consolecolor.h"
+#include "consolecolor.h"
 #include "type.h"
 #include <iostream>
 #include <signal.h>

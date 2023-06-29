@@ -1,9 +1,12 @@
+// Copyright 2023 Borys Boiko
+
 #include "ringbufspec.h"
 
+#include "../../src/time/elapsedtimer.h"
+#include "../../src/utility/ringbuf.h"
 #include <iomanip>
 #include <queue>
-#include <src/time/elapsedtimer.h>
-#include <src/utility/ringbuf.h>
+#include <vector>
 
 namespace std {
 
@@ -208,7 +211,7 @@ void streamTestWithCapacity()
             receivedData.push_back(data);
             ++nextData;
         }
-        if(timeout.check()) {
+        if (timeout.check()) {
             throw std::runtime_error("data transmission timeout");
         };
     }

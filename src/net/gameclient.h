@@ -2,12 +2,11 @@
 
 #pragma once
 
+#include "../time/elapsedtimer.h"
+#include "../utility/callback.h"
 #include "common.h"
 #include "socket.h"
-#include "src/utility/callback.h"
-#include "src/utility/signal.h"
 #include <memory>
-#include <src/time/elapsedtimer.h>
 
 namespace e172 {
 

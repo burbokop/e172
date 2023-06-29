@@ -2,10 +2,9 @@
 
 #pragma once
 
+#include "../variant.h"
 #include "loadabletemplate.h"
 #include <memory>
-#include <src/utility/ptr.h>
-#include <src/variant.h>
 #include <string>
 
 namespace e172 {

@@ -2,13 +2,13 @@
 
 #pragma once
 
+#include "../memcontrol/abstractfactory.h"
+#include "../meta.h"
+#include "../utility/either.h"
 #include "gameclient.h"
 #include "gameserver.h"
 #include <list>
 #include <memory>
-#include <src/memcontrol/abstractfactory.h>
-#include <src/meta.h>
-#include <src/utility/either.h>
 #include <string>
 #include <vector>
 

@@ -2,10 +2,7 @@
 
 #include "abstractrenderer.h"
 
-#include <math.h>
-
-#include <src/additional.h>
-#include <src/debug.h>
+#include "../additional.h"
 
 namespace e172 {
 

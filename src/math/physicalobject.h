@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <src/math/kinematics.h>
-#include <src/math/matrix.h>
-#include <src/math/vector.h>
+#include "kinematics.h"
+#include "matrix.h"
+#include "vector.h"
 
 namespace e172 {
 

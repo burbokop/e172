@@ -1,8 +1,10 @@
+// Copyright 2023 Borys Boiko
+
 #include "additionalspec.h"
 
-#include <src/additional.h>
-#include <src/math/math.h>
-#include <src/testing.h>
+#include "../../src/additional.h"
+#include "../../src/math/math.h"
+#include "../../src/testing.h"
 
 void e172::tests::AdditionalSpec::parseRadiansTest()
 {
