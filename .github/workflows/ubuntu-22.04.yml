@@ -37,6 +37,6 @@ jobs:
         cpplint --recursive ./src
         cpplint --recursive ./tests
 
-    - name: Pack
+    - name: Pack DEB
       working-directory: ${{github.workspace}}/build
-      run: cpack
+      run: cpack -G DEB
