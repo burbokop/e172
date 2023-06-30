@@ -1,8 +1,10 @@
+// Copyright 2023 Borys Boiko
+
 #include "variantbenches.h"
 
-#include <src/variant.h>
-#include <src/testing.h>
-#include <src/time/elapsedtimer.h>
+#include "../src/time/elapsedtimer.h"
+#include "../src/variant.h"
+#include <utility>
 
 volatile int e172_Variant_ts_d;
 
@@ -19,12 +21,12 @@ void e172_Variant_ts_bar(int value)
 std::pair<int64_t, int64_t> e172::benches::VariantBenches::speedTest(size_t count)
 {
     ElapsedTimer t;
-    for(int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         e172_Variant_ts_foo(i);
     }
     const auto t0 = t.elapsed();
     t.reset();
-    for(int i = 0; i < count; ++i) {
+    for (int i = 0; i < count; ++i) {
         e172_Variant_ts_bar(i);
     }
     const auto t1 = t.elapsed();
@@ -37,8 +39,8 @@ double e172::benches::VariantBenches::speedTest()
     ElapsedTimer timeout(100000);
     while (true) {
         const auto result = speedTest(c *= 2);
-        if(result.first != 0 && result.second != 0) {
-            return double(result.first) / double(result.second);
+        if (result.first != 0 && result.second != 0) {
+            return static_cast<double>(result.first) / static_cast<double>(result.second);
         }
         if (timeout.check()) {
             throw std::runtime_error("can not measure Variant speed: timeout");
@@ -49,7 +51,7 @@ double e172::benches::VariantBenches::speedTest()
 void e172::benches::VariantBenches::banchmark()
 {
     double sum = 0;
-    for(size_t i = 0; i < 100; ++i) {
+    for (size_t i = 0; i < 100; ++i) {
         const auto s = speedTest();
         Debug::print("[", i, "%] e172::VariantTest::speedTest:", s);
         sum += s;

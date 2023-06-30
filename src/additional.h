@@ -2,12 +2,12 @@
 
 #pragma once
 
+#include "utility/option.h"
 #include <algorithm>
 #include <functional>
 #include <limits>
 #include <list>
 #include <map>
-#include <src/utility/option.h>
 #include <string>
 #include <utility>
 #include <vector>
@@ -22,6 +22,8 @@ struct Additional {
     static constexpr char separator = '/';
     static inline const std::string separatorString = "/";
 #endif
+
+    static std::string stripMargins(const std::string &str, char prefix = '|');
 
     static std::string constrainPath(const std::string &path);
     static std::vector<std::string> split(const std::string &s, char delimiter);

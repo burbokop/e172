@@ -2,11 +2,11 @@
 
 #pragma once
 
+#include "math/vector.h"
+#include "net/common.h"
+#include "utility/buffer.h"
 #include <optional>
 #include <queue>
-#include <src/math/vector.h>
-#include <src/net/common.h>
-#include <src/utility/buffer.h>
 
 namespace e172 {
 

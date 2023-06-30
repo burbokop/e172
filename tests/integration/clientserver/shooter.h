@@ -1,9 +1,10 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
-#include <src/entity.h>
-#include <src/math/physicalobject.h>
-#include <src/net/common.h>
-#include <src/net/netsync.h>
+#include "../../../src/entity.h"
+#include "../../../src/math/physicalobject.h"
+#include "../../../src/net/common.h"
 
 namespace e172::integration {
 

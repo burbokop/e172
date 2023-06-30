@@ -2,11 +2,11 @@
 
 #pragma once
 
+#include "../object.h"
+#include "../sfinae.h"
 #include <functional>
 #include <memory>
 #include <set>
-#include <src/object.h>
-#include <src/sfinae.h>
 
 namespace e172 {
 

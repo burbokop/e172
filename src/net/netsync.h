@@ -2,9 +2,9 @@
 
 #pragma once
 
+#include "../entity.h"
+#include "../utility/buffer.h"
 #include <concepts>
-#include <src/entity.h>
-#include <src/utility/buffer.h>
 
 namespace e172 {
 

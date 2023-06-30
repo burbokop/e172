@@ -2,7 +2,7 @@
 
 #include "animator.h"
 
-#include <src/graphics/abstractrenderer.h>
+#include "../graphics/abstractrenderer.h"
 
 namespace e172 {
 

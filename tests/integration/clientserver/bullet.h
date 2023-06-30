@@ -1,8 +1,10 @@
+// Copyright 2023 Borys Boiko
+
 #pragma once
 
-#include <src/entity.h>
-#include <src/math/physicalobject.h>
-#include <src/time/elapsedtimer.h>
+#include "../../../src/entity.h"
+#include "../../../src/math/physicalobject.h"
+#include "../../../src/time/elapsedtimer.h"
 
 namespace e172::integration {
 

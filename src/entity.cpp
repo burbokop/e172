@@ -2,9 +2,9 @@
 
 #include "entity.h"
 
+#include "math/physicalobject.h"
 #include "net/netsync.h"
 #include <optional>
-#include <src/math/physicalobject.h>
 
 namespace e172 {
 

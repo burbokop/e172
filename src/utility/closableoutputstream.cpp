@@ -2,8 +2,6 @@
 
 #include "closableoutputstream.h"
 
-#include <src/debug.h>
-
 e172::ClosableOutputStream::ClosableOutputStream(std::streambuf *buf, bool autoDestroyBuf) : std::ostream(buf) {
     m_buf = buf;
     m_autoDestroyBuf = autoDestroyBuf;

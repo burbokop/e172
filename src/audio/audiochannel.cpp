@@ -2,7 +2,7 @@
 
 #include "audiochannel.h"
 
-#include <src/math/math.h>
+#include "../math/math.h"
 
 namespace e172 {
 

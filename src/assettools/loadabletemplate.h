@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <src/variant.h>
+#include "../variant.h"
 #include <string>
 
 namespace e172 {

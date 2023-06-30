@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "src/utility/package.h"
+#include "../utility/package.h"
 #include <cstdint>
 
 namespace e172 {

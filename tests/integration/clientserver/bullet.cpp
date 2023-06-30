@@ -1,7 +1,9 @@
+// Copyright 2023 Borys Boiko
+
 #include "bullet.h"
 
-#include <src/context.h>
-#include <src/graphics/abstractrenderer.h>
+#include "../../../src/context.h"
+#include <utility>
 
 namespace e172::integration {
 

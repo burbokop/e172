@@ -3,15 +3,15 @@
 #pragma once
 
 #include "entity.h"
+#include "time/deltatimecalculator.h"
+#include "time/elapsedtimer.h"
+#include "time/time.h"
+#include "type.h"
+#include "utility/cycliciterator.h"
 #include "utility/ptr.h"
 #include <list>
 #include <map>
 #include <memory>
-#include <src/time/deltatimecalculator.h>
-#include <src/time/elapsedtimer.h>
-#include <src/time/time.h>
-#include <src/type.h>
-#include <src/utility/cycliciterator.h>
 #include <string>
 #include <vector>
 

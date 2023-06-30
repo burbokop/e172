@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "src/todo.h"
-#include "src/traits.h"
+#include "../todo.h"
+#include "../traits.h"
 #include <assert.h>
 #include <bit>
 #include <cstdint>

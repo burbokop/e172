@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "ptr.h"
-#include "src/traits.h"
+#include "../traits.h"
+#include "../utility/ptr.h"
 #include <functional>
 #include <list>
 #include <map>

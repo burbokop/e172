@@ -2,8 +2,6 @@
 
 #include "audioplayer.h"
 
-#include <src/math/math.h>
-
 bool e172::AudioPlayer::play()
 {
     if (m_state == Idle || !m_waitStopPlaing) {

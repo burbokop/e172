@@ -2,15 +2,15 @@
 
 #pragma once
 
+#include "../abstracteventprovider.h"
+#include "../entitylifetimeobserver.h"
+#include "../time/elapsedtimer.h"
+#include "../utility/signal.h"
 #include "common.h"
 #include "server.h"
 #include <list>
 #include <memory>
 #include <queue>
-#include <src/abstracteventprovider.h>
-#include <src/entitylifetimeobserver.h>
-#include <src/time/elapsedtimer.h>
-#include <src/utility/signal.h>
 
 namespace e172 {
 

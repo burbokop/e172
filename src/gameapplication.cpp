@@ -3,18 +3,18 @@
 #include "gameapplication.h"
 
 #include "additional.h"
+#include "assettools/assetprovider.h"
+#include "audio/abstractaudioprovider.h"
+#include "context.h"
 #include "debug.h"
 #include "entitylifetimeobserver.h"
+#include "eventhandler.h"
+#include "graphics/abstractgraphicsprovider.h"
+#include "graphics/abstractrenderer.h"
+#include "time/time.h"
+#include "utility/flagparser.h"
 #include <iostream>
 #include <limits>
-#include <src/assettools/assetprovider.h>
-#include <src/audio/abstractaudioprovider.h>
-#include <src/context.h>
-#include <src/eventhandler.h>
-#include <src/graphics/abstractgraphicsprovider.h>
-#include <src/graphics/abstractrenderer.h>
-#include <src/time/time.h>
-#include <src/utility/flagparser.h>
 
 namespace e172 {
 

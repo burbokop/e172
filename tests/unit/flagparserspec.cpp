@@ -1,7 +1,10 @@
+// Copyright 2023 Borys Boiko
+
 #include "flagparserspec.h"
 
-#include <iostream>
-#include <src/utility/flagparser.h>
+#include "../../src/utility/flagparser.h"
+#include <string>
+#include <vector>
 
 namespace e172::tests {
 

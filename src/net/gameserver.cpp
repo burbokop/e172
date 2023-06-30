@@ -2,12 +2,12 @@
 
 #include "gameserver.h"
 
+#include "../assettools/loadable.h"
+#include "../debug.h"
 #include "../gameapplication.h"
+#include "../utility/package.h"
 #include "common.h"
 #include "networker.h"
-#include "src/assettools/loadable.h"
-#include "src/utility/package.h"
-#include <src/debug.h>
 #include <utility>
 
 e172::GameServer::GameServer(GameApplication &app,

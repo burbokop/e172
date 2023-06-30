@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "src/math/math.h"
-#include "src/todo.h"
+#include "../math/math.h"
+#include "../todo.h"
 #include <cstdint>
 #include <limits>
 #include <math.h>

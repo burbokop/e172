@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "typespec.h"
 
 class Clazz {};
@@ -28,4 +30,4 @@ void TypeSpec::namespacedTypeTest()
     e172_shouldEqual(Type<NStructure>::name(), "e172::tests::NStructure");
 }
 
-}
+} // namespace e172::tests

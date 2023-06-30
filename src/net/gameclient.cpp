@@ -4,13 +4,13 @@
 
 #include "../abstracteventprovider.h"
 #include "../assettools/assetprovider.h"
+#include "../context.h"
+#include "../debug.h"
 #include "../entity.h"
 #include "../gameapplication.h"
+#include "../utility/package.h"
 #include "common.h"
 #include "networker.h"
-#include "src/context.h"
-#include "src/debug.h"
-#include "src/utility/package.h"
 #include <string>
 #include <utility>
 

@@ -2,11 +2,11 @@
 
 #include "testing.h"
 
+#include "additional.h"
 #include "consolecolor.h"
-#include "src/todo.h"
+#include "todo.h"
 #include <map>
 #include <optional>
-#include <src/additional.h>
 
 namespace e172::testing {
 

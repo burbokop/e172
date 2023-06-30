@@ -2,11 +2,11 @@
 
 #pragma once
 
+#include "../networker.h"
 #include "server.h"
 #include "socket.h"
 #include <map>
 #include <memory>
-#include <src/net/networker.h>
 #include <string>
 
 namespace e172 {

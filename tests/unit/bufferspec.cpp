@@ -1,6 +1,10 @@
+// Copyright 2023 Borys Boiko
+
 #include "bufferspec.h"
 
-#include <src/utility/buffer.h>
+#include "../../src/utility/buffer.h"
+#include <string>
+#include <utility>
 
 namespace e172::tests {
 

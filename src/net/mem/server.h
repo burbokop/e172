@@ -2,10 +2,10 @@
 
 #pragma once
 
+#include "../server.h"
 #include "socket.h"
 #include <memory>
 #include <queue>
-#include <src/net/server.h>
 
 namespace e172 {
 

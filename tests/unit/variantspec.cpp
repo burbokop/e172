@@ -1,10 +1,12 @@
+// Copyright 2023 Borys Boiko
+
 #include "variantspec.h"
 
-#include <src/variant.h>
-
-#include <src/testing.h>
-
-#include <src/time/elapsedtimer.h>
+#include "../../src/additional.h"
+#include "../../src/testing.h"
+#include "../../src/variant.h"
+#include <iostream>
+#include <string>
 
 void e172::tests::VariantSpec::rttiTableTest() {
     const auto int0 = VariantRTTITable<int>::object();
@@ -86,7 +88,10 @@ void e172::tests::VariantSpec::compareEnumTest()
 
 void e172::tests::VariantSpec::fromJsonTest1()
 {
-    const auto vec = Variant::fromJson("[\"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\"]").toVector();
+    const auto vec
+        = Variant::fromJson(
+              "[\"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\", \"BuyWareTask>237 scrap\"]")
+              .toVector();
     e172_shouldEqual(vec[0], "BuyWareTask>237 scrap");
     e172_shouldEqual(vec[1], "BuyWareTask>237 scrap");
     e172_shouldEqual(vec[2], "BuyWareTask>237 scrap");
@@ -94,38 +99,41 @@ void e172::tests::VariantSpec::fromJsonTest1()
 
 void e172::tests::VariantSpec::fromJsonTest0()
 {
-    const auto map = Variant::fromJson(" \
-    { \
-        \"id\": \"st2\", \
-        \"class\": \"Station\", \
-        \"sprite\": \"./st2.png\", \
-        \"health\": 340, \
-        \"explosive\": 114, \
-        \"mass\": 64, \
-        \"capabilities\": [ \
-            { \
-                \"id\": \"docker\", \
-                \"class\": \"Docker\", \
-                \"nodes\": [ \
-                    { \
-                        \"offset\": { \
-                            \"x\": -50, \
-                            \"y\": 0 \
-                        }, \
-                        \"angle\": \"Pi\" \
-                    }, \
-                    { \
-                        \"offset\": { \
-                            \"x\": 50, \
-                            \"y\": 0 \
-                        }, \
-                        \"angle\": \"0\" \
-                    } \
-                ] \
-            } \
-        ] \
-    } \
-    ").toMap();
+    const auto jsonStr = Additional::stripMargins(R"(
+        |{
+        |    "id": "st2",
+        |    "class": "Station",
+        |    "sprite": "./st2.png",
+        |    "health": 340,
+        |    "explosive": 114,
+        |    "mass": 64,
+        |    "capabilities": [
+        |        {
+        |            "id": "docker",
+        |            "class": "Docker",
+        |            "nodes": [
+        |                {
+        |                    "offset": {
+        |                        "x": -50,
+        |                        "y": 0
+        |                    },
+        |                    "angle": "Pi"
+        |                },
+        |                {
+        |                    "offset": {
+        |                        "x": 50,
+        |                        "y": 0
+        |                    },
+        |                    "angle": "0"
+        |                }
+        |            ]
+        |        }
+        |    ]
+        |})");
+
+    std::cout << "jsonStr: <" << jsonStr << ">" << std::endl;
+
+    const auto map = Variant::fromJson(jsonStr).toMap();
 
     e172_shouldEqual(map.at("id"), "st2")
     e172_shouldEqual(map.at("class"), "Station")

@@ -3,7 +3,6 @@
 #include "variant.h"
 
 #include "additional.h"
-#include <src/time/elapsedtimer.h>
 
 namespace e172 {
 

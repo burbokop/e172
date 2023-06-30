@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <src/audio/audiochannel.h>
+#include "audiochannel.h"
 
 namespace e172 {
 
