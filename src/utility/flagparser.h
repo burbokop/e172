@@ -118,7 +118,7 @@ Either<FlagParseError, std::optional<T>> operator>>(RawFlagValue &raw, TypeTag<s
 template<std::constructible_from<std::string> T>
 Either<FlagParseError, T> operator>>(RawFlagValue &raw, TypeTag<T>)
 {
-    return Right(raw.str);
+    return Right<T>(raw.str);
 }
 
 class FlagParser

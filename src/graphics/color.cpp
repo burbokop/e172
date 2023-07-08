@@ -17,7 +17,7 @@ Color randomColor(Random &&random)
     return random.next<Color>() % static_cast<Color>(std::pow(2, 24));
 }
 
-Color blendPixels(Color top, Color bottom)
+Color blend(Color top, Color bottom)
 {
     const auto bA = uint8_t((top >> 0) & 0x000000ff);
     const auto gA = uint8_t((top >> 8) & 0x000000ff);

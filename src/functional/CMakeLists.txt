@@ -1,0 +1,7 @@
+
+set(INSTALLDIR ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/functional)
+
+target_sources(e172
+PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/metafunction.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/metafunction.h>)
