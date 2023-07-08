@@ -1,0 +1,64 @@
+
+set(INSTALLDIR ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/utility)
+
+target_sources(e172
+PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/vectorproxy.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/vectorproxy.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/systeminfo.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/systeminfo.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/animator.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/animator.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/observer.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/observer.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/cycliciterator.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/cycliciterator.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/ptr.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/ptr.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/dynamiclibrary.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/dynamiclibrary.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/defer.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/defer.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/lightvector.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/lightvector.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/matrixproxy.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/matrixproxy.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/boolean.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/boolean.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/flagparser.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/flagparser.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/reflection.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/reflection.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/either.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/either.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/option.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/option.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/priorityprocedure.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/priorityprocedure.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/closableoutputstream.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/closableoutputstream.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/signalstreambuffer.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/signalstreambuffer.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/buffer.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/buffer.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/io.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/io.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/package.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/package.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/ringbuf.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/ringbuf.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/signal.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/signal.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/callback.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/callback.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/random.h>
+    $<INSTALL_INTERFACE:${INSTALLDIR}/random.h>
+PRIVATE
+    systeminfo.cpp
+    animator.cpp
+    dynamiclibrary.cpp
+    flagparser.cpp
+    priorityprocedure.cpp
+    closableoutputstream.cpp
+    signalstreambuffer.cpp
+    random.cpp)

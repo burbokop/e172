@@ -119,8 +119,8 @@ std::size_t e172::LinuxSocket::bufferizeChunk()
     }
 
     std::uint8_t chunk[ChunkSize];
-    const auto size = ::read(m_fd, chunk, sizeToRead);
-    if (size < 0) {
+    const auto sizeOrErrno = ::read(m_fd, chunk, sizeToRead);
+    if (sizeOrErrno < 0) {
         switch (errno) {
         case EAGAIN:
             return 0;
@@ -131,6 +131,7 @@ std::size_t e172::LinuxSocket::bufferizeChunk()
             throw LinuxSocketBufferizeException(errno);
         }
     }
+    const auto size = static_cast<std::size_t>(sizeOrErrno);
     for (std::size_t i = 0; i < size; ++i) {
         m_buf.push(chunk[i]);
     }

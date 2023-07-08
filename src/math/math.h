@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "../graphics/color.h"
 #include <complex>
 #include <functional>
 #include <limits>
@@ -21,9 +22,10 @@ template<typename T>
 using ComplexFunction = std::function<Complex<T>(const Complex<T> &)>;
 
 template<typename T>
-using MatrixFiller = std::function<void(size_t, size_t, T*)>;
+using MatrixFiller = std::function<void(size_t, size_t, T *)>;
 
-class Math {
+class Math
+{
 public:
     static constexpr double Pi = 3.14159265358979323846;
 
@@ -66,7 +68,8 @@ public:
     }
 
     template<typename T>
-    static inline T sgn(const T &x) {
+    static inline T sgn(const T &x)
+    {
         const auto mod = std::abs(x);
         return (mod == 0) ? T() : x / mod;
     }
@@ -111,9 +114,9 @@ public:
     static double topLimitedFunction(double x);
 
     template<typename T>
-    static size_t fractalLevel(const Complex<T> &c,
-                               size_t limit = 256,
-                               const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
+    static std::size_t fractalLevel(const Complex<T> &c,
+                                    std::size_t limit = 256,
+                                    const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
     {
         e172::Complex<T> x = {0, 0};
         while (std::abs(x) < 2) {
@@ -126,31 +129,30 @@ public:
     }
 
     template<typename T>
-    static T fractalLevel(size_t x,
-                          size_t y,
-                          size_t w,
-                          size_t h,
-                          size_t limit = 256,
+    static T fractalLevel(T x,
+                          T y,
+                          T w,
+                          T h,
+                          std::size_t limit = 256,
                           const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
     {
-        const auto real = (static_cast<double>(x) / static_cast<double>(w) - 0.5) * 4;
-        const auto imag = (static_cast<double>(y) / static_cast<double>(h) - 0.5) * 4;
-        return fractalLevel({real, imag}, limit, f) / static_cast<double>(limit);
+        const auto real = (x / w - 0.5) * 4;
+        const auto imag = (y / h - 0.5) * 4;
+        return fractalLevel({real, imag}, limit, f) / static_cast<T>(limit);
     }
 
-    template<typename T>
-    static void writeFractal(size_t w,
-                             size_t h,
-                             size_t maxLevel,
-                             T mask,
-                             T *ptr,
-                             const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
+    static void writeFractal(std::size_t w,
+                             std::size_t h,
+                             std::size_t maxLevel,
+                             e172::Color mask,
+                             e172::Color *ptr,
+                             const ComplexFunction<double> &f = Math::sqr<Complex<double>>)
     {
         if (maxLevel <= 0 || w <= 0 || h <= 0)
             return;
-        for (size_t y = 0; y < h; ++y) {
-            for (size_t x = 0; x < w; ++x) {
-                ptr[(y * w) + x] = mask * fractalLevel(x, y, w, h, maxLevel, f);
+        for (std::size_t y = 0; y < h; ++y) {
+            for (std::size_t x = 0; x < w; ++x) {
+                ptr[(y * w) + x] = mask * fractalLevel<double>(x, y, w, h, maxLevel, f);
             }
         }
     }
@@ -158,41 +160,42 @@ public:
     static void concurentInitMatrix(
         size_t w, size_t h, const std::function<void(const std::pair<size_t, size_t> &)> &function);
 
-    template<typename T>
-    static void concurentWriteFractal(size_t w,
-                                      size_t h,
-                                      size_t maxLevel,
-                                      T mask,
-                                      T *ptr,
-                                      const ComplexFunction<T> &f = Math::sqr<Complex<T>>)
+    static void concurentWriteFractal(std::size_t w,
+                                      std::size_t h,
+                                      std::size_t maxLevel,
+                                      e172::Color mask,
+                                      e172::Color *ptr,
+                                      const ComplexFunction<double> &f = Math::sqr<Complex<double>>)
     {
         if (maxLevel <= 0 || w <= 0 || h <= 0)
             return;
 
         concurentInitMatrix(w, h, [w, h, maxLevel, mask, ptr, f](const std::pair<size_t, size_t> &p) {
-            ptr[(p.second * w) + p.first] = mask * fractalLevel(p.first, p.second, w, h, maxLevel, f);
+            ptr[(p.second * w) + p.first]
+                = mask * fractalLevel<double>(p.first, p.second, w, h, maxLevel, f);
         });
     }
 
-    template<typename T>
-    static MatrixFiller<T> fractal(size_t limit,
-                                   T mask,
-                                   const ComplexFunction<T> &f = Math::sqr<Complex<T>>,
-                                   bool concurent = true)
+    static MatrixFiller<e172::Color> fractal(
+        std::size_t limit,
+        e172::Color mask,
+        const ComplexFunction<double> &f = Math::sqr<Complex<double>>,
+        bool concurent = true)
     {
         if (concurent) {
-            return [limit, mask, f](size_t w, size_t h, T *ptr) {
-                e172::Math::concurentWriteFractal<T>(w, h, limit, mask, ptr, f);
+            return [limit, mask, f](std::size_t w, std::size_t h, e172::Color *ptr) {
+                e172::Math::concurentWriteFractal(w, h, limit, mask, ptr, f);
             };
         } else {
-            return [limit, mask, f](size_t w, size_t h, T *ptr) {
-                e172::Math::writeFractal<T>(w, h, limit, mask, ptr, f);
+            return [limit, mask, f](std::size_t w, std::size_t h, e172::Color *ptr) {
+                e172::Math::writeFractal(w, h, limit, mask, ptr, f);
             };
         }
     }
 
     template<typename T>
-    static MatrixFiller<T> filler(const T& value) {
+    static MatrixFiller<T> filler(const T &value)
+    {
         return [value](size_t w, size_t h, T *ptr) {
             for (size_t y = 0; y < h; ++y) {
                 for (size_t x = 0; x < w; ++x) {
@@ -203,7 +206,8 @@ public:
     }
 
     template<typename T>
-    static void randInit(T *array, size_t size, double coeficient, const T &value) {
+    static void randInit(T *array, size_t size, double coeficient, const T &value)
+    {
         std::srand(clock());
         for (size_t i = 0; i < size; ++i) {
             const auto r = (static_cast<double>(std::rand())

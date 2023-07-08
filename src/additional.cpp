@@ -108,10 +108,11 @@ std::vector<std::string> e172::Additional::split(const std::string &s, char deli
 
 std::pair<std::string, std::string> e172::Additional::splitIntoPair(const std::string &s, char delimiter) {
     const auto index = s.find_first_of(delimiter);
-    if (index >= 0 && index < s.size())
-        return { s.substr(0, index), s.substr(index + 1, s.size() - index) };
-
-    return {};
+    if (index != std::string::npos) {
+        return {s.substr(0, index), s.substr(index + 1, s.size() - index)};
+    } else {
+        return {};
+    }
 }
 
 std::string e172::Additional::trim(const std::string &str, char symbol) {
@@ -613,7 +614,7 @@ e172::Option<double> e172::Additional::parseRadians(const std::string &string)
 
     std::regex regex("(\\-?Pi)?[ ]*([\\/\\*]?)[ ]*(\\-?\\d*\\.?\\d*)");
 
-    double result;
+    e172::Option<double> result;
     std::string lastPart = "";
 
     bool err = false;
@@ -625,7 +626,7 @@ e172::Option<double> e172::Additional::parseRadians(const std::string &string)
         } else {
             try {
                 return std::stod(str);
-            }  catch (std::invalid_argument) {
+            } catch (const std::invalid_argument &) {
                 err = true;
                 return 0.;
             }
@@ -643,9 +644,9 @@ e172::Option<double> e172::Additional::parseRadians(const std::string &string)
                     if (lastPart == "") {
                         result = partToNum(part);
                     } else if (lastPart == "/") {
-                        result /= partToNum(part);
+                        result.modify([&](double &v) { v /= partToNum(part); });
                     } else {
-                        result *= partToNum(part);
+                        result.modify([&](double &v) { v *= partToNum(part); });
                     }
                 }
                 lastPart = part;

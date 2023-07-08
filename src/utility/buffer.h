@@ -212,7 +212,7 @@ public:
         if (bytesAvailable() >= size) {
             auto result = Bytes(m_data.begin() + m_pos, m_data.begin() + m_pos + size);
             m_pos += size;
-            return std::move(result);
+            return result;
         } else {
 #ifndef NDEBUG
             m_valid = false;

@@ -230,10 +230,10 @@ std::string Variant::toString() const
 Variant Variant::fromString(const std::string &string) {
     try {
         return std::stod(string);
-    } catch (std::invalid_argument) {
+    } catch (const std::invalid_argument &) {
         try {
             return std::stoi(string);
-        } catch (std::invalid_argument) {
+        } catch (const std::invalid_argument &) {
             return string;
         }
     }
@@ -300,7 +300,7 @@ Variant Variant::fromJson(const std::string &json) {
         } else {
             try {
                 return std::stod(trimed);
-            } catch (std::invalid_argument) {
+            } catch (const std::invalid_argument &) {
                 return trimed;
             }
         }

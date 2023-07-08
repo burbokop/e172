@@ -18,7 +18,7 @@ public:
     void onDone(const std::function<void()> &callback)
     {
         m_done = callback;
-        if (Done) {
+        if (m_state == Done) {
             callback();
         }
     }
@@ -26,7 +26,7 @@ public:
     void onFail(const std::function<void()> &callback)
     {
         m_fail = callback;
-        if (Failed) {
+        if (m_state == Failed) {
             callback();
         }
     }

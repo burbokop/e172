@@ -12,7 +12,7 @@ bool e172::Object::liveInSharedPtr() const
 {
     try {
         return const_cast<Object *>(this)->shared_from_this() != std::shared_ptr<Object>();
-    } catch (std::bad_weak_ptr) {
+    } catch (const std::bad_weak_ptr &) {
         return false;
     }
 }

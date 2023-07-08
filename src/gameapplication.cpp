@@ -313,13 +313,9 @@ int GameApplication::exec()
                 destroyEntity(m_entities, id, [this](auto id) { emitEntityRemoved(id); });
             });
 
-            m_context->popMessage(Context::DestroyAllEntities,
-                                  [this](Context *, const Variant &value) {
-                                      const auto id = value.toNumber<Entity::Id>();
-                                      destroyAllEntities(m_entities, [this](auto id) {
-                                          emitEntityRemoved(id);
-                                      });
-                                  });
+            m_context->popMessage(Context::DestroyAllEntities, [this](Context *, const Variant &) {
+                destroyAllEntities(m_entities, [this](auto id) { emitEntityRemoved(id); });
+            });
 
             m_context->popMessage(Context::DestroyEntitiesWithTag,
                                   [this](Context *, const Variant &value) {

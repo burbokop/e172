@@ -117,6 +117,8 @@ std::size_t e172::GameServer::sendCustomPackage(PackedClientId clientId,
 void e172::GameServer::broadcastCustomPackage(PackageType type,
                                               const std::function<void(WritePackage)> &writeFn)
 {
+    (void) type;
+    (void) writeFn;
     todo();
 }
 

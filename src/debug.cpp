@@ -88,7 +88,8 @@ std::list<StackTraceInfo> Debug::stackTrace() {
                     if (info.m_functionName.size() > 0) {
                         try {
                             info.m_functionName = TypeTools::demangle(info.m_functionName);
-                        } catch (std::runtime_error) {}
+                        } catch (const std::runtime_error &) {
+                        }
                     }
                     if (p2.size() > 1) {
                         size_t pos = 2;
