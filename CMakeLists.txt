@@ -30,6 +30,10 @@ endif()
 
 add_subdirectory(src)
 
+if((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+    target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wextra)
+endif()
+
 if(UNIX)
     target_link_libraries(${PROJECT_NAME}
         dl

@@ -599,7 +599,7 @@ T Variant::toNumber(bool *ok) const
             } else {
                 return static_cast<T>(std::stoull(valueUnchecked<std::string>()));
             }
-        } catch (std::invalid_argument) {
+        } catch (const std::invalid_argument &) {
             if (ok)
                 *ok = false;
             return 0;

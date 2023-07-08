@@ -58,6 +58,14 @@ public:
         return e172::None;
     }
 
+    e172::Option<T> &modify(const std::function<void(T &)> &f)
+    {
+        if (m_isDefined) {
+            f(m_value);
+        }
+        return *this;
+    }
+
     operator std::string() const
     {
         std::stringstream ss;

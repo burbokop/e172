@@ -44,9 +44,9 @@ Either<MemotyUsageError, MemotyUsage> memoryUsage()
             if (rss && vm)
                 break;
         }
-    } catch (std::invalid_argument) {
+    } catch (const std::invalid_argument &) {
         return Left(MemotyUsageError::FailedToParseProcInfo);
-    } catch (std::out_of_range) {
+    } catch (const std::out_of_range &) {
         return Left(MemotyUsageError::FailedToParseProcInfo);
     }
 

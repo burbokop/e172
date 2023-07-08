@@ -20,7 +20,7 @@ Animator::Animator(const e172::Image &origin, int frames, int tracks)
     m_currentFrameIndex = 0;
     m_currentTrackIndex = 0;
 
-    for (int i = 0; i < m_frameCount; i++) {
+    for (std::size_t i = 0; i < m_frameCount; i++) {
         m_frames.push_back(origin.fragment(i * frameWidth, 0, frameWidth, frameHeigth));
     }
 
