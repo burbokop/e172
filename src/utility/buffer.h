@@ -363,6 +363,26 @@ private:
 #endif
 };
 
+class ByteRange
+{
+public:
+    constexpr ByteRange(const Byte *begin, const Byte *end)
+        : m_begin(begin)
+        , m_end(end)
+    {}
+
+    constexpr std::size_t size() const { return m_end - m_begin; }
+    constexpr const Byte *begin() const { return m_begin; }
+    constexpr const Byte *end() const { return m_end; }
+
+    Bytes bytes() const { return Bytes(m_begin, m_end); }
+    ReadBuffer buffer() const { return ReadBuffer(bytes()); }
+
+private:
+    const Byte *m_begin;
+    const Byte *m_end;
+};
+
 } // namespace e172
 
 #define e172_chainingAssignOrElse(OUTPUT, OPT, ELSE) \
