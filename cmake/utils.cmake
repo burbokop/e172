@@ -104,7 +104,22 @@ endfunction()
 function(e172_add_resources OUTPUT_VAR)
   set(result)
   foreach(in_f ${ARGN})
-    file(RELATIVE_PATH rel ${CMAKE_CURRENT_SOURCE_DIR} ${in_f})
+
+    cmake_path(IS_PREFIX CMAKE_CURRENT_SOURCE_DIR ${in_f} NORMALIZE
+               IS_IN_CURRENT_SOURCE_DIR)
+    cmake_path(IS_PREFIX CMAKE_CURRENT_BINARY_DIR ${in_f} NORMALIZE
+               IS_IN_CURRENT_BINARY_DIR)
+    if(IS_IN_CURRENT_SOURCE_DIR)
+      set(REL_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+    elseif(IS_IN_CURRENT_BINARY_DIR)
+      set(REL_DIR ${CMAKE_CURRENT_BINARY_DIR})
+    else()
+      message(
+        FATAL_ERROR
+          "Resource file must be containing currnt source or binary dir" ...)
+    endif()
+
+    file(RELATIVE_PATH rel ${REL_DIR} ${in_f})
     set(out_f "${CMAKE_CURRENT_BINARY_DIR}/${rel}.o")
     get_filename_component(out_dir ${out_f} DIRECTORY)
     file(MAKE_DIRECTORY ${out_dir})
@@ -112,9 +127,8 @@ function(e172_add_resources OUTPUT_VAR)
       OUTPUT ${out_f}
       COMMAND ld -r -b binary -o "${out_f}" "${rel}"
       DEPENDS ${in_f}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      COMMENT
-        "Packing resource ${in_f} -> ${out_f} (ld -r -b binary -o ${out_f} ${in_f})"
+      WORKING_DIRECTORY ${REL_DIR}
+      COMMENT "Packing resource ${in_f} -> ${out_f}"
       VERBATIM)
     list(APPEND result ${out_f})
   endforeach()
