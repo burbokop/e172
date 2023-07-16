@@ -36,6 +36,9 @@ private:
     std::string m_message;
 };
 
+struct Void
+{};
+
 template<typename L>
 class Left;
 template<typename R>
@@ -50,8 +53,8 @@ class Either
     friend class Right;
 
 public:
-    typedef L left_type;
-    typedef R right_type;
+    using LeftType = L;
+    using RightType = R;
 
     static Either<L, R> fromStdVariant(const std::variant<L, R> &var) { return var; }
 
