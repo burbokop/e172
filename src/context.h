@@ -123,6 +123,8 @@ public:
 
     void later(time_t duration, const std::function<void()> &callback);
 
+    bool quitLater();
+
 private:
     e172::MessageQueue<MessageId, Variant> m_messageQueue;
     double m_deltaTime = 0;
