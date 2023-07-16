@@ -46,7 +46,9 @@ e172::LinuxSocket::LinuxSocket(int fd)
 
 e172::LinuxSocket::~LinuxSocket()
 {
-    ::close(m_fd);
+    if (m_fd != STDIN_FILENO && m_fd != STDOUT_FILENO && m_fd != STDERR_FILENO) {
+        ::close(m_fd);
+    }
 }
 
 void e172::LinuxSocket::setFdNonBlockingFlag(int fd, bool nbm)
@@ -108,8 +110,7 @@ std::size_t e172::LinuxSocket::write(const uint8_t *src, std::size_t size)
     return s;
 }
 
-void e172::LinuxSocket::flush()
-{}
+void e172::LinuxSocket::flush() {}
 
 std::size_t e172::LinuxSocket::bufferizeChunk()
 {

@@ -29,6 +29,9 @@ public:
     void flush() override;
     bool isConnected() const override { return m_isConnected; }
 
+protected:
+    auto fd() const { return m_fd; };
+
 private:
     std::size_t bufferizeChunk();
 
