@@ -499,6 +499,8 @@ enum Scancode : std::uint16_t {
     ScancodesCount = 512
 };
 
+std::ostream &operator<<(std::ostream &stream, Scancode scancode);
+
 class Event
 {
 public:
