@@ -247,13 +247,15 @@ public:
 
     bool operator==(Vector vector) const
     {
-        return e172::Math::cmpf(this->m_x, vector.m_x) && e172::Math::cmpf(this->m_y, vector.m_y);
+        if constexpr (std::is_floating_point_v<T>) {
+            return e172::Math::cmpf(this->m_x, vector.m_x)
+                   && e172::Math::cmpf(this->m_y, vector.m_y);
+        } else {
+            return this->m_x == vector.m_x && this->m_y == vector.m_y;
+        }
     }
 
-    bool operator!=(Vector vector) const
-    {
-        return !e172::Math::cmpf(this->m_x, vector.m_x) || !e172::Math::cmpf(this->m_y, vector.m_y);
-    }
+    bool operator!=(Vector vector) const { return !(*this == vector); }
 
     static bool moduleLessComparator(const Vector &v0, const Vector &v1)
     {
