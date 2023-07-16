@@ -27,9 +27,10 @@ Image AbstractGraphicsProvider::imageFromData(SharedContainer::DataPtr data,
         [this](Image::DataPtr ptr, std::uint64_t code) { return transformImage(ptr, code); });
 }
 
-void AbstractGraphicsProvider::installParentToRenderer(AbstractRenderer *renderer) {
-    renderer->m_provider = this;
-    renderer->m_isValid = true;
+void AbstractGraphicsProvider::installParentToRenderer(AbstractRenderer &renderer) const
+{
+    renderer.m_provider = this;
+    renderer.m_isValid = true;
 }
 
 } // namespace e172

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "entity.h"
+#include "math/vector.h"
 #include "time/deltatimecalculator.h"
 #include "time/elapsedtimer.h"
 #include "time/time.h"
@@ -13,6 +14,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace e172 {
@@ -35,7 +37,12 @@ public:
         PreProceedExtension,
         PreRenderExtension,
         PostProceedExtension,
-        PostRenderExtension
+        PostRenderExtension,
+
+        /**
+         * after window updated
+         */
+        PostPresentExtension
     };
 
     GameApplicationExtension(ExtensionType extensionType)
@@ -63,6 +70,7 @@ public:
     {
         return Mode(static_cast<int>(l) & static_cast<int>(r));
     }
+
     inline friend Mode operator|(Mode l, Mode r)
     {
         return Mode(static_cast<int>(l) & static_cast<int>(r));
@@ -87,12 +95,12 @@ public:
         m_entityLifeTimeObservers.push_back(obs);
     }
 
-    template<typename T>
-    void addApplicationExtension()
+    template<typename T, typename... Args>
+    void addApplicationExtension(Args &&...args)
     {
         const auto it = m_applicationExtensions.find(Type<T>::hash());
         if (it == m_applicationExtensions.end())
-            m_applicationExtensions[Type<T>::hash()] = new T();
+            m_applicationExtensions[Type<T>::hash()] = new T(std::forward<Args>(args)...);
     }
 
     template<typename T>
@@ -114,11 +122,15 @@ public:
         return m_graphicsProvider;
     }
 
+    std::shared_ptr<AbstractRenderer> renderer() const { return m_renderer; }
+
     std::shared_ptr<AssetProvider> assetProvider() const { return m_assetProvider; }
 
     void setEventProvider(const std::shared_ptr<AbstractEventProvider> &eventProvider);
     void setAudioProvider(const std::shared_ptr<AbstractAudioProvider> &audioProvider);
     void setGraphicsProvider(const std::shared_ptr<AbstractGraphicsProvider> &graphicsProvider);
+
+    bool initRenderer(const std::string &title, const Vector<std::uint32_t> &resolution);
 
     const std::list<ptr<Entity>> &entities() const { return m_entities; }
 
@@ -185,6 +197,7 @@ private:
 
     std::shared_ptr<AbstractEventProvider> m_eventProvider;
     std::shared_ptr<AbstractGraphicsProvider> m_graphicsProvider;
+    std::shared_ptr<AbstractRenderer> m_renderer;
     std::shared_ptr<AbstractAudioProvider> m_audioProvider;
     std::shared_ptr<AssetProvider> m_assetProvider;
 

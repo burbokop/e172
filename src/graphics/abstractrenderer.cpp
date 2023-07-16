@@ -13,7 +13,7 @@ Image::Ptr AbstractRenderer::imageProvider(const Image &image)
 
 void AbstractRenderer::drawLine(const Line2d &line, Color color)
 {
-    const auto& points = line.rectIntersection(resolution());
+    const auto &points = line.rectIntersection(resolution().into<double>());
     drawLine(points.first, points.second, color);
 }
 
@@ -63,7 +63,7 @@ Vector<double> AbstractRenderer::drawText(const std::string &text,
 
 Vector<double> AbstractRenderer::offset() const
 {
-    return resolution() / 2 - cameraPosition();
+    return resolution().into<double>() / 2 - cameraPosition();
 }
 
 AbstractRenderer::Camera AbstractRenderer::detachCamera() {

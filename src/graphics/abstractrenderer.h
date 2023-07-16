@@ -84,7 +84,7 @@ public:
 
     Vector<double> drawStringShifted(const std::string &string,
                                      const Vector<double> &position,
-                                     uint32_t color,
+                                     Color color,
                                      const TextFormat &format = TextFormat())
     {
         return drawString(string, position + offset(), color, format);
@@ -111,35 +111,36 @@ public:
     bool isValid() const { return m_isValid; }
     bool autoClear() const { return m_autoClear; }
     void setAutoClear(bool autoClear) { m_autoClear = autoClear; }
+    const AbstractGraphicsProvider *provider() const { return m_provider; }
 
     // Virtual methods
 public:
-    virtual size_t presentEffectCount() const = 0;
-    virtual std::string presentEffectName(size_t index) const = 0;
+    virtual std::size_t presentEffectCount() const = 0;
+    virtual std::string presentEffectName(std::size_t index) const = 0;
     virtual void drawEffect(size_t index, const e172::VariantVector &args = e172::VariantVector()) = 0;
 
     virtual void setDepth(int64_t depth) = 0;
-    virtual void fill(uint32_t color) = 0;
-    virtual void drawPixel(const Vector<double> &point, uint32_t color) = 0;
+    virtual void fill(Color color) = 0;
+    virtual void drawPixel(const Vector<double> &point, Color color) = 0;
     virtual void drawLine(const Vector<double> &point0, const Vector<double> &point1, Color color)
         = 0;
 
     virtual void drawRect(const Vector<double> &point0,
                           const Vector<double> &point1,
-                          uint32_t color,
+                          Color color,
                           const ShapeFormat &format = ShapeFormat(false))
         = 0;
 
-    virtual void drawSquare(const Vector<double> &point, int radius, Color color) = 0;
-    virtual void drawCircle(const Vector<double> &point, int radius, Color color) = 0;
+    virtual void drawSquare(const Vector<double> &center, double radius, Color color) = 0;
+    virtual void drawCircle(const Vector<double> &center, double radius, Color color) = 0;
     virtual void drawDiagonalGrid(const Vector<double> &point0,
                                   const Vector<double> &point1,
-                                  int interval,
+                                  double interval,
                                   Color color)
         = 0;
 
     virtual void drawImage(const Image &image,
-                           const Vector<double> &position,
+                           const Vector<double> &center,
                            double angle,
                            double zoom)
         = 0;
@@ -166,9 +167,8 @@ public:
     virtual void disableEffect(std::uint64_t effect) = 0;
 
     virtual void setFullscreen(bool value) = 0;
-    virtual void setResolution(Vector<double> value) = 0;
-    virtual Vector<double> resolution() const = 0;
-    virtual Vector<double> screenSize() const = 0;
+    virtual void setResolution(const Vector<std::uint32_t> &value) = 0;
+    virtual Vector<std::uint32_t> resolution() const = 0;
 
     virtual ~AbstractRenderer() = default;
 
@@ -180,14 +180,13 @@ protected:
     }
 
     static Image::Ptr imageProvider(const Image &image);
-    AbstractGraphicsProvider *provider() const { return m_provider; }
 
     virtual bool update() = 0;
 
 private:
     bool m_isValid = false;
     bool m_locked = true;
-    AbstractGraphicsProvider *m_provider = nullptr;
+    const AbstractGraphicsProvider *m_provider = nullptr;
     Vector<double> m_position;
     bool m_cameraLocked = false;
     bool m_autoClear = true;

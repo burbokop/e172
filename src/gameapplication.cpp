@@ -134,11 +134,13 @@ void GameApplication::proceed(const ptr<Entity> &entity,
                 disableKeyboard = !entity->keyboardEnabled();
             }
 
-            if (disableKeyboard) {
+            if (disableKeyboard && eventHandler) {
                 eventHandler->disableKeyboard();
             }
             entity->proceed(context, eventHandler);
-            eventHandler->enableKeyboard();
+            if (eventHandler) {
+                eventHandler->enableKeyboard();
+            }
             for (auto euf : entity->__euf) {
                 euf.first(entity.data(), context, eventHandler);
             }
@@ -199,6 +201,12 @@ void GameApplication::setGraphicsProvider(
     }
     m_graphicsProvider = graphicsProvider;
     m_assetProvider->m_graphicsProvider = graphicsProvider;
+}
+
+bool GameApplication::initRenderer(const std::string &title, const Vector<uint32_t> &resolution)
+{
+    m_renderer = m_graphicsProvider->createRenderer(title, resolution);
+    return m_renderer != nullptr;
 }
 
 void GameApplication::setAudioProvider(const std::shared_ptr<AbstractAudioProvider> &audioProvider)
@@ -273,31 +281,33 @@ int GameApplication::exec()
             }
             m_proceedDelay = measureTimer.elapsed();
         }
-        if (!!(m_mode & Mode::Render) && m_graphicsProvider && m_renderTimer.check()) {
+        if (!!(m_mode & Mode::Render) && m_renderer && m_renderTimer.check()) {
             e172::ElapsedTimer measureTimer;
-            auto r = m_graphicsProvider->renderer();
-            if (r) {
-                r->m_locked = false;
-                if (r->m_autoClear) {
-                    r->setDepth(std::numeric_limits<int64_t>::min());
-                    r->fill(0);
-                }
-                for (const auto &m : m_applicationExtensions) {
-                    if (m.second->extensionType() == GameApplicationExtension::PreRenderExtension)
-                        m.second->proceed(this);
-                }
-                for (const auto &e : m_entities) {
-                    render(e, m_context.get(), r);
-                }
-                for (const auto &m : m_applicationExtensions) {
-                    if (m.second->extensionType() == GameApplicationExtension::PostRenderExtension)
-                        m.second->proceed(this);
-                }
-                r->m_locked = true;
-                if (!r->update()) {
-                    break;
-                }
+            m_renderer->m_locked = false;
+            if (m_renderer->m_autoClear) {
+                m_renderer->setDepth(std::numeric_limits<int64_t>::min());
+                m_renderer->fill(0);
             }
+            for (const auto &m : m_applicationExtensions) {
+                if (m.second->extensionType() == GameApplicationExtension::PreRenderExtension)
+                    m.second->proceed(this);
+            }
+            for (const auto &e : m_entities) {
+                render(e, m_context.get(), m_renderer.get());
+            }
+            for (const auto &m : m_applicationExtensions) {
+                if (m.second->extensionType() == GameApplicationExtension::PostRenderExtension)
+                    m.second->proceed(this);
+            }
+            m_renderer->m_locked = true;
+            if (!m_renderer->update()) {
+                break;
+            }
+            for (const auto &m : m_applicationExtensions) {
+                if (m.second->extensionType() == GameApplicationExtension::PostPresentExtension)
+                    m.second->proceed(this);
+            }
+
             m_renderDelay = measureTimer.elapsed();
         }
 
