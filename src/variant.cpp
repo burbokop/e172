@@ -3,6 +3,8 @@
 #include "variant.h"
 
 #include "additional.h"
+#include <map>
+#include <string>
 
 namespace e172 {
 

@@ -8,6 +8,7 @@
 #include "../utility/package.h"
 #include "common.h"
 #include "networker.h"
+#include <memory>
 #include <utility>
 
 e172::GameServer::GameServer(GameApplication &app,

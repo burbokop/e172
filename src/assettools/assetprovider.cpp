@@ -5,30 +5,33 @@
 #include "../additional.h"
 #include "../context.h"
 #include "../debug.h"
-#include "../graphics/abstractgraphicsprovider.h"
 #include "abstractassetexecutor.h"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace e172 {
 
-void AssetProvider::searchInFolder(const std::filesystem::path &dir)
+void AssetProvider::searchInFolder(const std::filesystem::path& dir)
 {
-    for (auto const &entry : std::filesystem::recursive_directory_iterator(dir)) {
+    for (auto const& entry : std::filesystem::recursive_directory_iterator(dir)) {
         if (entry.is_regular_file()) {
             processFile(entry.path().string());
         }
     }
 }
 
-Either<AssetProvider::Error, Loadable *> AssetProvider::createLoadable(const std::string &templateId)
+Either<AssetProvider::Error, Loadable*> AssetProvider::createLoadable(const std::string& templateId)
 {
     const auto it = m_templates.find(templateId);
     if (it == m_templates.end()) {
-        return Left(TemplateNotFound{.id = templateId}.toErr());
+        return Left(TemplateNotFound { .id = templateId }.toErr());
     }
     return createLoadable(it->second);
 }
 
-std::vector<std::string> AssetProvider::loadableNames() {
+std::vector<std::string> AssetProvider::loadableNames()
+{
     std::vector<std::string> result;
     for (auto it = m_templates.begin(); it != m_templates.end(); it++) {
         result.push_back(it->first);
@@ -36,15 +39,17 @@ std::vector<std::string> AssetProvider::loadableNames() {
     return result;
 }
 
-void AssetProvider::addTemplate(const LoadableTemplate &tmpl) {
+void AssetProvider::addTemplate(const LoadableTemplate& tmpl)
+{
     m_templates[tmpl.id()] = tmpl;
 }
 
-void AssetProvider::installExecutor(const std::string &id, const std::shared_ptr<AbstractAssetExecutor> &executor) {
+void AssetProvider::installExecutor(const std::string& id, const std::shared_ptr<AbstractAssetExecutor>& executor)
+{
     m_executors[id] = executor;
 }
 
-void AssetProvider::processFile(const std::filesystem::path &file)
+void AssetProvider::processFile(const std::filesystem::path& file)
 {
     assert(std::filesystem::is_regular_file(file));
     const auto path = file.parent_path().string();
@@ -64,7 +69,7 @@ void AssetProvider::processFile(const std::filesystem::path &file)
     }
 }
 
-LoadableTemplate AssetProvider::parseTemplate(const VariantMap &root, const std::string &path)
+LoadableTemplate AssetProvider::parseTemplate(const VariantMap& root, const std::string& path)
 {
     const auto id = Additional::value(root, "id");
     const auto className = Additional::value(root, "class");
@@ -81,7 +86,7 @@ LoadableTemplate AssetProvider::parseTemplate(const VariantMap &root, const std:
 
     e172::VariantMap resultAssets;
     for (auto item = root.begin(); item != root.end(); ++item) {
-        const auto &assetId = item->first;
+        const auto& assetId = item->first;
         if (assetId != "class" && assetId != "id") {
             if (item->second.isNull()) {
                 Debug::warning("Asset is null. Id:", assetId, "object:", root);
@@ -102,14 +107,14 @@ LoadableTemplate AssetProvider::parseTemplate(const VariantMap &root, const std:
     return LoadableTemplate(id.toString(), className.toString(), resultAssets);
 }
 
-Either<e172::AssetProvider::Error, Loadable *> AssetProvider::createLoadable(
-    const LoadableTemplate &loadableTemplate)
+Either<e172::AssetProvider::Error, Loadable*> AssetProvider::createLoadable(
+    const LoadableTemplate& loadableTemplate)
 {
     auto result = m_factory.create(loadableTemplate.className());
     if (!result) {
-        return Left(TypeNotRegistered{.typeName = loadableTemplate.className(),
-                                      .templateId = loadableTemplate.id()}
-                        .toErr());
+        return Left(TypeNotRegistered { .typeName = loadableTemplate.className(),
+            .templateId = loadableTemplate.id() }
+                .toErr());
     }
 
     result->m_assets = loadableTemplate.assets();
@@ -117,7 +122,7 @@ Either<e172::AssetProvider::Error, Loadable *> AssetProvider::createLoadable(
     result->m_templateId = loadableTemplate.id();
     result->m_assetProvider = this;
 
-    for (const auto &f : result->m_initFunctions) {
+    for (const auto& f : result->m_initFunctions) {
         f();
     }
     result->m_initFunctions.clear();

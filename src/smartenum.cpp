@@ -4,6 +4,9 @@
 
 #include <algorithm>
 #include <limits>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace e172::smartenum {
 

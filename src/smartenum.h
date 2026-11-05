@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <map>
 #include <optional>
 #include <sstream>

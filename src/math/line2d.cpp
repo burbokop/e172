@@ -3,6 +3,7 @@
 #include "line2d.h"
 
 #include "math.h"
+#include <utility>
 
 double e172::Line2d::distanceToPoint(const Vector<double> &point) const
 {

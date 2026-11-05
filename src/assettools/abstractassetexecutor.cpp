@@ -4,6 +4,7 @@
 
 #include "../additional.h"
 #include "assetprovider.h"
+#include <string>
 
 namespace e172 {
 

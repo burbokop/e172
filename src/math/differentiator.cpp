@@ -4,6 +4,8 @@
 
 #include "math.h"
 #include <algorithm>
+#include <utility>
+#include <vector>
 
 double e172::Differentiator::proceed(double value)
 {
