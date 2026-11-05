@@ -2,6 +2,8 @@
 
 #include "image.h"
 
+#include <string>
+
 namespace e172 {
 
 Image Image::createImage(DataPtr data,

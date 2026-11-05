@@ -3,6 +3,7 @@
 #include "signalstreambuffer.h"
 
 #include <ostream>
+#include <string>
 
 e172::SignalStreamBuffer::SignalStreamBuffer() {}
 

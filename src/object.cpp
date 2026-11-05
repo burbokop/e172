@@ -2,7 +2,7 @@
 
 #include "object.h"
 
-#include <cstdint>
+#include <memory>
 
 bool e172::Object::liveInHeap() const {
     return m_liveInHeap;

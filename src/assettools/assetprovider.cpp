@@ -5,8 +5,10 @@
 #include "../additional.h"
 #include "../context.h"
 #include "../debug.h"
-#include "../graphics/abstractgraphicsprovider.h"
 #include "abstractassetexecutor.h"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace e172 {
 

@@ -2,6 +2,8 @@
 
 #include "consolecolor.h"
 
+#include <string>
+
 std::string e172::ConsoleColor::foreground(bool bold) const
 {
     if (m_foreground == 0) {
