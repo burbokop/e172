@@ -4,8 +4,11 @@
 
 #include "../utility/vectorproxy.h"
 #include "math.h"
+#include <algorithm>
 #include <limits>
 #include <list>
+#include <utility>
+#include <vector>
 
 std::vector<e172::Colider::PositionalVector> e172::Colider::makeEdges(
     const std::vector<Vector<double>> &vertices)

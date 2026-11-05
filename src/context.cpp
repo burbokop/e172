@@ -1,9 +1,12 @@
 // Copyright 2023 Borys Boiko
 
 #include "context.h"
-
 #include "additional.h"
 #include "gameapplication.h"
+#include <list>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace e172 {
 

@@ -3,6 +3,7 @@
 #include "networker.h"
 
 #include "../gameapplication.h"
+#include <memory>
 
 e172::Either<e172::Networker::Error, std::shared_ptr<e172::GameServer>> e172::Networker::listen(
     GameApplication &app, uint16_t port)

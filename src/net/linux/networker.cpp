@@ -5,7 +5,9 @@
 #include "server.h"
 #include "socket.h"
 #include <arpa/inet.h>
+#include <memory>
 #include <string.h>
+#include <string>
 #include <unistd.h>
 
 namespace e172 {

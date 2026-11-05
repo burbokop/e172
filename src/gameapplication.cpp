@@ -13,8 +13,10 @@
 #include "graphics/abstractrenderer.h"
 #include "time/time.h"
 #include "utility/flagparser.h"
-#include <iostream>
 #include <limits>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace e172 {
 

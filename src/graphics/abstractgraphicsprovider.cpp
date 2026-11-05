@@ -2,6 +2,8 @@
 
 #include "abstractgraphicsprovider.h"
 
+#include <string>
+
 namespace e172 {
 
 Image AbstractGraphicsProvider::imageFromData(SharedContainer::DataPtr data,

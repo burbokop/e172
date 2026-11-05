@@ -3,24 +3,29 @@
 #include "additional.h"
 
 #include "math/math.h"
-#include "todo.h"
 #include <algorithm>
-#include <codecvt>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <limits>
 #include <list>
-#include <memory>
+#include <map>
 #include <regex>
 #include <sstream>
 #include <string.h>
+#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <utility>
+#include <vector>
+#include <memory>
 
 #ifdef __unix__
-#include <unistd.h>
-#include <pwd.h>
 #include <dirent.h>
+#include <pwd.h>
+#include <unistd.h>
 #else
+#include "todo.h"
 #include <shlobj.h>
 #endif
 
@@ -28,33 +33,33 @@ namespace e172 {
 
 namespace {
 #if defined(_MSC_FULL_VER) && !defined(__INTEL_COMPILER)
-std::string ucs2ToUtf8(const std::wstring &wstr)
+std::string ucs2ToUtf8(const std::wstring& wstr)
 {
     if (wstr.empty())
         return std::string();
     const auto size = WideCharToMultiByte(CP_UTF8,
-                                          0,
-                                          &wstr[0],
-                                          static_cast<int>(wstr.size()),
-                                          NULL,
-                                          0,
-                                          NULL,
-                                          NULL);
+        0,
+        &wstr[0],
+        static_cast<int>(wstr.size()),
+        NULL,
+        0,
+        NULL,
+        NULL);
     std::string result(size, 0);
     WideCharToMultiByte(CP_UTF8,
-                        0,
-                        &wstr[0],
-                        static_cast<int>(wstr.size()),
-                        result.data(),
-                        size,
-                        NULL,
-                        NULL);
+        0,
+        &wstr[0],
+        static_cast<int>(wstr.size()),
+        result.data(),
+        size,
+        NULL,
+        NULL);
     return result;
 }
 #endif
 } // namespace
 
-std::string Additional::stripMargins(const std::string &str, char prefix)
+std::string Additional::stripMargins(const std::string& str, char prefix)
 {
     std::string result;
     for (auto line : split(str, '\n')) {
@@ -69,7 +74,7 @@ std::string Additional::stripMargins(const std::string &str, char prefix)
     return result;
 }
 
-std::string e172::Additional::constrainPath(const std::string &path)
+std::string e172::Additional::constrainPath(const std::string& path)
 {
     if (path.size() <= 0)
         return "";
@@ -77,7 +82,7 @@ std::string e172::Additional::constrainPath(const std::string &path)
     auto results = split(path, separator);
 
     std::list<std::string> stack;
-    for (auto &&r : results) {
+    for (auto&& r : results) {
         if (r == "..") {
             stack.pop_back();
         } else if (r == ".") {
@@ -89,14 +94,15 @@ std::string e172::Additional::constrainPath(const std::string &path)
 
     std::string result = (path[0] == separator) ? separatorString : "";
     int i = 0;
-    for (auto &&s : stack) {
+    for (auto&& s : stack) {
         result += ((i == 0) ? "" : separatorString) + s;
         i++;
     }
     return result;
 }
 
-std::vector<std::string> e172::Additional::split(const std::string &s, char delimiter) {
+std::vector<std::string> e172::Additional::split(const std::string& s, char delimiter)
+{
     std::vector<std::string> tokens;
     std::string token;
     std::istringstream tokenStream(s);
@@ -106,16 +112,18 @@ std::vector<std::string> e172::Additional::split(const std::string &s, char deli
     return tokens;
 }
 
-std::pair<std::string, std::string> e172::Additional::splitIntoPair(const std::string &s, char delimiter) {
+std::pair<std::string, std::string> e172::Additional::splitIntoPair(const std::string& s, char delimiter)
+{
     const auto index = s.find_first_of(delimiter);
     if (index != std::string::npos) {
-        return {s.substr(0, index), s.substr(index + 1, s.size() - index)};
+        return { s.substr(0, index), s.substr(index + 1, s.size() - index) };
     } else {
         return {};
     }
 }
 
-std::string e172::Additional::trim(const std::string &str, char symbol) {
+std::string e172::Additional::trim(const std::string& str, char symbol)
+{
     size_t first = str.find_first_not_of(symbol);
     if (std::string::npos == first) {
         return str;
@@ -124,7 +132,8 @@ std::string e172::Additional::trim(const std::string &str, char symbol) {
     return str.substr(first, (last - first + 1));
 }
 
-std::string e172::Additional::trim(const std::string &str, const std::vector<char> &symbols) {
+std::string e172::Additional::trim(const std::string& str, const std::vector<char>& symbols)
+{
     std::string result = str;
     for (auto s : symbols) {
         result = trim(result, s);
@@ -132,7 +141,8 @@ std::string e172::Additional::trim(const std::string &str, const std::vector<cha
     return result;
 }
 
-std::string e172::Additional::removeSymbols(const std::string &string, const std::vector<char> &symbols) {
+std::string e172::Additional::removeSymbols(const std::string& string, const std::vector<char>& symbols)
+{
     std::string result;
     result.reserve(string.size());
     for (auto c : string) {
@@ -143,7 +153,7 @@ std::string e172::Additional::removeSymbols(const std::string &string, const std
     return result;
 }
 
-std::string e172::Additional::absolutePath(const std::string &path, const std::string &exe_path)
+std::string e172::Additional::absolutePath(const std::string& path, const std::string& exe_path)
 {
     if (path.size() <= 0)
         return "";
@@ -166,10 +176,11 @@ std::string e172::Additional::absolutePath(const std::string &path, const std::s
     return constrainPath(exe_path + separatorString + ".." + separatorString + path);
 }
 
-std::string e172::Additional::homeDirectory() {
+std::string e172::Additional::homeDirectory()
+{
 #ifdef __unix__
     passwd pd;
-    passwd *tempPwdPtr;
+    passwd* tempPwdPtr;
     char buffer[256];
     if ((getpwuid_r(getuid(), &pd, buffer, sizeof(buffer), &tempPwdPtr)) != 0) {
         fprintf(stderr, "getpwuid_r error: %s\n", strerror(errno));
@@ -181,13 +192,14 @@ std::string e172::Additional::homeDirectory() {
     WCHAR profilePath[MAX_PATH];
     HRESULT result = SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, profilePath);
     if (SUCCEEDED(result)) {
-        return ucs2ToUtf8(std::wstring (profilePath));
+        return ucs2ToUtf8(std::wstring(profilePath));
     }
 #endif
     return std::string();
 }
 
-std::string e172::Additional::fencedArea(const std::string &string, e172::Additional::Fence fence) {
+std::string e172::Additional::fencedArea(const std::string& string, e172::Additional::Fence fence)
+{
     char beginFence;
     char endFence;
     if (fence == Brackets) {
@@ -223,9 +235,9 @@ std::string e172::Additional::fencedArea(const std::string &string, e172::Additi
     return string;
 }
 
-std::string e172::Additional::fencedArea(const std::string &string,
-                                         size_t beginIndex,
-                                         size_t *nextIndexPtr)
+std::string e172::Additional::fencedArea(const std::string& string,
+    size_t beginIndex,
+    size_t* nextIndexPtr)
 {
     if (beginIndex >= string.size())
         return std::string();
@@ -258,9 +270,9 @@ std::string e172::Additional::fencedArea(const std::string &string,
     return std::string();
 }
 
-std::string e172::Additional::jsonTopLevelField(const std::string &string,
-                                                size_t beginIndex,
-                                                size_t *nextIndexPtr)
+std::string e172::Additional::jsonTopLevelField(const std::string& string,
+    size_t beginIndex,
+    size_t* nextIndexPtr)
 {
     if (beginIndex >= string.size())
         return std::string();
@@ -297,7 +309,8 @@ std::string e172::Additional::jsonTopLevelField(const std::string &string,
     return string.substr(beginIndex, string.size() - beginIndex);
 }
 
-std::vector<std::string> e172::Additional::fencedAreas(const std::string &string) {
+std::vector<std::string> e172::Additional::fencedAreas(const std::string& string)
+{
     size_t begin = 0;
     std::vector<std::string> result;
     while (true) {
@@ -310,7 +323,8 @@ std::vector<std::string> e172::Additional::fencedAreas(const std::string &string
     }
 }
 
-std::vector<std::string> e172::Additional::jsonTopLevelFields(const std::string &string) {
+std::vector<std::string> e172::Additional::jsonTopLevelFields(const std::string& string)
+{
     size_t begin = 0;
     std::vector<std::string> result;
     while (true) {
@@ -323,7 +337,8 @@ std::vector<std::string> e172::Additional::jsonTopLevelFields(const std::string 
     }
 }
 
-std::string e172::Additional::jsonRemoveSymbols(const std::string &string, const std::vector<char> &symbols) {
+std::string e172::Additional::jsonRemoveSymbols(const std::string& string, const std::vector<char>& symbols)
+{
     std::string result;
     result.reserve(string.size());
     size_t quotes = 0;
@@ -338,21 +353,32 @@ std::string e172::Additional::jsonRemoveSymbols(const std::string &string, const
     return result;
 }
 
-char e172::Additional::reversedFence(char symbol) {
+char e172::Additional::reversedFence(char symbol)
+{
     switch (symbol) {
-    case '{': return '}';
-    case '[': return ']';
-    case '(': return ')';
-    case '<': return '>';
-    case '}': return '{';
-    case ']': return '[';
-    case ')': return '(';
-    case '>': return '<';
-    default: return symbol;
+    case '{':
+        return '}';
+    case '[':
+        return ']';
+    case '(':
+        return ')';
+    case '<':
+        return '>';
+    case '}':
+        return '{';
+    case ']':
+        return '[';
+    case ')':
+        return '(';
+    case '>':
+        return '<';
+    default:
+        return symbol;
     }
 }
 
-std::string e172::Additional::readFile(const std::string &path) {
+std::string e172::Additional::readFile(const std::string& path)
+{
     std::ifstream ifile(path);
     if (ifile.is_open()) {
         std::string string((std::istreambuf_iterator<char>(ifile)), std::istreambuf_iterator<char>());
@@ -362,7 +388,8 @@ std::string e172::Additional::readFile(const std::string &path) {
     return std::string();
 }
 
-bool e172::Additional::writeFile(const std::string &path, const std::string &content) {
+bool e172::Additional::writeFile(const std::string& path, const std::string& content)
+{
     std::filesystem::create_directories(cutPath(path, 1));
     std::ofstream ofile(path, std::ios::out);
     if (ofile.is_open()) {
@@ -373,10 +400,11 @@ bool e172::Additional::writeFile(const std::string &path, const std::string &con
     return false;
 }
 
-std::vector<std::string> e172::Additional::directoryContent(std::string path) {
+std::vector<std::string> e172::Additional::directoryContent(std::string path)
+{
 #ifdef __unix__
-    DIR *dir;
-    struct dirent *ent;
+    DIR* dir;
+    struct dirent* ent;
     if ((dir = opendir(path.c_str())) != nullptr) {
         std::vector<std::string> result;
         while ((ent = readdir(dir)) != nullptr) {
@@ -394,8 +422,8 @@ std::vector<std::string> e172::Additional::directoryContent(std::string path) {
 #endif
 }
 
-
-bool e172::Additional::isDirectory(std::string path) {
+bool e172::Additional::isDirectory(std::string path)
+{
 #ifdef __unix__
     struct stat st;
     if (stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
@@ -408,7 +436,8 @@ bool e172::Additional::isDirectory(std::string path) {
 #endif
 }
 
-std::string e172::Additional::fileSufix(std::string string) {
+std::string e172::Additional::fileSufix(std::string string)
+{
     return string.substr(string.find_last_of('.'), string.length() - 1);
 }
 
@@ -424,7 +453,8 @@ std::string e172::Additional::concatenatePaths(std::string prefix, std::string s
     return prefix + string;
 }
 
-std::string e172::Additional::cutPath(std::string string, unsigned level) {
+std::string e172::Additional::cutPath(std::string string, unsigned level)
+{
     size_t pos = string.find_last_of(separator);
     std::string result = string.substr(0, pos);
     if (level > 1) {
@@ -433,7 +463,8 @@ std::string e172::Additional::cutPath(std::string string, unsigned level) {
     return result;
 }
 
-std::string e172::Additional::pathTopLevelItem(const std::string &string) {
+std::string e172::Additional::pathTopLevelItem(const std::string& string)
+{
     const size_t pos = string.find_last_of(separator);
     return string.substr(pos + 1, string.size() - pos - 1);
 }
@@ -458,7 +489,8 @@ size_t e172::Additional::countOfFiles(std::string path, std::string suffix)
     return sum_count;
 }
 
-std::map<std::string, std::string> e172::Additional::readAllVof(const std::string &path, char delimiter) {
+std::map<std::string, std::string> e172::Additional::readAllVof(const std::string& path, char delimiter)
+{
     std::map<std::string, std::string> result;
     std::ifstream fin;
     fin.open(path, std::ios::in);
@@ -476,7 +508,8 @@ std::map<std::string, std::string> e172::Additional::readAllVof(const std::strin
     return result;
 }
 
-std::string e172::Additional::readVof(const std::string &path, const std::string &id, char delimiter) {
+std::string e172::Additional::readVof(const std::string& path, const std::string& id, char delimiter)
+{
     std::ifstream fin;
     fin.open(path, std::ios::in);
     if (fin.is_open()) {
@@ -496,10 +529,10 @@ std::string e172::Additional::readVof(const std::string &path, const std::string
     return std::string();
 }
 
-void e172::Additional::writeVof(const std::string &path,
-                                const std::string &id,
-                                const std::string &value,
-                                char delimiter)
+void e172::Additional::writeVof(const std::string& path,
+    const std::string& id,
+    const std::string& value,
+    char delimiter)
 {
     bool found = false;
     bool endsWithEndline = false;
@@ -541,7 +574,7 @@ void e172::Additional::writeVof(const std::string &path,
             fout.close();
         } else {
             fout.open(path, std::ios::out);
-            for (const auto &line : tmp) {
+            for (const auto& line : tmp) {
                 fout << line << '\n';
             }
             fout.close();
@@ -549,11 +582,21 @@ void e172::Additional::writeVof(const std::string &path,
     }
 }
 
-std::vector<std::string> e172::Additional::executeCommand(const std::string &command) {
+std::vector<std::string> e172::Additional::executeCommand(const std::string& command)
+{
 #ifdef __unix__
+    struct pcloseDeleter {
+        void operator()(::FILE* d) const noexcept
+        {
+            if (d) {
+                pclose(d);
+            }
+        }
+    };
+
     std::array<char, 128> buffer;
     std::vector<std::string> result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
+    std::unique_ptr<::FILE, pcloseDeleter> pipe(popen(command.c_str(), "r"));
     if (!pipe) {
         throw std::runtime_error("popen() failed!");
     }
@@ -567,7 +610,7 @@ std::vector<std::string> e172::Additional::executeCommand(const std::string &com
 }
 
 void e172::Additional::parseForder(std::string path,
-                                   const std::function<void(const std::string &)> &callback)
+    const std::function<void(const std::string&)>& callback)
 {
     if (path[path.length() - 1] == '/')
         path.pop_back();
@@ -583,7 +626,8 @@ void e172::Additional::parseForder(std::string path,
     }
 }
 
-std::string e172::Additional::defaultFontDirectory() {
+std::string e172::Additional::defaultFontDirectory()
+{
 #if defined(_WIN32)
     return "%WINDIR%\fonts";
 #elif defined(_APPLE_) && defined(_MACH_)
@@ -595,7 +639,8 @@ std::string e172::Additional::defaultFontDirectory() {
 #endif
 }
 
-std::string e172::Additional::defaultFont(const std::string &suffix) {
+std::string e172::Additional::defaultFont(const std::string& suffix)
+{
     const auto dir = defaultFontDirectory();
     std::filesystem::recursive_directory_iterator it(dir), end;
     while (it != end) {
@@ -607,7 +652,7 @@ std::string e172::Additional::defaultFont(const std::string &suffix) {
     return {};
 }
 
-e172::Option<double> e172::Additional::parseRadians(const std::string &string)
+e172::Option<double> e172::Additional::parseRadians(const std::string& string)
 {
     if (string.empty())
         return None;
@@ -618,7 +663,7 @@ e172::Option<double> e172::Additional::parseRadians(const std::string &string)
     std::string lastPart = "";
 
     bool err = false;
-    const auto partToNum = [&err](const std::string &str) {
+    const auto partToNum = [&err](const std::string& str) {
         if (str == "Pi") {
             return Math::Pi;
         } else if (str == "-Pi") {
@@ -626,7 +671,7 @@ e172::Option<double> e172::Additional::parseRadians(const std::string &string)
         } else {
             try {
                 return std::stod(str);
-            } catch (const std::invalid_argument &) {
+            } catch (const std::invalid_argument&) {
                 err = true;
                 return 0.;
             }
@@ -634,8 +679,8 @@ e172::Option<double> e172::Additional::parseRadians(const std::string &string)
     };
 
     for (std::sregex_iterator i = std::sregex_iterator(string.begin(), string.end(), regex);
-         i != std::sregex_iterator();
-         ++i) {
+        i != std::sregex_iterator();
+        ++i) {
         std::smatch smatch = *i;
         for (size_t j = 1; j < smatch.size(); ++j) {
             const auto part = trim(smatch[j].str());
@@ -644,9 +689,9 @@ e172::Option<double> e172::Additional::parseRadians(const std::string &string)
                     if (lastPart == "") {
                         result = partToNum(part);
                     } else if (lastPart == "/") {
-                        result.modify([&](double &v) { v /= partToNum(part); });
+                        result.modify([&](double& v) { v /= partToNum(part); });
                     } else {
-                        result.modify([&](double &v) { v *= partToNum(part); });
+                        result.modify([&](double& v) { v *= partToNum(part); });
                     }
                 }
                 lastPart = part;
@@ -658,13 +703,14 @@ e172::Option<double> e172::Additional::parseRadians(const std::string &string)
     return result;
 }
 
-std::string e172::Additional::sameBeginningSubstring(const std::list<std::string> &list) {
+std::string e172::Additional::sameBeginningSubstring(const std::list<std::string>& list)
+{
     size_t i = 0;
     std::string result;
 #undef min
 #undef max
     auto max = std::numeric_limits<size_t>::min();
-    for (const auto &l : list) {
+    for (const auto& l : list) {
         if (l.size() > max) {
             max = l.size();
         }
@@ -672,7 +718,7 @@ std::string e172::Additional::sameBeginningSubstring(const std::list<std::string
 
     while (true) {
         std::string substr;
-        for (const auto &l : list) {
+        for (const auto& l : list) {
             auto s = l.substr(0, i);
             if (!substr.empty() && s != substr) {
                 return result;
@@ -687,7 +733,8 @@ std::string e172::Additional::sameBeginningSubstring(const std::list<std::string
     }
 }
 
-std::string e172::Additional::compleateString(const std::string &string, const std::list<std::string> &model) {
+std::string e172::Additional::compleateString(const std::string& string, const std::list<std::string>& model)
+{
     return sameBeginningSubstring(filter(model, [string](const std::string& m) {
         return m.find(string) == 0;
     }));

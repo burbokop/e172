@@ -2,6 +2,7 @@
 
 #include "eventhandler.h"
 
+#include <string>
 #include <utility>
 
 namespace e172 {

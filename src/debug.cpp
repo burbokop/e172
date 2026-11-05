@@ -6,7 +6,9 @@
 #include "consolecolor.h"
 #include "type.h"
 #include <iostream>
+#include <list>
 #include <signal.h>
+#include <string>
 #include <vector>
 
 #ifdef __unix__

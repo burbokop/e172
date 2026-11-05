@@ -3,6 +3,7 @@
 #include "abstractrenderer.h"
 
 #include "../additional.h"
+#include <string>
 
 namespace e172 {
 
