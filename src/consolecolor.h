@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include <string>
+#include <cstdint>
 #include <sstream>
+#include <string>
 
 namespace e172 {
 

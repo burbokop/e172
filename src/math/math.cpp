@@ -5,6 +5,8 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <execution>
+#include <map>
+#include <utility>
 #include <vector>
 
 #define INV_PI 180 / M_PI

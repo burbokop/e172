@@ -2,13 +2,16 @@
 
 #include "dynamiclibrary.h"
 
+#include "../additional.h"
+#include <list>
+#include <memory>
+#include <string>
+
 #ifdef __unix__
 #include <dlfcn.h>
 #endif
 
-#include "../additional.h"
-
-void *e172::DynamicLibrary::rawSymbol(const std::string &name) const
+void* e172::DynamicLibrary::rawSymbol(const std::string& name) const
 {
 #ifdef __unix__
     if (m_handle) {

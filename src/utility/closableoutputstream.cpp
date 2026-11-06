@@ -2,7 +2,11 @@
 
 #include "closableoutputstream.h"
 
-e172::ClosableOutputStream::ClosableOutputStream(std::streambuf *buf, bool autoDestroyBuf) : std::ostream(buf) {
+#include <string>
+
+e172::ClosableOutputStream::ClosableOutputStream(std::streambuf* buf, bool autoDestroyBuf)
+    : std::ostream(buf)
+{
     m_buf = buf;
     m_autoDestroyBuf = autoDestroyBuf;
 }

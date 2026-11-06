@@ -2,6 +2,8 @@
 
 #include "textformat.h"
 
+#include <string>
+
 namespace e172 {
 
 int TextFormat::fontWidth() const

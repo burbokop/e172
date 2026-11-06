@@ -3,6 +3,7 @@
 #include "server.h"
 
 #include "socket.h"
+#include <memory>
 #include <netdb.h>
 
 std::shared_ptr<e172::Socket> e172::LinuxServer::pullConnection()

@@ -6,7 +6,9 @@
 #include "../../../src/utility/defer.h"
 #include "bullet.h"
 #include "shooter.h"
+#include <memory>
 #include <signal.h>
+#include <string>
 
 namespace e172::integration {
 

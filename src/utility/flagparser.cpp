@@ -5,6 +5,9 @@
 #include "../consolecolor.h"
 #include <algorithm>
 #include <filesystem>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace e172 {
 

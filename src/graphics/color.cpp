@@ -29,10 +29,10 @@ Color blend(Color top, Color bottom)
     const auto rB = uint8_t((bottom >> 16) & 0x000000ff);
     const auto aB = uint8_t((bottom >> 24) & 0x000000ff);
 
-    const uint32_t bOut = uint32_t((bA * aA / 255) + (bB * aB * (255 - aA) / (255 * 255))) << 0;
-    const uint32_t gOut = uint32_t((gA * aA / 255) + (gB * aB * (255 - aA) / (255 * 255))) << 8;
-    const uint32_t rOut = uint32_t((rA * aA / 255) + (rB * aB * (255 - aA) / (255 * 255))) << 16;
-    const uint32_t aOut = uint32_t(aA + (aB * (255 - aA) / 255)) << 24;
+    const std::uint32_t bOut = static_cast<std::uint32_t>((bA * aA / 255) + (bB * aB * (255 - aA) / (255 * 255))) << 0;
+    const std::uint32_t gOut = static_cast<std::uint32_t>((gA * aA / 255) + (gB * aB * (255 - aA) / (255 * 255))) << 8;
+    const std::uint32_t rOut = static_cast<std::uint32_t>((rA * aA / 255) + (rB * aB * (255 - aA) / (255 * 255))) << 16;
+    const std::uint32_t aOut = static_cast<std::uint32_t>(aA + (aB * (255 - aA) / 255)) << 24;
 
     return aOut | rOut | gOut | bOut;
 }
