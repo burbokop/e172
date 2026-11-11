@@ -1,7 +1,7 @@
 # e172
 
-[![Test Status](https://github.com/burbokop/e172/workflows/Ubuntu-22.04/badge.svg?event=push)](https://github.com/burbokop/e172/actions/workflows/ubuntu-22.04.yml)
-[![Test Status](https://github.com/burbokop/e172/workflows/Windows-2022/badge.svg?event=push)](https://github.com/burbokop/e172/actions/workflows/windows-2022.yml)
+[![CMake on multiple platforms](https://github.com/burbokop/e172/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/burbokop/e172/actions/workflows/cmake-multi-platform.yml)
+[![Lint](https://github.com/burbokop/e172/actions/workflows/lint.yml/badge.svg)](https://github.com/burbokop/e172/actions/workflows/lint.yml)
 
 Library provides tools for game gevelopment and api for video/audio output and keyboard input.</br>
 This lib can be called GAME ENGINE.</br>
